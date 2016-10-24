@@ -1,0 +1,146 @@
+﻿@model long
+<script id="itemTemplate" type="text/x-jsrender">
+    {{if !deleted}}
+    <tr class="billLine">
+        <td>{{:ItemName}}</td>
+        <td class="number">{{>~prettyPrice(UnitPrice)}}</td>
+        <td class="number">{{:Sale}}</td>
+        <td class="number">{{:FreeIssue}}</td>
+        <td class="number">{{:GoodReturn}}</td>
+        <td class="number">{{:Damage}}</td>
+        <td class="number">{{:Expire}}</td>
+        <td class="number">{{>~prettyDiscount(Discount) }}</td>
+        <td class="number">{{>~prettyPrice(Deduction)}}</td>
+        <td class="amount number">{{>~prettyPrice(Amount)}}</td>
+        <td>
+            <span class="k-icon k-edit line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.editItem(this)"></span>
+            <span class="k-icon k-delete line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.deleteItem(this)"></span>
+        </td>
+    </tr>
+    {{/if}}
+</script>
+<table id="lines" style="width: 100%">
+    <tr>
+        <th>Item</th>
+        <th>WhPric</th>
+        <th>Sale</th>
+        <th>FI</th>
+        <th>GR</th>
+        <th>DM</th>
+        <th>EX</th>
+        <th>Disc%</th>
+        <th>Deduct</th>
+        <th class="amount">Amount</th>
+        <th></th>
+    </tr>
+    <tr>
+        @Html.Hidden("Id")
+        @Html.Hidden("Value")
+        <td>
+            @(Html.Kendo().DropDownList().Name("ItemId")
+                  .DataValueField("Id")
+                  .DataTextField("ItemName")
+                  .OptionLabel(" ")
+                  .DataSource(s => s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items", action = "GetAll" }))))
+                  .Filter(FilterType.Contains)
+                  .HtmlAttributes(new { style = "width:430px" })
+                  .Events(e => e.Change("bill.updateLineAmount"))
+            )
+        </td>
+        <td>
+            @Html.Kendo().CheckBox().Name("WholeSalePrice").Checked(false)
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox<int>().Name("Sale").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox().Name("FreeIssue").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox().Name("GoodReturn").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox().Name("Damage").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox().Name("Expire").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td>
+            @(Html.Kendo().NumericTextBox<double>().Name("DiscountL").Events(e => e.Change("bill.updateLineAmount"))
+                .Format("p0")
+                .Min(0)
+                .Max(1)
+                .Step(0.01)
+                .Placeholder("0")
+                .Spinners(false).HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td class="amount">
+            @(Html.Kendo().NumericTextBox<decimal>().Name("DeductionL").Events(e => e.Change("bill.updateLineAmount")).Format("#")
+                .Min(0).Placeholder("0.00").Spinners(false).Decimals(2).Format("").HtmlAttributes(new { @class = "line-qty" }))
+        </td>
+        <td class="amount">
+            <span id="Amount" style="width: 70px;">0.00</span>
+        </td>
+        <td>
+            <button id="saveLine" class="k-button" onclick="bill.saveLine()">
+                <span class="k-icon k-update"></span>
+            </button>
+            <button id="cancelLine" class="k-button" onclick="bill.clearEdit()">
+                <span class="k-icon k-cancel"></span>
+            </button>
+        </td>
+    </tr>
+</table>
+<hr />
+<table id="billLines" style="width: 100%">
+    <tr id="billLinesHeader">
+        <th>Item</th>
+        <th class="number">Price</th>
+        <th class="number">Sale</th>
+        <th class="number">FI</th>
+        <th class="number">GR</th>
+        <th class="number">DM</th>
+        <th class="number">EX</th>
+        <th class="number">Disc</th>
+        <th class="number">Deduction</th>
+        <th class="amount number">Amount</th>
+        <th></th>
+    </tr>
+    <tr class="billLine">
+        <td colspan="11">
+            <p style="text-align: center; padding-top: 15px;">
+                :( No items here yet...
+            </p>
+        </td>
+    </tr>
+    <tr style="font-size: 110%;">
+        <td></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td colspan="2" style="padding-top: 15px;">Line Total</td>
+        <td id="billLinesTotal" class="amount number" style="padding-top: 15px; border-top: 1px solid;">0.00</td>
+        <td></td>
+    </tr>
+    <tr style="font-size: 130%; font-weight: bold;">
+        <td></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td class="number"></td>
+        <td colspan="2" style="padding-top: 15px;">Total</td>
+        <td id="billTotal" class="amount number" style="padding-top: 15px; border-top: 1px solid; border-bottom: 4px double;">0.00</td>
+        <td></td>
+    </tr>
+</table>
+<script>
+    $(document)
+        .ready(function() {
+            bill.parseLines(@Model);
+        });
+</script>

@@ -1,0 +1,105 @@
+﻿@model BMS.Entity.BMSTenant.BillHeader
+<style>
+    #gBillHeaderPopUp .row {
+        padding-bottom: 2px;
+    }
+</style>
+<div id="gBillHeaderPopUp" class="container-fluid">
+    <div class="row">
+        <label class="col-md-4">BillNo</label>
+        <div class="col-md-6">
+            @Html.Kendo().TextBoxFor(x => x.BillNo).HtmlAttributes(new { required = "required" })
+            @Html.ValidationMessageFor(model => model.BillNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Date</label>
+        <div class="col-md-6">
+            @Html.Kendo().DatePickerFor(x => x.BillingDate).HtmlAttributes(new { required = "required" })
+            @Html.ValidationMessageFor(model => model.BillingDate, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Area</label>
+        <div class="col-md-6">
+            @(Html.Kendo().DropDownListFor(m => m.AreaId)
+              .DataValueField("Id")
+              .DataTextField("ShortName")
+              //.Filter(FilterType.StartsWith)
+              .OptionLabel(" ")
+              .DataSource(s => s
+                  .Read(r =>
+                  {
+                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "GetAll" }));
+                  }))
+              .Template("#=ShortName# #=FullName#")
+                  //.ValueTemplate("#=ShortName# #=FullName#")
+                  .HtmlAttributes(new { style = "width:100%", required = "required" })
+            )
+            @Html.ValidationMessageFor(model => model.AreaId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Customer</label>
+        <div class="col-md-6">
+            @(Html.Kendo().DropDownListFor(m => m.CustomerId)
+              .DataValueField("Id")
+              .DataTextField("ShortName")
+              .CascadeFrom("AreaId")
+              .CascadeFromField("AreaId")
+              .OptionLabel(" ")
+              //.Filter(FilterType.StartsWith)
+              .DataSource(s => s
+                  .Read(r =>
+                  {
+                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "GetAll" }));
+                  }))
+              .Template("#=ShortName# #=FullName#")
+                  //.ValueTemplate("#=ShortName# #=FullName#")
+                  .HtmlAttributes(new { style = "width:100%", required = "required" })
+
+            )
+            @Html.ValidationMessageFor(model => model.CustomerId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="row">
+        <label class="col-md-4">Vehicle</label>
+        <div class="col-md-6">
+            @(Html.Kendo().DropDownListFor(m => m.VehicleId)
+              .DataValueField("Id")
+              .DataTextField("No")
+              //.Filter(FilterType.StartsWith)
+              .OptionLabel(" ")
+              .DataSource(s => s
+                  .Read(r =>
+                  {
+                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                  }))
+                  .HtmlAttributes(new { style = "width:100%", required = "required" })
+            )
+            @Html.ValidationMessageFor(model => model.VehicleId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Discount</label>
+        <div class="col-md-6">
+            @Html.Kendo().NumericTextBoxFor(x => x.Discount)
+            @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Deduction</label>
+        <div class="col-md-6">
+            @Html.Kendo().NumericTextBoxFor(x => x.Deduction)
+            @Html.ValidationMessageFor(model => model.Deduction, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="row">
+        <label class="col-md-4">Paid Amount</label>
+        <div class="col-md-6">
+            @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount)
+            @Html.ValidationMessageFor(model => model.PaidAmount, "", new { @class = "text-danger" })
+        </div>
+    </div>
+</div>

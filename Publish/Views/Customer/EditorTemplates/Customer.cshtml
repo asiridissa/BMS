@@ -1,0 +1,43 @@
+﻿@model BMS.Entity.BMSTenant.Customer
+
+
+<style>
+    .k-edit-form-container {
+        width: auto;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">Short Name</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.ShortName).HtmlAttributes(new { required = "required" })</div>
+        <div class="col-md-2">Full Name</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.FullName)</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Area</div>
+        <div class="col-md-3">
+            @(Html.Kendo().DropDownListFor(x => x.AreaId)
+                .DataValueField("Id")
+                .DataTextField("ShortName")
+                .OptionLabel(" ")
+                .DataSource(s => s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "GetAll" }))))
+                .HtmlAttributes(new { required = "required" })
+            )
+        </div>
+        <div class="col-md-2">Phone</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Phone)</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Mobile</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Mobile)</div>
+        <div class="col-md-2">Email</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Email)</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Address</div>
+        <div class="col-md-3">@Html.TextAreaFor(x => x.Address, new { @class = "k-textbox"})</div>
+        <div class="col-md-2">Fax</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Fax)</div>
+    </div>
+</div>

@@ -1,0 +1,6 @@
+@model decimal
+
+@(Html.Kendo().NumericTextBoxFor(m => m)
+      .HtmlAttributes(new { style = "width:100%" }).Value(0)
+      .Min(0).Max(100).Decimals(2).Placeholder("%").Spinners(false)//.Format("{0:##9.99%}")
+)

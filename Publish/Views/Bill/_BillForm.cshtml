@@ -1,0 +1,53 @@
+﻿@model BMS.Entity.BMSTenant.BillHeader
+
+<style>
+    .row {
+        margin-bottom: 5px;
+    }
+
+    .amount {
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    #billLines .k-icon {
+        margin: 3px;
+    }
+
+        #billLines .k-icon:hover {
+            cursor: pointer;
+        }
+
+    #header td {
+        padding: 2px 0;
+    }
+
+    .line-qty {
+        width: 44px;
+    }
+</style>
+
+
+
+
+@{ Html.RenderAction("_BillHeader", "Bill", new { headerId = Model?.Id }); }
+<hr />
+@{ Html.RenderAction("_BillLine", "Bill", new { headerId = Model?.Id }); }
+<hr/>
+
+<div style="text-align: right">
+    <button class="k-button k-button-icontext" onclick="bill.saveBill()">
+        <span class="k-icon k-update"></span>Save
+    </button>
+    <button class="k-button k-button-icontext" title="Update and Add New" onclick="bill.saveBillAndNew()">
+        <span class="k-icon k-update"></span>Save and New
+    </button>
+    <button class="k-button k-button-icontext" onclick="bill.cancelBill()">
+        <span class="k-icon k-cancel"></span> Cancel
+    </button>
+</div>
+
+<script>
+    bill.initItem();
+    
+</script>

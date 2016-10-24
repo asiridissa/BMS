@@ -1,0 +1,78 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+/*Align grid toolbar buttons right*/
+.k-grid-toolbar {
+    text-align: right;
+}
+
+.navbar {
+    background-color: #23b7e5;
+    border: none;
+    box-shadow: 0 0 5px #999;
+}
+
+.navbar-brand, .navbar-nav > li > a {
+    color: #ffffff !important;
+}
+
+    .navbar-brand:hover, .navbar-nav > li > a:hover {
+        text-shadow: 0 0 2px #FFF;
+    }
+
+
+
+#menu-wrapper {
+    padding: 7px;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background-color: #23b7e5;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 10px;
+    box-shadow: 0 0 5px #999999;
+}
+
+th.number {
+    text-align: right;
+}
+
+td.number {
+    text-align: right;
+}
+
+.excess-var {
+    color: green;
+    font-weight: bold;
+}
+
+.short-var {
+    color: red;
+    font-weight: bold;
+}

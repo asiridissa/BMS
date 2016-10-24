@@ -1,0 +1,36 @@
+﻿@if (User.Identity.IsAuthenticated)
+{
+    @(Html.Kendo().Menu().Name("menu")
+          .Direction(MenuDirection.Bottom)
+          .HighlightPath(true)
+          .Orientation(MenuOrientation.Horizontal)
+          .Animation(true)
+          .Items(i =>
+          {
+              //m.Add().Text("Menu").Items(i =>
+              //{
+              i.Add().Text("Reference").Items(x =>
+              {
+                  x.Add().Text("Area").Action("Index", "Area");
+                  x.Add().Text("Vehicle").Action("Index", "Vehicle");
+                  x.Add().Text("Customer").Action("Index", "Customer");
+                  x.Add().Text("Brand").Action("Index", "Brand");
+                  x.Add().Text("Category").Action("Index", "Category");
+                  x.Add().Text("Product").Action("Index", "Product");
+                  x.Add().Text("Unit of Measure").Action("Index", "UnitOfMeasure");
+              });
+
+              i.Add().Text("Inventory").Items(x =>
+              {
+                  x.Add().Text("Item").Action("Index", "Item");
+                  x.Add().Text("Invoice").Action("Index", "Invoice");
+              });
+
+              i.Add().Text("Sales").Items(x =>
+              {
+                  x.Add().Text("Bill").Action("Index", "Bill");
+                  x.Add().Text("Road Distribution").Action("Index", "RoadDistribution");
+              });
+              //});
+          }))
+}

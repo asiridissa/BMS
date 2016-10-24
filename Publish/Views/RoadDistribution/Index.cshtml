@@ -1,0 +1,226 @@
+﻿@using System.Collections
+@{
+    ViewBag.Title = "Road Dist";
+}
+<br/>
+<label>Date</label>
+@Html.Kendo().DatePicker().Name("dpDate").Value(DateTime.Today).Events(e=>e.Change("gRoadDistributionRead"))
+<label>Vehicle</label>
+@(Html.Kendo().DropDownList().Name("ddVehicle")
+              .DataValueField("Id")
+              .DataTextField("No")
+              .Filter(FilterType.StartsWith)
+              .DataSource(s => s
+                  .Read(r =>
+                  {
+                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                  }))
+                  .Events(e=>e.DataBound("gRoadDistributionRead").Change("gRoadDistributionRead"))
+      )
+<label>Last Finalized on : </label>
+<span id="last-finalized"></span>
+<label>To be Finalized : </label>
+<span id="to-be-finalized"></span>
+<br />
+<br/>
+@(Html.Kendo().Grid<BMS.Entity.BMSTenant.RoadDistribution>()
+                                              .Name("gRoadDistribution")
+                                              .Columns(columns =>
+                                              {
+                                                  columns.Bound(x => x.Id).Hidden(true);
+                                                  columns.Bound(x => x.UnitsPerCase).Hidden(true);
+                                                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title("Item");
+                                                  columns.Bound(c => c.BalanceStockCase).Width(60).Title("BSC").HtmlAttributes(new {style="text-align:right;"});
+                                                  columns.Bound(c => c.BalanceStockPiece).Width(60).Title("BSP").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.BalanceStockQuantity).Width(60).Title("BSQ").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.LoadingCase).Width(60).Title("LDC").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.LoadingPiece).Width(60).Title("LDP").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.LoadingQuantity).Width(60).Title("LDQ").HtmlAttributes(new {style="text-align:right;"});
+                                                  columns.Bound(c => c.UnloadingCase).Width(60).Title("ULC").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.UnloadingPiece).Width(60).Title("ULP").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.UnloadingQuantity).Width(60).Title("ULQ").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.RoadDistributionQuantity).Width(60).Title("RDQ").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.BillingQuantity).Width(60).Title("Bil").HtmlAttributes(new { style = "text-align:right;" });
+                                                  columns.Bound(c => c.Varience).Width(60).Title("Var")
+                                                  .ClientTemplate("#if(Varience < 0){#" +
+                                                                  "<span class=\"short-var\">#=Varience#</span>" +
+                                                                  "#} else if(Varience > 0) {#" +
+                                                                  "<span class=\"excess-var\">#=Varience#</span>" +
+                                                                  "#} else {#" +
+                                                                  "#=Varience#" +
+                                                                  "#}#")
+                                                  .HtmlAttributes(new { style = "text-align:right;" });
+                                                  //columns.Bound(c => c.LoadingQuantity).Width(60).Title("LDQC").HtmlAttributes(new { style = "text-align:right;" }).ClientTemplate("#=qtyLD(data)#");
+                                              })
+                                              .ToolBar(toolbar =>
+                                              {
+                                                  toolbar.Save();
+                                                  toolbar.Custom().Name("Finalize").HtmlAttributes(new {href = "javascript:finalize()" });
+                                              })
+                                              .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                              .Pageable()
+                                              .Navigatable()
+                                              .Sortable(sortable =>
+                                              {
+                                                  sortable.SortMode(GridSortMode.MultipleColumn);
+                                              })
+                                              .Selectable(selectable =>
+                                              {
+                                                  selectable.Mode(GridSelectionMode.Single);
+                                                  selectable.Type(GridSelectionType.Row);
+                                              })
+                                              .AutoBind(false)
+                                              .DataSource(dataSource => dataSource
+                                                  .WebApi()
+                                                  .AutoSync(true)
+                                                  .Model(model =>
+                                                  {
+                                                      model.Id(p => p.Id);
+                                                      model.Field(x => x.ItemId).Editable(false);
+                                                      model.Field(x => x.BalanceStockCase).Editable(false);
+                                                      model.Field(x => x.BalanceStockPiece).Editable(false);
+                                                      model.Field(x => x.BalanceStockQuantity).Editable(false);
+                                                      model.Field(x => x.LoadingQuantity).Editable(false);
+                                                      model.Field(x => x.UnloadingQuantity).Editable(false);
+                                                      model.Field(x => x.RoadDistributionQuantity).Editable(false);
+                                                      model.Field(x => x.BillingQuantity).Editable(false);
+                                                      model.Field(x => x.Varience).Editable(false);
+                                                  })
+                                                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "RoadDistributions",action="GetRoadDistributions" })).Data("gRoadDistributionReadData"))
+                                                  .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "RoadDistributions",action="PutRoadDistributions", id = "{0}" })))
+                                              //.Events(e=>e.Change("gRoadDistributionOnChange"))
+                                              )
+                                              .Pageable(x => x.Refresh(true))
+                                              .Events(e=>e/*.Edit("gRoadDistributionOnEdit")*/.Navigate("gRoadDistributionOnEdit")
+                                              .DataBound("gRoadDistributionOnDataBound").Save("save"))
+      )
+<script>
+    var lastEditIndex;
+
+    var dataBound = function(e) {
+            if(!$.isEmptyObject(lastEditIndex)) {
+                var cell = e.sender.tbody.children().eq(lastEditIndex.row).children().eq(lastEditIndex.col+1);
+                e.sender.current(cell);
+                e.sender.table.focus();
+            }
+                          
+            lastEditIndex = {};
+    }
+
+    var save = function (e) {
+        lastEditIndex.row = e.sender.tbody.children().index(e.container.parent());
+        lastEditIndex.col = e.container.parent().children().index(e.container);
+    }
+
+    var finalized = false;
+    var toBeFinalized = function() {
+        $.post('@Url.HttpRouteUrl("ActionApi", new { action = "ToBeFinalized", controller = "RoadDistributions" })?vehicleId=' + $('#ddVehicle').data('kendoDropDownList').value())
+            .done(function (msg) {
+                console.log(msg);
+                var dates = "";
+                for (var i in msg) {
+                    if (dates != "") {
+                        dates += ', ';
+                    }
+                    dates += kendo.toString(new Date(msg[i]), 'd');
+                }
+                $('#to-be-finalized').html(dates);
+            });
+    }
+
+    var lastFinalized = function () {
+        $.post('@Url.HttpRouteUrl("ActionApi", new { action = "LastFinalized", controller = "RoadDistributions" })?vehicleId=' + $('#ddVehicle').data('kendoDropDownList').value())
+            .done(function (msg) {
+                $('#last-finalized').html(kendo.toString(new Date(msg), 'd'));
+            });
+    }
+
+
+    var gRoadDistributionOnDataBound = function (e) {
+        finalized = e.sender.dataItems()[0].FinalizedUserId != null;
+        console.log(finalized);
+        if (finalized) {
+            $('.k-grid-Finalize').hide();
+        } else {
+            $('.k-grid-Finalize').show();
+        }
+        toBeFinalized();
+        lastFinalized();
+        dataBound(e);
+    }
+
+    var gRoadDistributionReadData = function (e) {
+        var vehicle = $('#ddVehicle').data('kendoDropDownList');
+        var date = $('#dpDate').data('kendoDatePicker');
+        return {
+            vehicleId: vehicle.value(),
+            date: date.value()
+        }
+    }
+
+    var gRoadDistributionOnEdit = function (e) {
+        updateRDLine(e.sender);
+    }
+
+    var updateRDLine = function (grid) {
+        var row = grid.dataItem(grid.select()),
+            dataItem = grid.dataItem(grid.select());
+
+        if (row != null) {
+            dataItem.LoadingQuantity = (dataItem.LoadingCase * dataItem.UnitsPerCase) + dataItem.LoadingPiece;
+            dataItem.UnloadingQuantity = (dataItem.UnloadingCase * dataItem.UnitsPerCase) + dataItem.UnloadingPiece;
+            dataItem.RoadDistributionQuantity = dataItem.BalanceStockQuantity + dataItem.LoadingQuantity - dataItem.UnloadingQuantity;
+            dataItem.Varience = parseInt(dataItem.BillingQuantity - dataItem.RoadDistributionQuantity);
+
+            $(grid.select()).find(':nth-child(9)').text(kendo.toString(dataItem.LoadingQuantity, 'n'));
+            $(grid.select()).find(':nth-child(12)').text(kendo.toString(dataItem.LoadingQuantity, 'n'));
+            $(grid.select()).find(':nth-child(13)').text(kendo.toString(dataItem.RoadDistributionQuantity, 'n'));
+            $(grid.select()).find(':nth-child(15)').text(kendo.toString(dataItem.Varience, 'n'));
+
+            //console.log(dataItem);
+        }
+    }
+
+    var gRoadDistributionRead = function(e) {
+        var grid = $('#gRoadDistribution').data('kendoGrid');
+        grid.dataSource.read();
+    }
+
+    var finalize = function() {
+        var r = confirm("Confirm to finalize?");
+        if (r) {
+            $.post('@Url.HttpRouteUrl("ActionApi",new {action="CheckUnFinalized",controller="RoadDistributions"})?date=' + $('#dpDate').val() + '&vehicleId=' + $('#ddVehicle').data('kendoDropDownList').value())
+                .done(function(msg) {
+                    if (!msg) {
+                        $.post('@Url.HttpRouteUrl("ActionApi",new {action="Finalize",controller="RoadDistributions"})?date=' + $('#dpDate').val() + '&vehicleId=' + $('#ddVehicle').data('kendoDropDownList').value())
+                            .done(function(msg) {
+                                if (msg) {
+                                    gRoadDistributionRead();
+                                } else {
+                                    alert(msg);
+                                };
+                            });
+                    } else {
+                        alert('There are un finalized previous days.');
+                    }
+                });
+
+        }
+    }
+
+    //var gRoadDistributionOnChange = function (e) {
+    //    if (e.action === "itemchange") {
+    //        if (e.field === "LoadingCase" || e.field === "LoadingPiece") {
+    //            var model = e.items[0];
+    //            model.set("LoadingQuantity", (model.LoadingCase * model.UnitsPerCase) + model.LoadingPiece);
+    //        }
+    //    }
+    //    console.log(e);
+    //}
+
+
+    //var qtyLD = function (dataItem) {
+    //    console.info((dataItem.LoadingCase * dataItem.UnitsPerCase) + dataItem.LoadingPiece);
+    //    return (dataItem.LoadingCase * dataItem.UnitsPerCase) + dataItem.LoadingPiece;
+    //}
+</script>

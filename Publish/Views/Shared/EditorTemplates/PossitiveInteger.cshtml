@@ -1,0 +1,6 @@
+﻿@model int
+
+@(Html.Kendo().NumericTextBoxFor(m => m).Decimals(0).Min(0).Format("{0:N}").Placeholder("0")
+      .Spinners(false)
+      .HtmlAttributes(new { style = "width:100%" })
+)

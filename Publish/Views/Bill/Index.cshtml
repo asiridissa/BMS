@@ -1,0 +1,537 @@
+﻿@using System.Collections
+
+<script>
+    var bill = function() {
+        var billLines = [];
+        var item = {};
+        var billData = {};
+
+        var uuid = function() {
+            var buf = new Uint32Array(4);
+            window.crypto.getRandomValues(buf);
+            var idx = -1;
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+                function(c) {
+                    idx++;
+                    var r = (buf[idx >> 3] >> ((idx % 8) * 4)) & 15;
+                    var v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+        };
+
+        var initItem = function() {
+            item = {
+                uid: uuid(),
+                Id: 0,
+                ItemName: '',
+                BillHeaderId: 0,
+                ItemId: 0,
+                UnitPrice: 0,
+                WholeSale: false,
+                Sale: 0,
+                FreeIssue: 0,
+                Damage: 0,
+                Expire: 0,
+                GoodReturn: 0,
+                Discount: 0,
+                Deduction: 0,
+                Amount: 0,
+                Value: 0,
+                inEdit: false,
+                deleted: false,
+                edited: false
+            };
+        };
+
+        var collectItemData = function() {
+            if (!item.inEdit) {
+                initItem();
+            }
+
+            var itemDdl = $("#ItemId").data('kendoDropDownList');
+            var dataItem = itemDdl.dataItem(itemDdl.select());
+
+            item.Id = $('#Id').val() ? $('#Id').val() : 0;
+            item.ItemName = dataItem.ItemName;
+            item.ItemId = dataItem.Id;
+            item.WholeSale = $('#WholeSalePrice').prop('checked');
+            item.UnitPrice = $('#WholeSalePrice').prop('checked') ? dataItem.WholesalePrice : dataItem.SalesPrice;
+            item.Sale = $('#Sale').val() ? parseInt($('#Sale').val()) : 0;
+            item.FreeIssue = $('#FreeIssue').val() ? parseInt($('#FreeIssue').val()) : 0;
+            item.Damage = $('#Damage').val() ? parseInt($('#Damage').val()) : 0;
+            item.Expire = $('#Expire').val() ? parseInt($('#Expire').val()) : 0;
+            item.GoodReturn = $('#GoodReturn').val() ? parseInt($('#GoodReturn').val()) : 0;
+            item.Discount = $('#DiscountL').val() ? parseFloat($('#DiscountL').val()) : 0;
+            item.Deduction = $('#DeductionL').val() ? parseFloat($('#DeductionL').val()) : 0;
+            item.Amount = 0;
+        };
+
+        var calculateAmounts = function() {
+            var discountable = item.Sale - item.GoodReturn - item.Damage - item.Expire;
+            var price = item.UnitPrice * discountable * (discountable > 0 ? (1 - parseFloat(item.Discount)) : 1);
+            price = (price - item.Deduction);
+            return price;
+        };
+
+        var updateLineAmount = function(e) {
+            if ($("#ItemId").data('kendoDropDownList').select() > 0) {
+                collectItemData();
+                item.Amount = calculateAmounts();
+                $('#Amount').text(item.Amount.toFixed(2));
+            }
+        };
+
+        var updateLineTotal = function() {
+            var lineTotal = 0.00, total = 0.00;
+            var discount = $('#Discount').data('kendoNumericTextBox').value();
+            var deduction = $('#Deduction').data('kendoNumericTextBox').value();
+
+            $(billLines)
+                .each(function(i, e) {
+                    if (!e.deleted)
+                        lineTotal += e.Amount;
+                });
+            $('#billLinesTotal').text(lineTotal.toFixed(2));
+
+            total = (lineTotal.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction;
+            $('#billTotal').text(total.toFixed(2));
+        };
+
+        var renderLines = function() {
+            if (billLines.length > 0) {
+                $('.billLine').remove();
+                var template = $.templates('#itemTemplate');
+                var htmlOutput = template.render(billLines,
+                {
+                    prettyDiscount: function(discount) {
+                        return parseFloat(discount) * 100 + "%";
+                    },
+                    prettyPrice: function(price) {
+                        return parseFloat(price).toFixed(2);
+                    }
+                });
+                $("#billLinesHeader").after(htmlOutput);
+                updateLineTotal();
+            }
+        };
+
+        var clearEdit = function() {
+            bill.initItem();
+            $('#ItemId').data('kendoDropDownList').select(item.ItemId);
+            $('#WholeSalePrice').prop('checked', false);
+            $('#Sale').data("kendoNumericTextBox").value(null);
+            $('#FreeIssue').data("kendoNumericTextBox").value(null);
+            $('#FreeIssue').data("kendoNumericTextBox").value(null);
+            $('#GoodReturn').data("kendoNumericTextBox").value(null);
+            $('#Damage').data("kendoNumericTextBox").value(null);
+            $('#Expire').data("kendoNumericTextBox").value(null);
+            $('#DiscountL').data("kendoNumericTextBox").value(null);
+            $('#DeductionL').data("kendoNumericTextBox").value(null);
+            $('#Amount').text("0");
+            calculateAmounts();
+        };
+
+        var saveLine = function() {
+            if (item.inEdit) {
+                $(billLines)
+                    .each(function(i, e) {
+                        if (e.uid == item.uid) {
+                            item.edited = true;
+                            item.inEdit = false;
+                            billLines[i] = item;
+                            clearEdit();
+                        }
+                    });
+                renderLines();
+            } else {
+                if ((item.Sale + item.GoodReturn + item.Damage + item.Expire + item.FreeIssue) == 0) return;
+                billLines.push(item);
+                renderLines();
+                bill.clearEdit();
+                $('#ItemId').data('kendoDropDownList').open();
+                $('#ItemId').data('kendoDropDownList').focus();
+            }
+        };
+
+        var deleteItem = function(e) {
+            var r = confirm('Are you sure ?');
+            if (r == true) {
+                var selectedUid = $(e).data('uid');
+                var deleted = $.grep(billLines,
+                    function(n, i) {
+                        return n.uid == selectedUid;
+                    });
+                billLines[$.inArray(deleted[0], billLines)].deleted = true;
+                renderLines();
+            }
+        };
+
+        var editItem = function(e) {
+            var selected = $.grep(billLines,
+                function(n, i) {
+                    return n.uid == $(e).data('uid');
+                });
+            item = selected[0];
+            item.inEdit = true;
+            $('#Id').val(item.Id);
+            $('#ItemId').data('kendoDropDownList').value(item.ItemId);
+            $('#WholeSalePrice').prop('checked', item.WholeSale);
+            $('#Sale').data("kendoNumericTextBox").value(item.Sale);
+            $('#FreeIssue').data("kendoNumericTextBox").value(item.FreeIssue);
+            $('#GoodReturn').data("kendoNumericTextBox").value(item.GoodReturn);
+            $('#Damage').data("kendoNumericTextBox").value(item.Damage);
+            $('#Expire').data("kendoNumericTextBox").value(item.Expire);
+            $('#DiscountL').data("kendoNumericTextBox").value(item.Discount);
+            $('#DeductionL').data("kendoNumericTextBox").value(item.Deduction);
+            $('#Amount').text(parseFloat(item.Amount).toFixed(2));
+        }
+
+        var collectBillData = function() {
+            billData =
+            {
+                Id: $('#BillHeaderId').val() ? parseInt($('#BillHeaderId').val()) : 0,
+                BillNo: $('#BillNo').val(),
+                BillingDate: $('#BillingDate').val(),
+                AreaId: $('#AreaId').val() ? parseInt($('#AreaId').val()) : 0,
+                CustomerId: $('#CustomerId').val() ? parseInt($('#CustomerId').val()) : 0,
+                Discount: $('#Discount').val() ? parseFloat($('#Discount').val()) : 0,
+                Deduction: $('#Deduction').val() ? parseFloat($('#Deduction').val()) : 0,
+                PaidAmount: $('#PaidAmount').val() ? parseFloat($('#PaidAmount').val()) : 0,
+                VehicleId: $('#VehicleId').val() ? parseInt($('#VehicleId').val()) : 0,
+                BillLines: billLines
+            }
+            console.log(billData);
+        };
+
+        var validate = function() {
+            return !(billData.AreaId == 0 ||
+                billData.CustomerId == 0 ||
+                billData.BillNo == "" ||
+                billData.VehicleId == 0 ||
+                billData.BillLines.length == 0);
+        }
+
+        var saveBill = function(saveAndNew) {
+            collectBillData();
+            if (validate()) {
+                $.post('@Url.HttpRouteUrl("ActionApi", new {controller = "Bills", action = "PostBill"})', billData)
+                    .done(function(msg) {
+                        if (msg > 0) {
+                            var win = $('#wBill')
+                                .data("kendoWindow")
+                                .refresh({
+                                    url: '@Url.Action("_BillForm", "Bill")',
+                                    data: 0
+                                });
+                            if (!saveAndNew) {
+                                win.close();
+                            }
+                            $('#gBillHeader').data('kendoGrid').dataSource.read();
+                            notify('Successfully Saved', 'success');
+                        } else {
+                            notify('Something went wrong', 'warning');
+                        }
+                    })
+                    .fail(function(msg) {
+                        notify('Something went wrong', 'error');
+                    });
+            } else {
+                notify('Please fill the missing Data', 'error');
+            }
+
+        }
+
+        var saveBillAndNew = function() {
+            saveBill(true);
+        }
+
+        var cancelBill = function() {
+            var r = confirm('Confirm to cancel?');
+            if (r) {
+                $('#wBill')
+                    .data('kendoWindow')
+                    .refresh({
+                        url: '@Url.Action("_BillForm", "Bill")'
+                    })
+                    .close();
+            }
+        }
+
+        var addBill = function() {
+            $('#wBill').data("kendoWindow").refresh().open();
+        }
+
+        var editBill = function() {
+            var grid = $('#gBillHeader').data('kendoGrid');
+            $('#wBill').html('');
+            $('#wBill')
+                .data("kendoWindow")
+                .refresh({
+                    url: '@Url.Action("_BillForm", "Bill")',
+                    data: { headerId: grid.dataItem(grid.select()).Id }
+                })
+                .open();
+        }
+
+        var deleteBill = function() {
+            var r = confirm('Confirm to delete?');
+            if (r) {
+                var grid = $('#gBillHeader').data('kendoGrid');
+                $.ajax({
+                        url: '@Url.HttpRouteUrl("ActionApi", new {controller = "Bills", action = "DeleteBill"})/' +
+                            grid.dataItem(grid.select()).Id,
+                        method: 'DELETE'
+                    })
+                    .done(function(msg) {
+                        console.log(msg);
+                        notify('Successfully Deleted', 'success');
+                    })
+                    .fail(function(msg) {
+                        console.log(msg);
+                        notify('Something went wrong', 'error');
+                    })
+                    .always(function() {
+                        $('#gBillHeader').data('kendoGrid').dataSource.read();
+                    });
+            }
+        }
+
+        var parseLines = function(id) {
+            $.get('@Url.HttpRouteUrl("ActionApi", new {controller = "BillLines", action = "GetBillLines"})',
+                { id: id })
+                .done(function(msg) {
+                    console.log(msg);
+                    billLines = msg;
+                    renderLines();
+                })
+                .fail(function(msg) {
+                    console.log(msg);
+                    notify('Something went wrong', 'warning');
+                });
+        }
+
+        return {
+            initItem: initItem,
+            renderLines: renderLines,
+            updateLineAmount: updateLineAmount,
+            clearEdit: clearEdit,
+            saveLine: saveLine,
+            deleteItem: deleteItem,
+            editItem: editItem,
+            billLines: billLines,
+            saveBill: saveBill,
+            saveBillAndNew: saveBillAndNew,
+            cancelBill: cancelBill,
+            addBill: addBill,
+            editBill: editBill,
+            deleteBill: deleteBill,
+            parseLines: parseLines
+        }
+    }();
+</script>
+
+<div>
+    @(Html.Kendo().Grid<BMS.Entity.BMSTenant.BillHeader>()
+          .Name("gBillHeader")
+          .Columns(columns =>
+          {
+              columns.Bound(c => c.BillNo).Width(120);
+              columns.Bound(c => c.BillingDate).Width(100).Format("{0:d}").Title("Date").EditorTemplateName("Date");
+              columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Title("Area");
+              columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title("Customer");
+              columns.Bound(c => c.Discount).Width(75).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.Deduction).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title("Paid");
+              columns.ForeignKey(x => x.BillStatusId, (IEnumerable)ViewData["Statuses"], "Id", "Name").Width(80).Title("Status");
+          })
+          .ToolBar(t =>
+          {
+              t.Template("<button id=\"btnAddBill\" class=\"k-button k-button-icontext k-grid-add\"><span class=\"k-icon k-add\"></span>Add</button>" +
+                         "<button id=\"btnEditBill\" class=\"k-button k-button-icontext k-grid-edit\"><span class=\"k-icon k-i-edit\"></span>Edit</button>" +
+                         "<button id=\"btnDeleteBill\" class=\"k-button k-button-icontext k-grid-delete\"><span class=\"k-icon k-i-delete\"></span>Delete</button>");
+          })
+          .ClientDetailTemplateId("headerTemplate")
+          .Pageable()
+          .Navigatable()
+          .Groupable()
+          .Selectable(selectable =>
+          {
+              selectable.Mode(GridSelectionMode.Single);
+              selectable.Type(GridSelectionType.Row);
+          })
+          .Sortable(sortable =>
+          {
+              sortable.SortMode(GridSortMode.MultipleColumn);
+          })
+          .Filterable()
+          .DataSource(dataSource => dataSource
+              .WebApi()
+              .PageSize(10)
+              .ServerOperation(true)
+              .Model(model =>
+              {
+                  model.Id(p => p.Id);
+                  model.Field(x => x.BillStatusId);
+              })
+              .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillHeaders", action = "GetBillHeaders" })))
+          )
+          .Pageable(x => x.Refresh(true).PageSizes(new[] { 10, 25, 50, 100 }))
+          .Events(e => e.DataBound("gBillHeaderOnDataBound"))
+    )
+</div>
+
+<script type="text/kendo-tmpl" id="headerTemplate">
+    @(Html.Kendo().TabStrip()
+          .Name("tabStrip_#=Id#")
+          .SelectedIndex(0)
+          .Items(items =>
+          {
+              items.Add().Text("Lines").Content(@<text>
+        @(Html.Kendo().Grid
+              <BMS.Entity.BMSTenant.BillLine>
+              ()
+              .Name("gBillLine_#=Id#")
+              .Columns(columns =>
+              {
+                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Items : \\#=count\\#");
+                  columns.Bound(c => c.Sale).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.FreeIssue).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Expire).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Damage).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.GoodReturn).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Discount).Width(100).Format("{0:N2}");
+                  columns.Bound(c => c.Deduction).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
+                  columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
+              })
+              .Pageable()
+              .Navigatable()
+              .Sortable(sortable =>
+              {
+                  sortable.SortMode(GridSortMode.MultipleColumn);
+              })
+              .Filterable()
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .Model(model =>
+                  {
+                      model.Id(p => p.Id);
+                  })
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillLines", action = "GetBillLines", headerId = "#=Id#" })))
+                  .Aggregates(a =>
+                  {
+                      a.Add(x => x.ItemId).Count();
+                      a.Add(x => x.Sale).Sum();
+                      a.Add(x => x.FreeIssue).Sum();
+                      a.Add(x => x.Expire).Sum();
+                      a.Add(x => x.Damage).Sum();
+                      a.Add(x => x.GoodReturn).Sum();
+                      a.Add(x => x.Deduction).Sum();
+                      a.Add(x => x.Amount).Sum();
+                  })
+              ).Pageable(x=>x.Enabled(false)).ToClientTemplate())
+            </text>);
+              items.Add().Text("Details").Content(@<text>
+        <div class="container-fluid">
+            <div class="row">
+                <label class="col-md-2">Vehicle</label>
+                <div class="col-md-3">#=VehicleNo#</div>
+                <label class="col-md-2">Deduction</label>
+                <div class="col-md-3">#=Deduction#</div>
+            </div>
+            <div class="row">
+                <label class="col-md-2">Value</label>
+                <div class="col-md-3">#=Value#</div>
+                <label class="col-md-2">Created Date Time</label>
+                <div class="col-md-3">#=kendo.toString(CreatedDateTime, "D")#</div>
+            </div>
+        </div>
+
+            </text>);
+          }).ToClientTemplate()
+    )
+</script>
+
+<script>
+    var wBillOnOpen = function(e) {
+        $('#wBill').data("kendoWindow").center();
+    }
+
+    var wBillOnActive = function(e) {
+        var timer = setInterval(function() {
+            if (!$('#BillNo').is(':focus')) {
+                $('#BillNo').focus();
+            } else {
+                clearInterval(timer);
+            }
+        }, 500);
+    }
+
+    var gBillHeaderOnDataBound = function(e) {
+        var grid = e.sender,
+            row = grid.tbody.find(">tr:not(.k-grouping-row)").eq(0);
+        grid.select(row);
+    }
+
+    $(document)
+        .ready(function() {
+            $('body')
+               .on('focus','#BillingDate',
+                   function() {
+                       $('#BillingDate').data('kendoDatePicker').open();
+                   });
+
+
+            $('body')
+                .on('blur',
+                    '#Discount,#Deduction',
+                    function() {
+                        bill.renderLines();
+                    });
+
+            $('body')
+                .on('change',
+                    '#WholeSalePrice',
+                    function() {
+                        bill.updateLineAmount();
+                    });
+
+            $('body')
+                .on('click',
+                    '#btnAddBill',
+                    function() {
+                        bill.addBill();
+                    });
+
+            $('body')
+                .on('click',
+                    '#btnEditBill',
+                    function() {
+                        bill.editBill();
+                    });
+
+            $('body')
+                .on('click',
+                    '#btnDeleteBill',
+                    function() {
+                        bill.deleteBill();
+                    });
+
+        });
+
+</script>
+
+@(Html.Kendo().Window()
+      .Name("wBill")
+      .Width(1000)
+      .Height(500)
+      .Visible(false)
+      .Modal(false)
+      .Draggable()
+      .Position(p => p.Top(10))
+      .AutoFocus(true)
+      .Title("Billing")
+      .Actions(actions => actions.Refresh().Minimize().Maximize().Close())
+      .LoadContentFrom("_BillForm", "Bill", new { headerId = 0 })
+      .Events(e => e.Open("wBillOnOpen").Activate("wBillOnActive"))
+)

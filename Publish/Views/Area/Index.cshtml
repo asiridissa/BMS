@@ -1,0 +1,39 @@
+﻿@using Kendo.Mvc.UI
+
+@(Html.Kendo().Grid<BMS.Entity.BMSTenant.Area>()
+      .Name("gArea")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.ShortName).Width(140);
+          columns.Bound(c => c.FullName).Width(140);
+          columns.Bound(c => c.FromDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
+          columns.Bound(c => c.ThruDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
+          columns.Command(command => {command.Destroy(); }).Width(180);
+      })
+      .ToolBar(toolbar => {
+          toolbar.Create();
+          toolbar.Save();
+      })
+      .Editable(editable => editable.Mode(GridEditMode.InCell))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.MultipleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .WebApi()
+          .Model(model => model.Id(p => p.Id))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action="GetAreas" })))
+          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "PostArea" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "PutArea", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "DeleteArea", id = "{0}" })))
+      )
+      .Pageable(p=>p.Refresh(true))
+)
+

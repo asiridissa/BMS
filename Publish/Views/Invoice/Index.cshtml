@@ -1,0 +1,173 @@
+﻿@using System.Collections
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="row">
+            <h2 class="col-md-12">Invoice</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @(Html.Kendo().Grid<BMS.Entity.BMSTenant.InvoiceHeader>()
+                  .Name("gInvoiceHeader")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.InvoiceNo);
+                      columns.Bound(c => c.Date).Width(100).Format("{0:d}").EditorTemplateName("Date");
+                      columns.Bound(c => c.Finalized).Width(100);
+                      columns.Command(command => { command.Destroy(); }).Width(95);
+                  })
+                  .ToolBar(toolbar =>
+                  {
+                      toolbar.Create();
+                      toolbar.Save();
+                  })
+                  .Editable(editable => editable.Mode(GridEditMode.InCell))
+                  .Pageable()
+                  .Navigatable()
+                  .Selectable(selectable =>
+                  {
+                      selectable.Mode(GridSelectionMode.Single);
+                      selectable.Type(GridSelectionType.Row);
+                  })
+                  .Sortable(sortable =>
+                  {
+                      sortable.SortMode(GridSortMode.MultipleColumn);
+                  })
+                  .Filterable()
+                  .DataSource(dataSource => dataSource
+                      .WebApi()
+                      .PageSize(11)
+                      .Model(model => model.Id(p => p.Id))
+                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action="GetInvoiceHeaders" })))
+                      .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "PostInvoiceHeader" })))
+                      .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "PutInvoiceHeader", id = "{0}" })))
+                      .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "DeleteInvoiceHeader", id = "{0}" })))
+
+                  )
+                  .Pageable(p => p.Refresh(true))
+                  .Events(e => e.Change("gInvoiceHeaderOnChange").DataBound("gInvoiceHeaderOnDataBound").Save("gInvoiceHeaderOnSave").Remove("gInvoiceHeaderOnRemove"))
+                )
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <h2 class="col-md-12">Lines</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                @(Html.Kendo().Grid<BMS.Entity.BMSTenant.InvoiceLine>()
+                  .Name("gInvoiceLine")
+                  .Columns(columns =>
+                  {
+                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value")
+                      .ClientTemplate("#=ItemName#")
+                      .ClientFooterTemplate("Items : #=count#");
+                      columns.Bound(c => c.Case).Width(100).ClientFooterTemplate("Cases : #=sum#");
+                      columns.Bound(c => c.Piece).Width(100).ClientFooterTemplate("Pieces : #=sum#");
+                      columns.Command(command => { command.Destroy(); }).Width(95);
+                  })
+                  .ToolBar(toolbar =>
+                  {
+                      toolbar.Create();
+                      toolbar.Save();
+                  })
+                  .Editable(editable => editable.Mode(GridEditMode.InCell))
+                  .Pageable()
+                  .Navigatable()
+                  .Selectable(selectable =>
+                  {
+                      selectable.Mode(GridSelectionMode.Single);
+                      selectable.Type(GridSelectionType.Row);
+                  })
+                  .Sortable(sortable =>
+                  {
+                      sortable.SortMode(GridSortMode.MultipleColumn);
+                  })
+                  .Filterable()
+                  .DataSource(dataSource => dataSource
+                      .WebApi()
+                      .PageSize(10)
+                      .Model(model => model.Id(p => p.Id))
+                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "GetInvoiceLines" })).Data("gInvoiceLineReadData"))
+                      .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "PostInvoiceLine" })).Data("gInvoiceLineCreateData"))
+                      .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "PutInvoiceLine", id = "{0}" })))
+                      .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action="DeleteInvoiceLine" , id = "{0}" })))
+                      .Aggregates(a =>
+                      {
+                          a.Add(x => x.ItemId).Count();
+                          a.Add(x => x.Case).Sum();
+                          a.Add(x => x.Piece).Sum();
+                      })
+                  )
+                  .Pageable(p => p.Refresh(true))
+                  .Events(e=>e.SaveChanges("gInvoiceLineOnSaveChanges").Save("gInvoiceLineOnSave").Remove("gInvoiceLineOnRemove"))
+                )
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var gInvoiceLineReadData = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        return {
+            headerId: grid.select().length == 1 ? grid.dataItem(grid.select()).Id : 0
+        }
+    }
+
+    var gInvoiceLineCreateData = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        e.InvoiceHeaderId = grid.select().length == 1 ? grid.dataItem(grid.select()).Id : 0;
+    }
+
+    var gInvoiceHeaderOnChange = function (e) {
+        $("#gInvoiceLine").data("kendoGrid").dataSource.read();
+    }
+
+    var gInvoiceHeaderOnSave = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        if (grid.select().length == 1 && grid.dataItem(grid.select()).Finalized) {
+            notify('You cannot change finalized invoice.', 'error');
+            e.preventDefault();
+        }
+    }
+
+    var gInvoiceHeaderOnRemove = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        if (grid.select().length == 1 && grid.dataItem(grid.select()).Finalized) {
+            notify('You cannot change finalized invoice.', 'error');
+            e.preventDefault();
+            grid.dataSource.read();
+        }
+    }
+
+    var gInvoiceLineOnSaveChanges = function(e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        if (grid.select().length == 1 && grid.dataItem(grid.select()).Finalized) {
+            notify('You cannot change finalized invoice.','error');
+            e.preventDefault();
+            grid.dataSource.read();
+        }
+    }
+
+    var gInvoiceLineOnRemove = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        if (grid.select().length == 1 && grid.dataItem(grid.select()).Finalized) {
+            notify('You cannot change finalized invoice.', 'error');
+            e.preventDefault();
+            $("#gInvoiceLine").data("kendoGrid").dataSource.read();
+        }
+    }
+
+    var gInvoiceHeaderOnDataBound = function (e) {
+        var grid = e.sender,
+            row = grid.tbody.find(">tr:not(.k-grouping-row)").eq(0);
+        grid.select(row);
+    }
+
+    var gInvoiceLineOnSave = function(e) {
+        var grid = e.sender;
+        console.log(grid.dataItems(grid.select()));
+    }
+</script>
