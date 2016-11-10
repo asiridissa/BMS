@@ -1,16 +1,19 @@
-﻿@(Html.Kendo().Grid<BMS.Entity.BMSTenant.Vehicle>()
+﻿@{
+    ViewBag.Title = "Vehicle";
+}
+
+@(Html.Kendo().Grid<BMS.Entity.BMSTenant.Vehicle>()
       .Name("gVehicle")
       .Columns(columns =>
       {
-          columns.Bound(c => c.No).Width(140);
-          columns.Bound(c => c.FromDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Bound(c => c.ThruDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Command(command => { command.Destroy(); }).Width(180);
+          columns.Bound(c => c.No).Width(250);
+          columns.Bound(c => c.Description);
+          columns.Command(command => { command.Destroy(); }).Width(100);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create();
-          toolbar.Save();
+          toolbar.Create().Text("Add");
+          toolbar.Save().SaveText("Save").CancelText("Cancel");
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()

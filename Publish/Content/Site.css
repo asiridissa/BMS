@@ -16,11 +16,11 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/
 
 /*Align grid toolbar buttons right*/
 .k-grid-toolbar {
@@ -33,6 +33,12 @@ textarea {
     box-shadow: 0 0 5px #999;
 }
 
+    .navbar i.fa-bars {
+        color: #FFFFFF;
+        cursor: pointer;
+        float: left;
+    }
+
 .navbar-brand, .navbar-nav > li > a {
     color: #ffffff !important;
 }
@@ -43,12 +49,14 @@ textarea {
 
 
 
+
 #menu-wrapper {
     padding: 7px;
 }
 
 footer {
     position: fixed;
+    opacity: 0.8;
     left: 0;
     bottom: 0;
     background-color: #23b7e5;
@@ -75,4 +83,86 @@ td.number {
 .short-var {
     color: red;
     font-weight: bold;
+}
+
+.k-grid-toolbar i {
+    margin: 0 .3rem 0 -.3rem;
+    width: 16px;
+    height: 16px;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+#finalized {
+    display: none;
+    padding: 6px;
+    color: green;
+    font-weight: bold;
+}
+
+.payment-row {
+    box-shadow: 0 0 2px #999;
+    padding: 10px;
+    margin-bottom: 4px;
+}
+
+#loginForm {
+    margin-top: 135px;
+    box-shadow: 0 0 5px #999;
+    padding: 10px;
+    border: 10px;
+    background-color: #FFF;
+}
+
+    #loginForm input:not([type="checkbox"]) {
+        width: 100%;
+        padding: 5px;
+        opacity: 1;
+        font-size: 150%;
+    }
+
+.login-body {
+    background: url('images/office_room.jpg') no-repeat;
+    background-size: cover;
+    background-color: #ffffff;
+    width: 97%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-para {
+    background-color: #FFF;
+    padding: 10px;
+    text-align: justify;
+    box-shadow: 0 0 5px #999;
+    opacity: 0.95;
+}
+
+#rev_slider_34_1_wrapper {
+    width: 98% !important;
+    left: 1% !important;
+    margin-top: 15px !important;
+    box-shadow: 0 0 10px #999999;
+}
+
+.blink_me {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+/*Telerik Report Viewer*/
+#reportViewer {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    text-align: center;
+    font-family: Verdana, Arial;
 }

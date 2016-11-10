@@ -1,0 +1,73 @@
+﻿@using BMS.Entity
+@using BMS.Web.Models
+@{
+    ViewBag.Title = "Billing Report";
+    var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
+}
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-10.2.16.1025.min.js")"></script>
+
+
+
+<div class="alert alert-info">
+    <label>Date </label>
+    @Html.Kendo().DatePicker().Name("dpBillDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <label>Vehicle </label>
+    @(Html.Kendo().DropDownList().Name("ddVehicle")
+          .DataValueField("Id")
+          .DataTextField("No")
+          .DataSource(s => s
+              .Read(r =>
+              {
+                  r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+              }))
+          .Events(e => e.Change("refreshViewer"))
+    )
+</div>
+
+<div id="reportViewer">
+    <img style="margin: auto" src="~/Content/kendo/Metro/loading-image.gif" />
+</div>
+
+<script>
+    var refreshViewer = function () {
+        var viewer = $("#reportViewer").data("telerik_ReportViewer");
+
+        viewer.reportSource({
+            report: viewer.reportSource().report,
+            parameters: {
+                VehiceId: $('#ddVehicle').data('kendoDropDownList').value(),
+                Date: $('#dpBillDate').val(),
+                DatabaseName: '@entity.DatabaseName',
+                CompanyName: '@entity.Name'
+            }
+        }).refreshReport();
+    };
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#reportViewer")
+                .telerik_ReportViewer({
+                    serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
+                    reportSource: {
+                        report: "Billing Report.trdp",
+                        parameters: {
+                            VehiceId: $('#ddVehicle').data('kendoDropDownList').value(),
+                            Date: $('#dpBillDate').val(),
+                            DatabaseName: '@entity.DatabaseName',
+                            CompanyName: '@entity.Name'
+                        }
+                    },
+                    scaleMode: "FIT_PAGE_WIDTH",
+                    viewMode: "INTERACTIVE",
+                    printMode: "AUTO_SELECT",
+                    error: function () {
+                        notify('Something went Wrong :(', 'warning');
+                    },
+                    ready: function () {
+                        //this.refreshReport();
+                    }
+                });
+        }, 2500);
+    });
+</script>

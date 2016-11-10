@@ -1,0 +1,41 @@
+﻿@using BMS.Entity
+@using BMS.Web.Models
+@{
+    ViewBag.Title = "Spot Stock Test";
+    var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
+}
+
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-10.2.16.1025.min.js")"></script>
+
+
+<div id="reportViewer">
+    <img style="margin: auto" src="~/Content/kendo/Metro/loading-image.gif" />
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#reportViewer")
+                .telerik_ReportViewer({
+                    serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
+                    reportSource: {
+                        report: "Spot Stock Test.trdp",
+                        parameters: {
+                            DatabaseName: '@entity.DatabaseName',
+                            CompanyName: '@entity.Name'
+                        }
+                    },
+                    scaleMode: "FIT_PAGE_WIDTH",
+                    viewMode: "INTERACTIVE",
+                    printMode: "AUTO_SELECT",
+                    error: function () {
+                        notify('Something went Wrong :(', 'warning');
+                    },
+                    ready: function () {
+                        //this.refreshReport();
+                    }
+                });
+        }, 2500);
+    });
+</script>

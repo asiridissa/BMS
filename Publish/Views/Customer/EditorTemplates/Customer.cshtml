@@ -32,7 +32,7 @@
         <div class="col-md-2">Mobile</div>
         <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Mobile)</div>
         <div class="col-md-2">Email</div>
-        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Email)</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.Email).HtmlAttributes(new {type="email"})</div>
     </div>
     <div class="row">
         <div class="col-md-2">Address</div>

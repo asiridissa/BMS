@@ -11,14 +11,16 @@
           columns.Bound(c => c.FullName);
           columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Width(140).Title("Area");
           columns.Bound(c => c.Phone).Width(140);
+          columns.Bound(c => c.Mobile).Width(140);
           columns.Command(command => { command.Edit(); command.Destroy(); }).Width(180);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create();
+          toolbar.Create().Text("Add");
       })
       .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("Customer").Window(w => w.Width(800)))
       .Pageable()
+      .Groupable()
       .Navigatable()
       .Selectable(selectable =>
       {
@@ -34,28 +36,29 @@
       .DataSource(dataSource => dataSource
           .WebApi()
           .ServerOperation(true)
+          .PageSize(10)
           .Model(model => model.Id(p => p.Id))
           .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "GetCustomers" })))
           .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "PostCustomer" })))
           .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "PutCustomer", id = "{0}" })))
           .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "DeleteCustomer", id = "{0}" })))
       )
-      .Pageable(p => p.Refresh(true))
+      .Pageable(p => p.Refresh(true).PageSizes(new[] {10,25,50,100}))
 )
 
 <script id="gCustomerDetails" type="text/kendo-tmpl">
     <div class="container">
         <div class="row">
             <div class="col-md-2">Mobile</div>
-            <div class="col-md-3">#=Mobile#</div>
+            <div class="col-md-3">#if (Mobile == null) {# #=''# #} else {# #=Mobile# #}#</div>
             <div class="col-md-2">Email</div>
-            <div class="col-md-3">#=Email#</div>
+            <div class="col-md-3">#if (Email == null) {# #=''# #} else {# #=Email# #}#</div>
         </div>
         <div class="row">
             <div class="col-md-2">Address</div>
-            <div class="col-md-3"><pre>#=Address#</pre></div>
+            <div class="col-md-3"><pre>#if (Address == null) {# #=''# #} else {# #=Address# #}#</pre></div>
             <div class="col-md-2">Fax</div>
-            <div class="col-md-3">#=Fax#</div>
+            <div class="col-md-3">#if (Fax == null) {# #=''# #} else {# #=Fax# #}#</div>
         </div>
     </div>
 </script>

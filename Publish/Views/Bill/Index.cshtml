@@ -1,5 +1,7 @@
 ﻿@using System.Collections
-
+@{
+    ViewBag.Title = "Billing";
+}
 <script>
     var bill = function() {
         var billLines = [];
@@ -227,16 +229,16 @@
                                 win.close();
                             }
                             $('#gBillHeader').data('kendoGrid').dataSource.read();
-                            notify('Successfully Saved', 'success');
+                            notify('Successfully Saved :)', 'success');
                         } else {
-                            notify('Something went wrong', 'warning');
+                            notify('Something went wrong :(', 'warning');
                         }
                     })
                     .fail(function(msg) {
-                        notify('Something went wrong', 'error');
+                        notify('Something went wrong :(', 'error');
                     });
             } else {
-                notify('Please fill the missing Data', 'error');
+                notify('Please fill the missing Data :(', 'error');
             }
 
         }
@@ -284,11 +286,11 @@
                     })
                     .done(function(msg) {
                         console.log(msg);
-                        notify('Successfully Deleted', 'success');
+                        notify('Successfully Deleted :)', 'success');
                     })
                     .fail(function(msg) {
                         console.log(msg);
-                        notify('Something went wrong', 'error');
+                        notify('Something went wrong :(', 'error');
                     })
                     .always(function() {
                         $('#gBillHeader').data('kendoGrid').dataSource.read();
@@ -306,7 +308,7 @@
                 })
                 .fail(function(msg) {
                     console.log(msg);
-                    notify('Something went wrong', 'warning');
+                    notify('Something went wrong :(', 'warning');
                 });
         }
 
@@ -335,7 +337,9 @@
           .Name("gBillHeader")
           .Columns(columns =>
           {
-              columns.Bound(c => c.BillNo).Width(120);
+              columns.Bound(c => c.BillNo).Width(120).ClientTemplate("#=BillNo#  #if(Finalized){#<span class=\"finalized\" style=\"float:right;\">" +
+                                                                     "<i class=\"fa fa-thumbs-up\" title=\"Finalized\"></i>" +
+                                                                     "</span>#}#");
               columns.Bound(c => c.BillingDate).Width(100).Format("{0:d}").Title("Date").EditorTemplateName("Date");
               columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Title("Area");
               columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title("Customer");
@@ -347,7 +351,8 @@
           })
           .ToolBar(t =>
           {
-              t.Template("<button id=\"btnAddBill\" class=\"k-button k-button-icontext k-grid-add\"><span class=\"k-icon k-add\"></span>Add</button>" +
+              t.Template("<span style=\"float: left; font-size: 18px; padding: 4px;\">Billing</span>" +
+                         "<button id=\"btnAddBill\" class=\"k-button k-button-icontext k-grid-add\"><span class=\"k-icon k-add\"></span>Add</button>" +
                          "<button id=\"btnEditBill\" class=\"k-button k-button-icontext k-grid-edit\"><span class=\"k-icon k-i-edit\"></span>Edit</button>" +
                          "<button id=\"btnDeleteBill\" class=\"k-button k-button-icontext k-grid-delete\"><span class=\"k-icon k-i-delete\"></span>Delete</button>");
           })
@@ -475,11 +480,11 @@
 
     $(document)
         .ready(function() {
-            $('body')
-               .on('focus','#BillingDate',
-                   function() {
-                       $('#BillingDate').data('kendoDatePicker').open();
-                   });
+            //$('body')
+            //   .on('focus','#BillingDate',
+            //       function() {
+            //           $('#BillingDate').data('kendoDatePicker').open();
+            //       });
 
 
             $('body')

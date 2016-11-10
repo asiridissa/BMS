@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - BMS</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/kendo/kendo")
+    @Scripts.Render("~/bundles/modernizr")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/kendo/js")
+    <script src="~/Scripts/jsviews.min.js"></script>
+</head>
+<body class="login-body">
+        @RenderBody()
+    <footer>
+        <small>&copy; @DateTime.Now.Year - BMS</small>
+    </footer>
+
+
+    @Scripts.Render("~/bundles/bootstrap")
+    
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+

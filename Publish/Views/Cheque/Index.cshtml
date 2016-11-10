@@ -1,0 +1,43 @@
+﻿@using Kendo.Mvc.UI
+
+@(Html.Kendo().Grid<BMS.Entity.BMSTenant.Cheque>()
+      .Name("gCheque")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.Bank).Width(140);
+          columns.Bound(c => c.Branch).Width(140);
+          columns.Bound(c => c.Number);
+          columns.Bound(c => c.ChequeDate).Width(140);
+          columns.Bound(c => c.Amount).Width(140);
+          columns.Template(x => { }).ClientTemplate("#=Amount - UtilizedAmount#").Title("Available").Width(140);
+          columns.Command(command => { command.Destroy(); }).Width(180);
+      })
+      .ToolBar(toolbar =>
+      {
+          toolbar.Create();
+          toolbar.Save();
+      })
+      .Editable(editable => editable.Mode(GridEditMode.InCell))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable =>
+      {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable =>
+      {
+          sortable.SortMode(GridSortMode.MultipleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .WebApi()
+          .Model(model => model.Id(p => p.Id))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "GetCheques" })))
+          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "PostCheque" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "PutCheque", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "DeleteCheque", id = "{0}" })))
+      )
+      .Pageable(p => p.Refresh(true))
+)

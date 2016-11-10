@@ -1,5 +1,7 @@
 ﻿@using System.Collections
-
+@{
+    ViewBag.Title = "Item";
+}
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Item>()
       .Name("gItem")
       .Columns(columns =>
@@ -7,21 +9,28 @@
           columns.ForeignKey(c => c.BrandId, (IEnumerable)ViewData["Brands"], "Id", "ShortName").Title("Brand").Width(120);
           columns.ForeignKey(c => c.CategoryId, (IEnumerable)ViewData["Categories"], "Id", "ShortName").Title("Category").Width(120);
           columns.ForeignKey(c => c.ProductId, (IEnumerable)ViewData["Products"], "Id", "ShortName").Title("Product");
-          columns.Bound(c => c.UOMValue).Format("{0:N3}").EditorTemplateName("UOMValue").Title("Value").Width(100).HtmlAttributes(new {style="text-align:right;"});
+          columns.Bound(c => c.UOMValue).Format("{0:N3}").EditorTemplateName("UOMValue").Title("Value").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.ForeignKey(c => c.UOMId, (IEnumerable)ViewData["UnitOfMeasures"], "Id", "ShortName").Title("UOM").Width(60);
           columns.Bound(c => c.UnitsPerCase).EditorTemplateName("PossitiveInteger").Title("UPC").Width(60).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.PurchasePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Purch Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.SalesPrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Sale Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.WholesalePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Wh Sale").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Command(command => { command.Destroy(); }).HtmlAttributes(new {style="text-align:center;width:80px;"});
+          columns.Command(command => { command.Destroy(); }).HtmlAttributes(new { style = "text-align:center;width:80px;" });
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create();
-          toolbar.Save();
+          //toolbar.Create().Text("Add");
+          //toolbar.Save().SaveText("Save").CancelText("Cancel");
+          toolbar.Template(@<text>
+        <span style="float: left; font-size: 18px; padding: 4px;">Item Inventory</span>
+        <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-add"></span>Add</a>
+        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-update"></span>Save</a>
+        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-cancel"></span>Cancel</a>
+        </text>);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
+      .Groupable()
       .Navigatable()
       .Selectable(selectable =>
       {
@@ -36,7 +45,7 @@
       .DataSource(dataSource => dataSource
           .WebApi()
           .Batch(false)
-          .PageSize(15)
+          .PageSize(10)
           .Model(model =>
           {
               model.Id(p => p.Id);
@@ -49,13 +58,11 @@
               model.Field(x => x.PurchasePrice);
               model.Field(x => x.SalesPrice);
               model.Field(x => x.WholesalePrice);
-              model.Field(x => x.EffectiveDate);
-              model.Field(x => x.ExpireDate);
           })
-          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items" ,action="GetItems" })))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items", action = "GetItems" })))
           .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items", action = "PostItem" })))
           .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items", action = "PutItem", id = "{0}" })))
           .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Items", action = "DeleteItem", id = "{0}" })))
       )
-      .Pageable(p => p.Refresh(true).PageSizes(true)))
+      .Pageable(p => p.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 })))
 

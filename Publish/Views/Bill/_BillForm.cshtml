@@ -33,21 +33,32 @@
 @{ Html.RenderAction("_BillHeader", "Bill", new { headerId = Model?.Id }); }
 <hr />
 @{ Html.RenderAction("_BillLine", "Bill", new { headerId = Model?.Id }); }
-<hr/>
+<hr />
 
 <div style="text-align: right">
-    <button class="k-button k-button-icontext" onclick="bill.saveBill()">
-        <span class="k-icon k-update"></span>Save
-    </button>
-    <button class="k-button k-button-icontext" title="Update and Add New" onclick="bill.saveBillAndNew()">
-        <span class="k-icon k-update"></span>Save and New
-    </button>
-    <button class="k-button k-button-icontext" onclick="bill.cancelBill()">
-        <span class="k-icon k-cancel"></span> Cancel
-    </button>
+    @if (!Model.Finalized)
+    {
+        <button class="k-button k-button-icontext" onclick="bill.saveBill()">
+            <span class="k-icon k-update"></span>Save
+        </button>
+        <button class="k-button k-button-icontext" title="Update and Add New" onclick="bill.saveBillAndNew()">
+            <span class="k-icon k-update"></span>Save and New
+        </button>
+        <button class="k-button k-button-icontext" onclick="bill.cancelBill()">
+            <span class="k-icon k-cancel"></span> Cancel
+        </button>
+    }
+    else
+    {
+        <button class="k-button">
+            <i class="fa fa-thumbs-up"></i> Finalized 
+        </button>
+        
+    }
 </div>
+
 
 <script>
     bill.initItem();
-    
+
 </script>

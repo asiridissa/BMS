@@ -1,0 +1,59 @@
+﻿@model BMS.Entity.BMSTenant.Cheque
+
+@{
+    var editable = Model.Id > 0 && Model.UtilizedAmount == 0 || Model.Id == 0;
+}
+
+<input type="hidden" id="CustomerId" value="@Model.CustomerId" />
+<input type="hidden" id="ChequeId" value="@Model.Id"/>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <label for="Bank">Bank</label>
+        </div>
+        <div class="col-md-3">
+            @Html.Kendo().TextBoxFor(x => x.Bank)
+        </div>
+        <div class="col-md-2">
+            <label for="Branch">Branch</label>
+        </div>
+        <div class="col-md-3">
+            @Html.Kendo().TextBoxFor(x => x.Branch)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <label for="Number">Number</label>
+        </div>
+        <div class="col-md-3">
+            @Html.Kendo().TextBoxFor(x => x.Number)
+        </div>
+        <div class="col-md-2">
+            <label for="ChequeDate">ChequeDate</label>
+        </div>
+        <div class="col-md-3">
+            @Html.Kendo().DatePickerFor(x => x.ChequeDate).Value(DateTime.Now)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <label for="Amount">Amount</label>
+        </div>
+        <div class="col-md-3">
+            @Html.Kendo().NumericTextBoxFor(x => x.Amount).Min(0).Decimals(2).Placeholder("0").Spinners(false).Enable(editable)
+        </div>
+        <div class="col-md-2">
+            <label for="ChequeStatusId">Cheque Status</label>
+        </div>
+        <div class="col-md-3">
+            @(Html.Kendo().DropDownListFor(x => x.ChequeStatusId)
+                  .DataValueField("Id")
+                  .DataTextField("ShortName")
+                  .DataSource(s => s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "ChequeStatus", action = "GetAll"})))))
+        </div>
+    </div>
+</div>
+<hr/>
+<div style="text-align: right">
+    <button id="btnSaveCheque" class="k-button k-button-icontext"><span class="k-icon k-i-tick"></span>Save</button>
+</div>

@@ -4,6 +4,30 @@
     ViewBag.Title = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<style>
+    .retroshadow {
+        font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+        font-size: 35px;
+        text-align: center;
+        text-transform: uppercase;
+        text-rendering: optimizeLegibility;
+        text-shadow: 2px 2px 0px #d5d5d5, 3px 3px 0px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div id="loginForm" class="col-md-offset-3 col-md-6">
+                <h4 class="retroshadow">Error Occured :(</h4>
+            <hr />
+            <h5>Don't worry, Our engeneers are alredy fixing the issue...</h5>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
 

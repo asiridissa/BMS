@@ -1,0 +1,37 @@
+﻿@using Kendo.Mvc.UI
+
+@(Html.Kendo().Grid<BMS.Entity.BMSMaster.Entity>()
+      .Name("gEntity")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.Name).Width(250);
+          columns.Bound(c => c.DatabaseName).Width(250);
+          columns.Bound(c => c.ConnectionString);
+          columns.Command(command => {command.Destroy(); }).Width(100);
+      })
+      .ToolBar(toolbar => {
+          toolbar.Create().Text("Add");
+          toolbar.Save().SaveText("Save").CancelText("Cancel");
+      })
+      .Editable(editable => editable.Mode(GridEditMode.InCell))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.MultipleColumn);
+      })
+      .Filterable()
+      .DataSource(dataSource => dataSource
+          .WebApi()
+          .Model(model => model.Id(p => p.Id))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Entities", action="GetEntities" })))
+          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Entities", action = "PostEntity" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Entities", action = "PutEntity", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Entities", action = "DeleteEntity", id = "{0}" })))
+      )
+      .Pageable(p=>p.Refresh(true))
+)
+

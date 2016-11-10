@@ -1,26 +1,18 @@
-﻿
-@* Important! Register the following route if it's not existing in the RouteTable
-config.Routes.MapHttpRoute(
-    name: "DefaultApi",
-    routeTemplate: "api/{controller}/{id}",
-    defaults: new { id = RouteParameter.Optional }
-);
-*@
-
+﻿@{
+    ViewBag.Title = "Brand";
+}
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Brand>()
       .Name("gBrand")
       .Columns(columns =>
       {
-          columns.Bound(c => c.ShortName).Width(140);
-          columns.Bound(c => c.FullName).Width(140);
-          columns.Bound(c => c.FromDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Bound(c => c.ThruDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Command(command => { command.Destroy(); }).Width(180);
+          columns.Bound(c => c.ShortName).Width(200);
+          columns.Bound(c => c.FullName);
+          columns.Command(command => { command.Destroy(); }).Width(100);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create();
-          toolbar.Save();
+          toolbar.Create().Text("Add");
+          toolbar.Save().SaveText("Save").CancelText("Cancel");
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
@@ -35,7 +27,6 @@ config.Routes.MapHttpRoute(
           sortable.SortMode(GridSortMode.MultipleColumn);
       })
       .Filterable()
-      .Scrollable()
       .DataSource(dataSource => dataSource
           .WebApi()
           .Model(model => model.Id(p => p.Id))

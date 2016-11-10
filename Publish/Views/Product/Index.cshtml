@@ -2,16 +2,14 @@
       .Name("gProduct")
       .Columns(columns =>
       {
-          columns.Bound(c => c.ShortName).Width(140);
-          columns.Bound(c => c.FullName).Width(140);
-          columns.Bound(c => c.FromDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Bound(c => c.ThruDate).Width(140).Format("{0:d}").EditorTemplateName("Date");
-          columns.Command(command => { command.Destroy(); }).Width(180);
+          columns.Bound(c => c.ShortName).Width(200);
+          columns.Bound(c => c.FullName);
+          columns.Command(command => { command.Destroy(); }).Width(100);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create();
-          toolbar.Save();
+          toolbar.Create().Text("Add");
+          toolbar.Save().SaveText("Save").CancelText("Cancel");
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
@@ -26,15 +24,14 @@
           sortable.SortMode(GridSortMode.MultipleColumn);
       })
       .Filterable()
-      .Scrollable()
       .DataSource(dataSource => dataSource
           .WebApi()
+          .PageSize(10)
           .Model(model => model.Id(p => p.Id))
-                   .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Products", action = "GetProducts" })))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Products", action = "GetProducts" })))
           .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Products", action = "PostProduct" })))
           .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Products", action = "PutProduct", id = "{0}" })))
           .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Products", action = "DeleteProduct", id = "{0}" })))
       )
-      .Pageable(p => p.Refresh(true))
+      .Pageable(p => p.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 }))
 )
-

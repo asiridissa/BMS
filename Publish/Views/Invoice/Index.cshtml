@@ -1,10 +1,9 @@
 ﻿@using System.Collections
-
+@{
+    ViewBag.Title = "Invoicing";
+}
 <div class="row">
-    <div class="col-md-4">
-        <div class="row">
-            <h2 class="col-md-12">Invoice</h2>
-        </div>
+    <div class="col-md-5">
         <div class="row">
             <div class="col-md-12">
                 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.InvoiceHeader>()
@@ -14,12 +13,14 @@
                       columns.Bound(c => c.InvoiceNo);
                       columns.Bound(c => c.Date).Width(100).Format("{0:d}").EditorTemplateName("Date");
                       columns.Bound(c => c.Finalized).Width(100);
-                      columns.Command(command => { command.Destroy(); }).Width(95);
+                      columns.Command(command => { command.Destroy().Text("Delete"); }).Width(95);
                   })
                   .ToolBar(toolbar =>
                   {
-                      toolbar.Create();
-                      toolbar.Save();
+                      toolbar.Template("<span style=\"float:left;font-size:18px;padding:4px;\">Invoices</span>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-add\" href=\"/data/InvoiceHeaders/GetInvoiceHeaders\"><span class=\"k-icon k-add\"></span>Add</a>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-save-changes\" href=\"javascript:void(0)\"><span class=\"k-icon k-update\"></span>Save</a>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-cancel-changes\" href=\"javascript:void(0)\"><span class=\"k-icon k-cancel\"></span>Cancel</a>");
                   })
                   .Editable(editable => editable.Mode(GridEditMode.InCell))
                   .Pageable()
@@ -50,27 +51,25 @@
             </div>
         </div>
     </div>
-    <div class="col-md-8">
-        <div class="row">
-            <h2 class="col-md-12">Lines</h2>
-        </div>
+    <div class="col-md-7">
         <div class="row">
             <div class="col-md-12">
                 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.InvoiceLine>()
                   .Name("gInvoiceLine")
                   .Columns(columns =>
                   {
-                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value")
-                      .ClientTemplate("#=ItemName#")
-                      .ClientFooterTemplate("Items : #=count#");
-                      columns.Bound(c => c.Case).Width(100).ClientFooterTemplate("Cases : #=sum#");
-                      columns.Bound(c => c.Piece).Width(100).ClientFooterTemplate("Pieces : #=sum#");
+                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Items : #=count#");
+                      columns.Bound(c => c.CurrentStockQuantity).Title("StockQ").Filterable(false).Width(100).HtmlAttributes(new {style="text-align:right;"});
+                      columns.Bound(c => c.Case).ClientFooterTemplate("Cases : #=sum#").EditorTemplateName("PossitiveInteger").Width(100).HtmlAttributes(new { style = "text-align:right;" });
+                      columns.Bound(c => c.Piece).ClientFooterTemplate("Pieces : #=sum#").EditorTemplateName("PossitiveInteger").Width(100).HtmlAttributes(new { style = "text-align:right;" });
                       columns.Command(command => { command.Destroy(); }).Width(95);
                   })
                   .ToolBar(toolbar =>
                   {
-                      toolbar.Create();
-                      toolbar.Save();
+                      toolbar.Template("<span style=\"float:left;font-size:18px;padding:4px;\">Lines</span>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-add\" href=\"/data/InvoiceLines/GetInvoiceLines\"><span class=\"k-icon k-add\"></span>Add</a>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-save-changes\" href=\"javascript:void(0)\"><span class=\"k-icon k-update\"></span>Save</a>" +
+                                 "<a class=\"k-button k-button-icontext k-grid-cancel-changes\" href=\"javascript:void(0)\"><span class=\"k-icon k-cancel\"></span>Cancel</a>");
                   })
                   .Editable(editable => editable.Mode(GridEditMode.InCell))
                   .Pageable()
@@ -88,11 +87,15 @@
                   .DataSource(dataSource => dataSource
                       .WebApi()
                       .PageSize(10)
-                      .Model(model => model.Id(p => p.Id))
+                      .Model(model =>
+                      {
+                          model.Id(p => p.Id);
+                          model.Field(x => x.CurrentStockQuantity).Editable(false);
+                      })
                       .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "GetInvoiceLines" })).Data("gInvoiceLineReadData"))
                       .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "PostInvoiceLine" })).Data("gInvoiceLineCreateData"))
                       .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "PutInvoiceLine", id = "{0}" })))
-                      .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action="DeleteInvoiceLine" , id = "{0}" })))
+                      .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceLines", action = "DeleteInvoiceLine", id = "{0}" })))
                       .Aggregates(a =>
                       {
                           a.Add(x => x.ItemId).Count();
@@ -101,7 +104,8 @@
                       })
                   )
                   .Pageable(p => p.Refresh(true))
-                  .Events(e=>e.SaveChanges("gInvoiceLineOnSaveChanges").Save("gInvoiceLineOnSave").Remove("gInvoiceLineOnRemove"))
+                .Events(e => e.SaveChanges("gInvoiceLineOnSaveChanges")
+                .Remove("gInvoiceLineOnRemove"))
                 )
             </div>
         </div>
@@ -142,10 +146,10 @@
         }
     }
 
-    var gInvoiceLineOnSaveChanges = function(e) {
+    var gInvoiceLineOnSaveChanges = function (e) {
         var grid = $("#gInvoiceHeader").data("kendoGrid");
         if (grid.select().length == 1 && grid.dataItem(grid.select()).Finalized) {
-            notify('You cannot change finalized invoice.','error');
+            notify('You cannot change finalized invoice.', 'error');
             e.preventDefault();
             grid.dataSource.read();
         }
@@ -166,8 +170,4 @@
         grid.select(row);
     }
 
-    var gInvoiceLineOnSave = function(e) {
-        var grid = e.sender;
-        console.log(grid.dataItems(grid.select()));
-    }
 </script>

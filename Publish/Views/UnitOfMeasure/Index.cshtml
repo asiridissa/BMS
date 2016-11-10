@@ -1,38 +1,37 @@
 ﻿@using Kendo.Mvc.UI
-
+@{
+    ViewBag.Title = "Unit of Measure";
+}
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.UnitOfMeasure>()
       .Name("gUnitOfMeasure")
       .Columns(columns =>
       {
-        columns.Bound(c => c.ShortName).Width(140);
-        columns.Bound(c => c.FullName).Width(140);
-        columns.Bound(c => c.CreatedDateTime).Width(140).Format("{0:d}").EditorTemplateName("Date");
-        columns.Bound(c => c.DeletedDateTime).Width(140).Format("{0:d}").EditorTemplateName("Date");
-        columns.Command(command => {command.Destroy(); }).Width(180);
+          columns.Bound(c => c.ShortName).Width(200);
+          columns.Bound(c => c.FullName);
+          columns.Command(command => {command.Destroy(); }).Width(100);
       })
       .ToolBar(toolbar => {
-            toolbar.Create();
-            toolbar.Save();
+          toolbar.Create().Text("Add");
+          toolbar.Save().SaveText("Save").CancelText("Cancel");
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
       .Navigatable()
       .Selectable(selectable => {
-            selectable.Mode(GridSelectionMode.Single);
-            selectable.Type(GridSelectionType.Row);
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
       })
       .Sortable(sortable => {
           sortable.SortMode(GridSortMode.MultipleColumn);
       })
       .Filterable()
-      .Scrollable()
       .DataSource(dataSource => dataSource
           .WebApi()
           .Model(model => model.Id(p => p.Id))
           .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "UnitOfMeasures", action="GetUnitOfMeasures" })))
-          .Create(create => create.Url(Url.HttpRouteUrl("DefaultApi", new { controller = "UnitOfMeasures" })))
-          .Update(update => update.Url(Url.HttpRouteUrl("DefaultApi", new { controller = "UnitOfMeasures", id = "{0}" })))
-          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("DefaultApi", new { controller = "UnitOfMeasures", id = "{0}" })))
+          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "UnitOfMeasures", action = "PostUnitOfMeasure" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "UnitOfMeasures", action = "PutUnitOfMeasure", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "UnitOfMeasures", action = "DeleteUnitOfMeasure", id = "{0}" })))
       )
       .Pageable(p=>p.Refresh(true))
 )

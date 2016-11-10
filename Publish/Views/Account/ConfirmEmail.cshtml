@@ -2,9 +2,28 @@
     ViewBag.Title = "Confirm Email";
 }
 
-<h2>@ViewBag.Title.</h2>
-<div>
-    <p>
-        Thank you for confirming your email. Please @Html.ActionLink("Click here to Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
-    </p>
+<style>
+    .retroshadow {
+        font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+        font-size: 35px;
+        text-align: center;
+        text-transform: uppercase;
+        text-rendering: optimizeLegibility;
+        text-shadow: 2px 2px 0px #d5d5d5, 3px 3px 0px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div id="loginForm" class="col-md-offset-3 col-md-6">
+            <h4 class="retroshadow">@ViewBag.Title</h4>
+            <hr />
+            <h5>
+                Thank you for confirming your email. Please @Html.ActionLink("Click here to Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })
+            </h5>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
