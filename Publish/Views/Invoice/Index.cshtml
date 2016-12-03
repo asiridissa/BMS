@@ -58,10 +58,12 @@
                   .Name("gInvoiceLine")
                   .Columns(columns =>
                   {
-                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Items : #=count#");
-                      columns.Bound(c => c.CurrentStockQuantity).Title("StockQ").Filterable(false).Width(100).HtmlAttributes(new {style="text-align:right;"});
-                      columns.Bound(c => c.Case).ClientFooterTemplate("Cases : #=sum#").EditorTemplateName("PossitiveInteger").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-                      columns.Bound(c => c.Piece).ClientFooterTemplate("Pieces : #=sum#").EditorTemplateName("PossitiveInteger").Width(100).HtmlAttributes(new { style = "text-align:right;" });
+                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Total : #=count#");
+                      //columns.Bound(c => c.CurrentStockQuantity).Title("StockQ").Filterable(false).Width(100).HtmlAttributes(new {style="text-align:right;"});
+                      columns.Bound(c => c.Case).ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
+                      columns.Bound(c => c.Piece).ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
+                      columns.Bound(c => c.FreeCase).Title("FreeC").ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
+                      columns.Bound(c => c.FreePiese).Title("FreeP").ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
                       columns.Command(command => { command.Destroy(); }).Width(95);
                   })
                   .ToolBar(toolbar =>
@@ -83,7 +85,7 @@
                   {
                       sortable.SortMode(GridSortMode.MultipleColumn);
                   })
-                  .Filterable()
+                  //.Filterable()
                   .DataSource(dataSource => dataSource
                       .WebApi()
                       .PageSize(10)
@@ -101,6 +103,8 @@
                           a.Add(x => x.ItemId).Count();
                           a.Add(x => x.Case).Sum();
                           a.Add(x => x.Piece).Sum();
+                          a.Add(x => x.FreeCase).Sum();
+                          a.Add(x => x.FreePiese).Sum();
                       })
                   )
                   .Pageable(p => p.Refresh(true))

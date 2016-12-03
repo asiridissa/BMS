@@ -12,6 +12,7 @@
           columns.Bound(c => c.UOMValue).Format("{0:N3}").EditorTemplateName("UOMValue").Title("Value").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.ForeignKey(c => c.UOMId, (IEnumerable)ViewData["UnitOfMeasures"], "Id", "ShortName").Title("UOM").Width(60);
           columns.Bound(c => c.UnitsPerCase).EditorTemplateName("PossitiveInteger").Title("UPC").Width(60).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Bound(c => c.FreePerUnits).EditorTemplateName("PossitiveInteger").Title("FPC").Width(60).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.PurchasePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Purch Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.SalesPrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Sale Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
           columns.Bound(c => c.WholesalePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Wh Sale").Width(100).HtmlAttributes(new { style = "text-align:right;" });

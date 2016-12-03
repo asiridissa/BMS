@@ -17,7 +17,7 @@
                       r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
                   }))
               .Events(e => e.DataBound("gRoadDistributionRead").Change("gRoadDistributionRead"))
-              )
+        )
     </div>
     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <strong>To be Finalized : </strong>
@@ -53,11 +53,12 @@
                                               .ToolBar(toolbar =>
                                               {
                                                   toolbar.Template(@<text>
-                                                                       <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
-                                                                       <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
-                                                                       <div id="finalized" style="display: none;"><i class="fa fa-thumbs-up"></i>Finalized
-                                                                       </div>
-                                                                    </text>);
+        <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
+        <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
+        <div id="finalized" style="display: none;">
+            <i class="fa fa-thumbs-up"></i>Finalized
+        </div>
+                                                </text>);
                                               })
                                               .Editable(editable => editable.Mode(GridEditMode.InCell))
                                               .Pageable()
@@ -74,6 +75,7 @@
                                                   {
                                                       model.Id(p => p.Id);
                                                       model.Field(x => x.ItemId).Editable(false);
+                                                      model.Field(x => x.UnitsPerCase).Editable(false);
                                                       model.Field(x => x.BalanceStockCase).Editable(false);
                                                       model.Field(x => x.BalanceStockPiece).Editable(false);
                                                       model.Field(x => x.BalanceStockQuantity).Editable(false);
@@ -87,14 +89,14 @@
                                                   .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "RoadDistributions", action = "PutRoadDistributions", id = "{0}" })))
                                               //.Events(e=>e.Change("gRoadDistributionOnChange"))
                                               )
-                                              .Pageable(x => x.Refresh(true))
+                                              .Pageable(x => x.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 }))
                                               .Events(e => e.DataBound("gRoadDistributionOnDataBound")
                                               .Save("save")
 )
 )
 <script>
     //Cell coordinates of first editable
-    var lastEditIndex = { row: 0, col: 5 };
+    var lastEditIndex = { row: 0, col: 6 };
     var finalized = false;
 
     var getQty = function (LoadingCase, LoadingPiece, UnitsPerCase) {
@@ -127,7 +129,7 @@
             e.sender.table.focus();
             $(cell).trigger('click');
         }
-        lastEditIndex = { row: 0, col: 5 };
+        lastEditIndex = { row: 0, col: 6 };
     }
 
     //get the coordinates of saved cell
