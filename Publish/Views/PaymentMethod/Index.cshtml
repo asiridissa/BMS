@@ -1,17 +1,18 @@
-﻿@using Kendo.Mvc.UI
+﻿@using BMS.Resource
+@using Kendo.Mvc.UI
 
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.PaymentMethod>()
       .Name("gPaymentMethod")
       .Columns(columns =>
       {
-          columns.Bound(c => c.ShortName).Width(200);
-          columns.Bound(c => c.FullName);
-          columns.Command(command => { command.Destroy(); }).Width(100);
+          columns.Bound(c => c.ShortName).Title(Resource.Short_Name).Width(200);
+          columns.Bound(c => c.ShortName).Title(Resource.Full_Name);
+          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create().Text("Add");
-          toolbar.Save().SaveText("Save").CancelText("Cancel");
+          toolbar.Create().Text(Resource.Add);
+          toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()

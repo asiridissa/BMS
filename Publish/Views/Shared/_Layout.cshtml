@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using BMS.Resource
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -45,9 +46,11 @@
         @RenderBody()
     </div>
     <footer>
-        <small>&copy; @DateTime.Now.Year - BMS</small>
+        <div class="row">
+            <div class="col-lg-offset-2 col-md-8"><small>&copy; @DateTime.Now.Year - BMS</small></div>
+            <div class="col-md-2">@Html.Partial("_Language")</div>
+        </div>
     </footer>
-
 
     @Scripts.Render("~/bundles/bootstrap")
     <script>
@@ -70,7 +73,7 @@
                             $(this).data('kendoDatePicker').open();
                         });
 
-                notify('Right Click to open the menu', 'info');
+                notify('@Resource.Right_Click_to_open_the_menu', 'info');
 
                 $('body')
                     .on('click',
@@ -86,6 +89,11 @@
                             location.replace('@Url.Action("ChangePassword","Manage")');
                         });
 
+                $("#form-cult img")
+                    .click(function () {
+                        $('#langCode').val(this.id);
+                        $(this).parents("form").submit();
+                    });
 
             });
 

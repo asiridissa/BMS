@@ -1,15 +1,16 @@
 ﻿@using System.Collections
 @using BMS.Entity.Enum
+@using BMS.Resource
 @using Kendo.Mvc.UI
 
 @{
-    ViewBag.Title = "Collection";
+    ViewBag.Title = Resource.Payments;
 }
 
 <div class="container-fluid">
     <div class="row payment-row">
         <div class="col-md-2">
-            <label style="padding: 4px;">Pament Method</label>
+            <label style="padding: 4px;">@Resource.Payment_Methods</label>
         </div>
         <div class="col-md-4">
             <div style="padding: 4px;">
@@ -19,11 +20,11 @@
             </div>
         </div>
         <div class="col-md-6">
-            <label for="Payment">Amount</label>
+            <label for="Payment">@Resource.Amount</label>
             @Html.Kendo().NumericTextBox().Name("Payment").Min(0.01).Placeholder("0").Decimals(2).Spinners(false)
-            <label for="PaymentDate">Date</label>
+            <label for="PaymentDate">@Resource.Date</label>
             @Html.Kendo().DatePicker().Name("PaymentDate").Value(DateTime.Now.Date)
-            <button onclick="pay()" class="k-button k-button-icontext k-grid-edit"><i class="fa fa-money"></i> Pay</button>
+            <button onclick="pay()" class="k-button k-button-icontext k-grid-edit"><i class="fa fa-money"></i>@Resource.Pay</button>
         </div>
     </div>
     <div id="cheque-row" class="row payment-row" style="display: none;">
@@ -32,19 +33,19 @@
                   .Name("gCheque")
                   .Columns(columns =>
                   {
-                      columns.Bound(c => c.Bank);
-                      columns.Bound(c => c.Branch);
-                      columns.Bound(c => c.Number);
-                      columns.Bound(c => c.ChequeDate).Width(100).Format("{0:d}");
-                      columns.Bound(c => c.Amount).Format("{0:N2}").Width(140);
-                      columns.Template(x => { }).ClientTemplate("#=parseFloat(Amount - UtilizedAmount).toFixed(2)#").Title("Available").Width(140);
-                      columns.ForeignKey(x => x.ChequeStatusId, (IEnumerable)ViewData["ChequeStatuses"], "Id", "ShortName").Title("Status").Width(140).Filterable(true);
+                      columns.Bound(c => c.Bank).Title(Resource.Bank);
+                      columns.Bound(c => c.Branch).Title(Resource.Branch);
+                      columns.Bound(c => c.Number).Title(Resource.Number);
+                      columns.Bound(c => c.ChequeDate).Title(Resource.Date).Width(100).Format("{0:d}");
+                      columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}").Width(140);
+                      columns.Template(x => { }).ClientTemplate("#=parseFloat(Amount - UtilizedAmount).toFixed(2)#").Title(Resource.Available).Width(140);
+                      columns.ForeignKey(x => x.ChequeStatusId, (IEnumerable)ViewData["ChequeStatuses"], "Id", "ShortName").Title(Resource.Status).Width(140).Filterable(true);
                   })
                   .ToolBar(t =>
-                      t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">Cheques of Customer</span>" +
-                                 "<button id=\"btnAddCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-add\"></span>Add</button>" +
-                                 "<button id=\"btnEditCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-i-edit\"></span>Edit</button>" +
-                                 "<button id=\"btnDeleteCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-i-delete\"></span>Delete</button>")
+                      t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Cheques_of_Customer + "</span>" +
+                                 "<button id=\"btnAddCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-add\"></span>" + Resource.Add + " </button>" +
+                                 "<button id=\"btnEditCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-i-edit\"></span>" + Resource.Edit + "</button>" +
+                                 "<button id=\"btnDeleteCheque\" class=\"k-button k-button-icontext\"><span class=\"k-icon k-i-delete\"></span>" + Resource.Delete + "</button>")
                   ).Pageable()
                   .Navigatable()
                   .Selectable(selectable =>
@@ -78,12 +79,12 @@
                   .Columns(columns =>
                   {
                       columns.Bound(c => c.BillNo).Width(120);
-                      columns.Bound(c => c.BillingDate).Width(100).Format("{0:d}").Title("Date");
-                      columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title("Customer");
+                      columns.Bound(c => c.BillingDate).Width(100).Format("{0:d}").Title(Resource.Date);
+                      columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title(Resource.Customer);
                       columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
-                      columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title("Paid");
+                      columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title(Resource.Paid);
                   })
-                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">Bills</span>"))
+                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Paid + "</span>"))
                   .Groupable()
                   .Pageable()
                   .Navigatable()
@@ -114,12 +115,12 @@
                   .Name("gBillPayment")
                   .Columns(columns =>
                   {
-                      columns.ForeignKey(x => x.PaymentMethodId, (IEnumerable)ViewData["PaymentMethods"], "Id", "ShortName").Title("Payment Method");
-                      columns.Bound(c => c.Amount).Format("{0:N2}");
-                      columns.Bound(c => c.PaymentDate).Width(100).Format("{0:d}");
-                      columns.Command(command => { command.Destroy(); }).Width(100);
+                      columns.ForeignKey(x => x.PaymentMethodId, (IEnumerable)ViewData["PaymentMethods"], "Id", "ShortName").Title(Resource.Payment_Method);
+                      columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}");
+                      columns.Bound(c => c.PaymentDate).Title(Resource.Payment_Date).Width(100).Format("{0:d}");
+                      columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
                   })
-                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">Payments</span>"))
+                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Payments + "</span>"))
                   .Pageable()
                   .Filterable()
                   .AutoBind(false)
@@ -178,7 +179,7 @@
                                     $('#Payment').data('kendoNumericTextBox').value("");
                                 })
                                 .fail(function(msg) {
-                                    notify('Something went wrong', 'warning');
+                                    notify('@Resource.Something_went_wrong', 'warning');
                                     console.log(msg);
                                 });
                         } else {
@@ -193,21 +194,21 @@
                                     $('#Payment').data('kendoNumericTextBox').value("");
                                 })
                                 .fail(function(msg) {
-                                    notify('Something went wrong', 'warning');
+                                    notify('@Resource.Something_went_wrong', 'warning');
                                     console.log(msg);
                                 });
                         }
                     } else {
-                        notify('Over Payment Detected', 'warning');
+                        notify('@Resource.Over_Payment_Detected', 'warning');
                     }
                 } else {
-                    notify('Older Payment Date Detected', 'warning');
+                    notify('@Resource.Older_Payment_Date_Detected', 'warning');
                 }
             } else {
-                notify('Already Paid', 'warning');
+                notify('@Resource.Already_Paid', 'warning');
             }
         } else {
-            notify('Enter Amount First', 'warning');
+            notify('@Resource.Enter_Amount_First', 'warning');
         }
     }
 
@@ -296,12 +297,12 @@
                 $.post('@Url.HttpRouteUrl("ActionApi", new {controller = "Cheques", action = "PostCheque"})', cheque)
                     .done(function(msg) {
                         console.log(msg);
-                        notify('Successfully Saved', 'success');
+                        notify('@Resource.Successfully_Saved', 'success');
                         $('#gCheque').data('kendoGrid').dataSource.read();
                         $('#wCheque').data('kendoWindow').close().refresh();
                     })
                     .fail(function(msg) {
-                        notify('Something went wrong', 'warning');
+                        notify('@Resource.Something_went_wrong', 'warning');
                         console.log(msg);
                     });
             } else if (cheque.Id > 0) {
@@ -312,22 +313,22 @@
                 })
                     .done(function(msg) {
                         console.log(msg);
-                        notify('Successfully Saved', 'success');
+                        notify('@Resource.Successfully_Saved', 'success');
                         $('#gCheque').data('kendoGrid').dataSource.read();
                         $('#wCheque').data('kendoWindow').close().refresh();
                     })
                     .fail(function(msg) {
-                        notify('Something went wrong', 'warning');
+                        notify('@Resource.Something_went_wrong', 'warning');
                         console.log(msg);
                     });
             }
         } else {
-            notify('Please fill the missing Data', 'error');
+            notify('@Resource.Please_fill_the_missing_Data', 'error');
         }
     };
 
     var deleteCheque = function() {
-        var r = confirm('Confirm to delete this cheque.\n All the transactions will be reversed.');
+        var r = confirm('@Resource.Confirm_to_delete_this_cheque.\n @Resource.All_the_transactions_will_be_reversed.');
         if (r) {
             var gridCheque = $('#gCheque').data('kendoGrid');
             $.ajax({
@@ -337,12 +338,12 @@
                 })
                 .done(function(msg) {
                     console.log(msg);
-                    notify('Successfully Deleted', 'success');
+                    notify('@Resource.Successfully_Deleted', 'success');
                     $('#gCheque').data('kendoGrid').dataSource.read();
                     $('#wCheque').data('kendoWindow').close().refresh();
                 })
                 .fail(function(msg) {
-                    notify('Something went wrong', 'warning');
+                    notify('@Resource.Something_went_wrong', 'warning');
                     console.log(msg);
                 });
         }

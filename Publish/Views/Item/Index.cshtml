@@ -1,4 +1,5 @@
 ﻿@using System.Collections
+@using BMS.Resource
 @{
     ViewBag.Title = "Item";
 }
@@ -6,27 +7,27 @@
       .Name("gItem")
       .Columns(columns =>
       {
-          columns.ForeignKey(c => c.BrandId, (IEnumerable)ViewData["Brands"], "Id", "ShortName").Title("Brand").Width(120);
-          columns.ForeignKey(c => c.CategoryId, (IEnumerable)ViewData["Categories"], "Id", "ShortName").Title("Category").Width(120);
-          columns.ForeignKey(c => c.ProductId, (IEnumerable)ViewData["Products"], "Id", "ShortName").Title("Product");
-          columns.Bound(c => c.UOMValue).Format("{0:N3}").EditorTemplateName("UOMValue").Title("Value").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-          columns.ForeignKey(c => c.UOMId, (IEnumerable)ViewData["UnitOfMeasures"], "Id", "ShortName").Title("UOM").Width(60);
-          columns.Bound(c => c.UnitsPerCase).EditorTemplateName("PossitiveInteger").Title("UPC").Width(60).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Bound(c => c.FreePerUnits).EditorTemplateName("PossitiveInteger").Title("FPC").Width(60).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Bound(c => c.PurchasePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Purch Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Bound(c => c.SalesPrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Sale Pr").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Bound(c => c.WholesalePrice).Format("{0:N2}").EditorTemplateName("Currency").Title("Wh Sale").Width(100).HtmlAttributes(new { style = "text-align:right;" });
-          columns.Command(command => { command.Destroy(); }).HtmlAttributes(new { style = "text-align:center;width:80px;" });
+          columns.ForeignKey(c => c.BrandId, (IEnumerable)ViewData["Brands"], "Id", "ShortName").Title(Resource.Brand).Width(120);
+          columns.ForeignKey(c => c.CategoryId, (IEnumerable)ViewData["Categories"], "Id", "ShortName").Title(Resource.Category).Width(120);
+          columns.ForeignKey(c => c.ProductId, (IEnumerable)ViewData["Products"], "Id", "ShortName").Title(Resource.Product);
+          columns.Bound(c => c.UOMValue).Format("{0:N3}").EditorTemplateName("UOMValue").Title(Resource.Value).Width(100).HtmlAttributes(new { style = "text-align:right;" });
+          columns.ForeignKey(c => c.UOMId, (IEnumerable)ViewData["UnitOfMeasures"], "Id", "ShortName").Title(Resource.UOM).Width(60);
+          columns.Bound(c => c.UnitsPerCase).EditorTemplateName("PossitiveInteger").Title(Resource.UPC).Width(60).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Bound(c => c.FreePerUnits).EditorTemplateName("PossitiveInteger").Title(Resource.FPC).Width(60).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Bound(c => c.PurchasePrice).Format("{0:N2}").EditorTemplateName("Currency").Title(Resource.Purch_Pr).Width(100).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Bound(c => c.SalesPrice).Format("{0:N2}").EditorTemplateName("Currency").Title(Resource.Sale_Pr).Width(100).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Bound(c => c.WholesalePrice).Format("{0:N2}").EditorTemplateName("Currency").Title(Resource.Wh_Sale).Width(100).HtmlAttributes(new { style = "text-align:right;" });
+          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).HtmlAttributes(new { style = "text-align:center;width:80px;" });
       })
       .ToolBar(toolbar =>
       {
-          //toolbar.Create().Text("Add");
-          //toolbar.Save().SaveText("Save").CancelText("Cancel");
+          //toolbar.Create().Text(Resource.Add);
+          //toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
           toolbar.Template(@<text>
-        <span style="float: left; font-size: 18px; padding: 4px;">Item Inventory</span>
-        <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-add"></span>Add</a>
-        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-update"></span>Save</a>
-        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-cancel"></span>Cancel</a>
+        <span style="float: left; font-size: 18px; padding: 4px;">@Resource.Inventory</span>
+        <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-add"></span>@Resource.Add</a>
+        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-update"></span>@Resource.Save</a>
+        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-cancel"></span>@Resource.Cancel</a>
         </text>);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))

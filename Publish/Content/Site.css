@@ -65,6 +65,24 @@ footer {
     color: #fff;
     font-size: 10px;
     box-shadow: 0 0 5px #999999;
+    padding: 1px;
+}
+
+#form-cult img {
+    filter: gray; /* IE6-9 */
+    filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+}
+
+    /* Disable grayscale on hover */
+    #form-cult img:hover {
+        filter: none;
+        -webkit-filter: grayscale(0);
+    }
+
+.selected-language {
+    filter: none !important;
+    -webkit-filter: grayscale(0) !important;
 }
 
 th.number {
@@ -165,4 +183,12 @@ td.number {
     height: 450px;
     text-align: center;
     font-family: Verdana, Arial;
+}
+
+.fa.red {
+    color: red;
+}
+
+.fa.green {
+    color: green;
 }

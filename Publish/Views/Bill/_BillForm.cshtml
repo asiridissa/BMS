@@ -1,9 +1,10 @@
-﻿@model BMS.Entity.BMSTenant.BillHeader
+﻿@using BMS.Resource
+@model BMS.Entity.BMSTenant.BillHeader
 
 <style>
-    .row {
+    /*.row:not(footer) {
         margin-bottom: 5px;
-    }
+    }*/
 
     .amount {
         text-align: right;
@@ -39,19 +40,19 @@
     @if (!Model.Finalized)
     {
         <button class="k-button k-button-icontext" onclick="bill.saveBill()">
-            <span class="k-icon k-update"></span>Save
+            <span class="k-icon k-update"></span>@Resource.Save
         </button>
         <button class="k-button k-button-icontext" title="Update and Add New" onclick="bill.saveBillAndNew()">
-            <span class="k-icon k-update"></span>Save and New
+            <span class="k-icon k-update"></span>@Resource.Save_and_New
         </button>
         <button class="k-button k-button-icontext" onclick="bill.cancelBill()">
-            <span class="k-icon k-cancel"></span> Cancel
+            <span class="k-icon k-cancel"></span>@Resource.Cancel
         </button>
     }
     else
     {
         <button class="k-button">
-            <i class="fa fa-thumbs-up"></i> Finalized 
+            <i class="fa fa-thumbs-up"></i>@Resource.Finalized 
         </button>
         
     }
@@ -60,5 +61,4 @@
 
 <script>
     bill.initItem();
-
 </script>

@@ -1,17 +1,18 @@
-﻿@using Kendo.Mvc.UI
+﻿@using BMS.Resource
+@using Kendo.Mvc.UI
 
 @(Html.Kendo().Grid<BMS.Entity.BMSMaster.Entity>()
       .Name("gEntity")
       .Columns(columns =>
       {
-          columns.Bound(c => c.Name).Width(250);
-          columns.Bound(c => c.DatabaseName).Width(250);
+          columns.Bound(c => c.Name).Title(Resource.Name).Width(250);
+          columns.Bound(c => c.DatabaseName).Title(Resource.Database_Name).Width(250);
           columns.Bound(c => c.ConnectionString);
-          columns.Command(command => {command.Destroy(); }).Width(100);
+          columns.Command(command => {command.Destroy().Text(Resource.Delete); }).Width(100);
       })
       .ToolBar(toolbar => {
-          toolbar.Create().Text("Add");
-          toolbar.Save().SaveText("Save").CancelText("Cancel");
+          toolbar.Create().Text(Resource.Add);
+          toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()

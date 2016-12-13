@@ -1,4 +1,5 @@
 ﻿@using System.Collections
+@using BMS.Resource
 @{
     ViewBag.Title = "Road Distribution";
 }
@@ -200,13 +201,13 @@
                             .done(function (msg) {
                                 if (msg) {
                                     gRoadDistributionRead();
-                                    notify('Save Successful :)', 'success');
+                                    notify('Save Successful', 'success');
                                 } else {
-                                    notify('Something went wrong. Please check your stock :(', 'warning');
+                                    notify('@Resource.Something_went_wrong. Please check your stock', 'warning');
                                 };
                             });
                     } else {
-                        notify('There are previous days to be finalized :(', 'warning');
+                        notify('There are previous days to be finalized', 'warning');
                     }
                 });
 

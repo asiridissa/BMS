@@ -1,22 +1,23 @@
-﻿@model BMS.Entity.BMSTenant.BillHeader
+﻿@using BMS.Resource
+@model BMS.Entity.BMSTenant.BillHeader
 
 <table id="header" style="width: 100%">
     <tr>
         <td>
             <input id="BillHeaderId" type="hidden" value="@Convert.ToInt64(Model?.Id)"/>
-            <label for="BillNo">Bill No</label>
+            <label for="BillNo">@Resource.Bill_No</label>
         </td>
         <td>
             @Html.Kendo().TextBoxFor(x => x.BillNo)
         </td>
         <td>
-            <label for="BillingDate">Date</label>
+            <label for="BillingDate">@Resource.Date</label>
         </td>
         <td>
             @(Html.Kendo().DatePickerFor(x => x.BillingDate).Value(DateTime.UtcNow))
         </td>
         <td>
-            <label for="AreaId">Area</label>
+            <label for="AreaId">@Resource.Area</label>
         </td>
         <td>
             @(Html.Kendo().DropDownListFor(x => x.AreaId)
@@ -28,7 +29,7 @@
                   ))
         </td>
         <td>
-            <label for="CustomerId">Customer</label>
+            <label for="CustomerId">@Resource.Customer</label>
         </td>
         <td>
             @(Html.Kendo().DropDownListFor(x => x.CustomerId)
@@ -45,7 +46,7 @@
     </tr>
     <tr>
         <td>
-            <label for="Discount">Discount</label>
+            <label for="Discount">@Resource.Discount</label>
         </td>
         <td>
             @(Html.Kendo().NumericTextBoxFor<decimal>(x=>x.Discount)
@@ -57,20 +58,20 @@
                 .Spinners(false))
         </td>
         <td>
-            <label for="Deduction">Deduction</label>
+            <label for="Deduction">@Resource.Deduction</label>
         </td>
         <td>
             @(Html.Kendo().NumericTextBoxFor(x=>x.Deduction).Format("#")
                 .Min(0).Placeholder("0.00").Spinners(false).Decimals(2).Format(""))
         </td>
         <td>
-            <label for="PaidAmount">Paid</label>
+            <label for="PaidAmount">@Resource.Paid</label>
         </td>
         <td>
             @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount).Value(0).Decimals(2).Spinners(false).Enable(false)
         </td>
         <td>
-            <label for="VehicleId">Vehicle</label>
+            <label for="VehicleId">@Resource.Vehicle</label>
         </td>
         <td>
             @(Html.Kendo().DropDownListFor(x => x.VehicleId)

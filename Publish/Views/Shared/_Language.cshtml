@@ -1,0 +1,29 @@
+﻿@using BMS.Resource
+
+@helper Selected(string c, string culture)
+{
+if (c == culture)
+{
+        @:class="selected-language"
+    }
+}
+
+
+
+@using (Html.BeginForm("SetCulture", "Home", null, FormMethod.Post, new { id = "form-cult", role = "form" }))
+{
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.ToLowerInvariant();
+
+    <div class="row">
+        <div class="col-lg-4">@Resource.Language</div>
+        <div class="col-lg-8">
+            <input id="langCode" name="langCode" type="hidden" value="" />
+            <input id="returnUrl" name="returnUrl" type="hidden" value="@(Request.Url?.LocalPath)" />
+            <div style="text-align: center" id="cult-list">
+                <img id="si-LK" src="@Url.Content("~/Content/Flags/lk.png")" width="25" title="@Resource.Sinhala" style="cursor: pointer; margin-right: 8px" @Selected("si-lk", culture) alt="@Resource.Sinhala" />
+                <img id="en-US" src="@Url.Content("~/Content/Flags/us.png")" width="25" title="@Resource.English" style="cursor: pointer; margin-right: 8px;" @Selected("en-us", culture) alt="@Resource.English" />
+            </div>
+        </div>
+    </div>
+
+}

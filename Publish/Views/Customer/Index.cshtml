@@ -1,22 +1,27 @@
 ﻿@using System.Collections
+@using BMS.Resource
 @{
-    ViewBag.Title = "Customer";
+    ViewBag.Title = Resource.Customer;
 }
 
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Customer>()
       .Name("gCustomer")
       .Columns(columns =>
       {
-          columns.Bound(c => c.ShortName).Width(140);
-          columns.Bound(c => c.FullName);
-          columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Width(140).Title("Area");
-          columns.Bound(c => c.Phone).Width(140);
-          columns.Bound(c => c.Mobile).Width(140);
-          columns.Command(command => { command.Edit(); command.Destroy(); }).Width(180);
+          columns.Bound(c => c.ShortName).Title(Resource.Short_Name).Width(140);
+          columns.Bound(c => c.ShortName).Title(Resource.Full_Name);
+          columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Width(140).Title(@Resource.Area);
+          columns.Bound(c => c.Phone).Title(Resource.Phone).Width(140);
+          columns.Bound(c => c.Mobile).Title(Resource.Mobile).Width(140);
+          columns.Command(command =>
+          {
+              command.Edit().UpdateText(Resource.Save).CancelText(Resource.Cancel);
+              command.Destroy().Text(Resource.Delete);
+          }).Width(180);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create().Text("Add");
+          toolbar.Create().Text(Resource.Add);
       })
       .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("Customer").Window(w => w.Width(800)))
       .Pageable()
@@ -49,15 +54,15 @@
 <script id="gCustomerDetails" type="text/kendo-tmpl">
     <div class="container">
         <div class="row">
-            <div class="col-md-2">Mobile</div>
+            <div class="col-md-2">@Resource.Mobile</div>
             <div class="col-md-3">#if (Mobile == null) {# #=''# #} else {# #=Mobile# #}#</div>
-            <div class="col-md-2">Email</div>
+            <div class="col-md-2">@Resource.Email</div>
             <div class="col-md-3">#if (Email == null) {# #=''# #} else {# #=Email# #}#</div>
         </div>
         <div class="row">
-            <div class="col-md-2">Address</div>
+            <div class="col-md-2">@Resource.Address</div>
             <div class="col-md-3"><pre>#if (Address == null) {# #=''# #} else {# #=Address# #}#</pre></div>
-            <div class="col-md-2">Fax</div>
+            <div class="col-md-2">@Resource.Fax</div>
             <div class="col-md-3">#if (Fax == null) {# #=''# #} else {# #=Fax# #}#</div>
         </div>
     </div>

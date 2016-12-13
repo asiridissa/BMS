@@ -1,4 +1,5 @@
-﻿@{
+﻿@using BMS.Resource
+@{
     ViewBag.Title = "Vehicle";
 }
 
@@ -8,12 +9,12 @@
       {
           columns.Bound(c => c.No).Width(250);
           columns.Bound(c => c.Description);
-          columns.Command(command => { command.Destroy(); }).Width(100);
+          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
       })
       .ToolBar(toolbar =>
       {
-          toolbar.Create().Text("Add");
-          toolbar.Save().SaveText("Save").CancelText("Cancel");
+          toolbar.Create().Text(Resource.Add);
+          toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()

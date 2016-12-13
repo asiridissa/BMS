@@ -1,4 +1,5 @@
-﻿@model BMS.Entity.BMSTenant.Cheque
+﻿@using BMS.Resource
+@model BMS.Entity.BMSTenant.Cheque
 
 @{
     var editable = Model.Id > 0 && Model.UtilizedAmount == 0 || Model.Id == 0;
@@ -9,13 +10,13 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-2">
-            <label for="Bank">Bank</label>
+            <label for="Bank">@Resource.Bank</label>
         </div>
         <div class="col-md-3">
             @Html.Kendo().TextBoxFor(x => x.Bank)
         </div>
         <div class="col-md-2">
-            <label for="Branch">Branch</label>
+            <label for="Branch">@Resource.Branch</label>
         </div>
         <div class="col-md-3">
             @Html.Kendo().TextBoxFor(x => x.Branch)
@@ -23,13 +24,13 @@
     </div>
     <div class="row">
         <div class="col-md-2">
-            <label for="Number">Number</label>
+            <label for="Number">@Resource.Number</label>
         </div>
         <div class="col-md-3">
             @Html.Kendo().TextBoxFor(x => x.Number)
         </div>
         <div class="col-md-2">
-            <label for="ChequeDate">ChequeDate</label>
+            <label for="ChequeDate">@Resource.Date</label>
         </div>
         <div class="col-md-3">
             @Html.Kendo().DatePickerFor(x => x.ChequeDate).Value(DateTime.Now)
@@ -37,13 +38,13 @@
     </div>
     <div class="row">
         <div class="col-md-2">
-            <label for="Amount">Amount</label>
+            <label for="Amount">@Resource.Amount</label>
         </div>
         <div class="col-md-3">
             @Html.Kendo().NumericTextBoxFor(x => x.Amount).Min(0).Decimals(2).Placeholder("0").Spinners(false).Enable(editable)
         </div>
         <div class="col-md-2">
-            <label for="ChequeStatusId">Cheque Status</label>
+            <label for="ChequeStatusId">@Resource.Status</label>
         </div>
         <div class="col-md-3">
             @(Html.Kendo().DropDownListFor(x => x.ChequeStatusId)
@@ -55,5 +56,5 @@
 </div>
 <hr/>
 <div style="text-align: right">
-    <button id="btnSaveCheque" class="k-button k-button-icontext"><span class="k-icon k-i-tick"></span>Save</button>
+    <button id="btnSaveCheque" class="k-button k-button-icontext"><span class="k-icon k-i-tick"></span>@Resource.Save</button>
 </div>

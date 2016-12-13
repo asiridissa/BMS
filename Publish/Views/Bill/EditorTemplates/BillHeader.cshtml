@@ -1,4 +1,5 @@
-﻿@model BMS.Entity.BMSTenant.BillHeader
+﻿@using BMS.Resource
+@model BMS.Entity.BMSTenant.BillHeader
 <style>
     #gBillHeaderPopUp .row {
         padding-bottom: 2px;
@@ -6,21 +7,21 @@
 </style>
 <div id="gBillHeaderPopUp" class="container-fluid">
     <div class="row">
-        <label class="col-md-4">BillNo</label>
+        <label class="col-md-4">@Resource.Bill_No</label>
         <div class="col-md-6">
             @Html.Kendo().TextBoxFor(x => x.BillNo).HtmlAttributes(new { required = "required" })
             @Html.ValidationMessageFor(model => model.BillNo, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Date</label>
+        <label class="col-md-4">@Resource.Date</label>
         <div class="col-md-6">
             @Html.Kendo().DatePickerFor(x => x.BillingDate).HtmlAttributes(new { required = "required" })
             @Html.ValidationMessageFor(model => model.BillingDate, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Area</label>
+        <label class="col-md-4">@Resource.Area</label>
         <div class="col-md-6">
             @(Html.Kendo().DropDownListFor(m => m.AreaId)
               .DataValueField("Id")
@@ -40,7 +41,7 @@
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Customer</label>
+        <label class="col-md-4">@Resource.Customer</label>
         <div class="col-md-6">
             @(Html.Kendo().DropDownListFor(m => m.CustomerId)
               .DataValueField("Id")
@@ -64,7 +65,7 @@
     </div>
 
     <div class="row">
-        <label class="col-md-4">Vehicle</label>
+        <label class="col-md-4">@Resource.Vehicle</label>
         <div class="col-md-6">
             @(Html.Kendo().DropDownListFor(m => m.VehicleId)
               .DataValueField("Id")
@@ -82,21 +83,21 @@
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Discount</label>
+        <label class="col-md-4">@Resource.Discount</label>
         <div class="col-md-6">
             @Html.Kendo().NumericTextBoxFor(x => x.Discount)
             @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Deduction</label>
+        <label class="col-md-4">@Resource.Deduction</label>
         <div class="col-md-6">
             @Html.Kendo().NumericTextBoxFor(x => x.Deduction)
             @Html.ValidationMessageFor(model => model.Deduction, "", new { @class = "text-danger" })
         </div>
     </div>
     <div class="row">
-        <label class="col-md-4">Paid Amount</label>
+        <label class="col-md-4">@Resource.Paid_Amount</label>
         <div class="col-md-6">
             @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount)
             @Html.ValidationMessageFor(model => model.PaidAmount, "", new { @class = "text-danger" })

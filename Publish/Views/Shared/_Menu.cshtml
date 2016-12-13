@@ -1,4 +1,5 @@
 ﻿@using BMS.Entity
+@using BMS.Resource
 @using BMS.Web.Models
 @using Entity = BMS.Entity.BMSMaster.Entity
 
@@ -10,7 +11,7 @@
           .HighlightPath(true)
           .Items(i =>
           {
-              i.Add().Text("Change Company").Items(x =>
+              i.Add().Text(Resource.Change_Company).Items(x =>
               {
                   foreach (var entity in User.GetEntities())
                   {
@@ -20,71 +21,71 @@
 
               if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id??0))
               {
-                  i.Add().Text("Reference").Items(x =>
+                  i.Add().Text(Resource.Master_Data).Items(x =>
                   {
-                      x.Add().Text("Area").Action("Index", "Area").HtmlAttributes(new { data_icon = "map-signs" });
-                      x.Add().Text("Vehicle").Action("Index", "Vehicle").HtmlAttributes(new { data_icon = "bus" });
-                      x.Add().Text("Customer").Action("Index", "Customer").HtmlAttributes(new { data_icon = "id-card-o" });
-                      x.Add().Text("Brand").Action("Index", "Brand").HtmlAttributes(new { data_icon = "certificate" });
-                      x.Add().Text("Category").Action("Index", "Category").HtmlAttributes(new { data_icon = "creative-commons" });
-                      x.Add().Text("Product").Action("Index", "Product").HtmlAttributes(new { data_icon = "product-hunt" });
-                      x.Add().Text("Unit of Measure").Action("Index", "UnitOfMeasure").HtmlAttributes(new { data_icon = "balance-scale" });
+                      x.Add().Text(Resource.Areas).Action("Index", "Area").HtmlAttributes(new { data_icon = "map-signs" });
+                      x.Add().Text(Resource.Vehicles).Action("Index", "Vehicle").HtmlAttributes(new { data_icon = "bus" });
+                      x.Add().Text(Resource.Customers).Action("Index", "Customer").HtmlAttributes(new { data_icon = "id-card-o" });
+                      x.Add().Text(Resource.Brands).Action("Index", "Brand").HtmlAttributes(new { data_icon = "certificate" });
+                      x.Add().Text(Resource.Categories).Action("Index", "Category").HtmlAttributes(new { data_icon = "creative-commons" });
+                      x.Add().Text(Resource.Products).Action("Index", "Product").HtmlAttributes(new { data_icon = "product-hunt" });
+                      x.Add().Text(Resource.Unit_of_Measures).Action("Index", "UnitOfMeasure").HtmlAttributes(new { data_icon = "balance-scale" });
                   }).HtmlAttributes(new { data_icon = "cogs" });
 
-                  i.Add().Text("Inventory").Items(x =>
+                  i.Add().Text(Resource.Inventory).Items(x =>
                   {
-                      x.Add().Text("Item").Action("Index", "Item").HtmlAttributes(new { data_icon = "stack-overflow" });
-                      x.Add().Text("Invoice").Action("Index", "Invoice").HtmlAttributes(new { data_icon = "newspaper-o" });
+                      x.Add().Text(Resource.Items).Action("Index", "Item").HtmlAttributes(new { data_icon = "stack-overflow" });
+                      x.Add().Text(Resource.Invoices).Action("Index", "Invoice").HtmlAttributes(new { data_icon = "newspaper-o" });
                   }).HtmlAttributes(new { data_icon = "cubes" });
               }
 
               if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
-                  i.Add().Text("Sales").Items(x =>
+                  i.Add().Text(Resource.Sales).Items(x =>
                   {
-                      x.Add().Text("Bill").Action("Index", "Bill").HtmlAttributes(new { data_icon = "clipboard" });
-                      x.Add().Text("Road Distribution").Action("Index", "RoadDistribution").HtmlAttributes(new { data_icon = "map-o" });
+                      x.Add().Text(Resource.Billing).Action("Index", "Bill").HtmlAttributes(new { data_icon = "clipboard" });
+                      x.Add().Text(Resource.Road_Distribution).Action("Index", "RoadDistribution").HtmlAttributes(new { data_icon = "map-o" });
                   }).HtmlAttributes(new { data_icon = "handshake-o" });
               }
 
               if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
-                  i.Add().Text("Reports").Items(x =>
+                  i.Add().Text(Resource.Reports).Items(x =>
                   {
-                      x.Add().Text("Billing Report").Action("BillingReport", "Report").HtmlAttributes(new { data_icon = "print" });
-                      x.Add().Text("Collection Report").Action("CollectionReport", "Report").HtmlAttributes(new { data_icon = "print" });
-                      x.Add().Text("Daily Bill Summary").Action("DailyBillSummary", "Report").HtmlAttributes(new { data_icon = "print" });
-                      x.Add().Text("Road Distribution").Action("RoadDistribution", "Report").HtmlAttributes(new { data_icon = "print" });
-                      x.Add().Text("Spot Stock Test").Action("SpotStockTest", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Billing_Report).Action("BillingReport", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Collection_Report).Action("CollectionReport", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Daily_Bill_Summary).Action("DailyBillSummary", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Road_Distribution).Action("RoadDistribution", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Spot_Stock_Test).Action("SpotStockTest", "Report").HtmlAttributes(new { data_icon = "print" });
                   }).HtmlAttributes(new { data_icon = "line-chart" });
               }
 
               if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
-                  i.Add().Text("Payments").Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
+                  i.Add().Text(Resource.Payments).Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
               }
 
-              i.Add().Text("Change Password").Action("ChangePassword","Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });
-              i.Add().Text("Logout").HtmlAttributes(new { id = "log-out" }).HtmlAttributes(new { data_icon = "sign-out" });
+              i.Add().Text(Resource.Change_Password).Action("ChangePassword","Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });
+              i.Add().Text(Resource.Log_Off).HtmlAttributes(new { id = "log-out" }).HtmlAttributes(new { data_icon = "sign-out" });
 
               if (User.IsInRole(Role.SAdmin))
               {
-                  i.Add().Text("Super Admin").Items(x =>
+                  i.Add().Text(Resource.Super_Admin).Items(x =>
                   {
-                      x.Add().Text("User").Action("Index", "UserRole").HtmlAttributes(new { data_icon = "building" });
-                      x.Add().Text("Roles").Action("Index", "Role").HtmlAttributes(new { data_icon = "building" });
-                      x.Add().Text("Payment Method").Action("Index", "PaymentMethod").HtmlAttributes(new { data_icon = "building" });
+                      x.Add().Text(Resource.User).Action("Index", "UserRole").HtmlAttributes(new { data_icon = "building" });
+                      x.Add().Text(Resource.Roles).Action("Index", "Role").HtmlAttributes(new { data_icon = "building" });
+                      x.Add().Text(Resource.Payment_Methods).Action("Index", "PaymentMethod").HtmlAttributes(new { data_icon = "building" });
                   });
               }
 
-              i.Add().Text("Help").Url(Url.Content("~/Content/Help/Manual.pdf")).LinkHtmlAttributes(new {target="_blank"}).HtmlAttributes(new { data_icon = "life-ring" });
+              i.Add().Text(Resource.Help).Url(Url.Content("~/Content/Help/Manual.pdf")).LinkHtmlAttributes(new {target="_blank"}).HtmlAttributes(new { data_icon = "life-ring" });
           })
           .Events(e=>e.Activate("contextMenuOnOpen"))
           .HtmlAttributes(new {style="width:175px;"})
           )
 
     <script id="navbar-tooltip" type="text/x-kendo-template">
-        <h4><i class="fa fa-bell-o blink_me" style="font-size:110%;"></i> Right Click to open the menu</h4>
+        <h4><i class="fa fa-bell-o blink_me" style="font-size:110%;"></i> @Resource.Right_Click_to_open_the_menu</h4>
     </script>
 
     @Html.Kendo().Tooltip().For(".navbar").Filter("i").ContentTemplateId("navbar-tooltip").Callout(true).ShowOn(TooltipShowOnEvent.MouseEnter)

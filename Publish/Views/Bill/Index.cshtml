@@ -1,6 +1,7 @@
 ﻿@using System.Collections
+@using BMS.Resource
 @{
-    ViewBag.Title = "Billing";
+    ViewBag.Title = Resource.Billing;
 }
 <script>
     var bill = function() {
@@ -229,16 +230,16 @@
                                 win.close();
                             }
                             $('#gBillHeader').data('kendoGrid').dataSource.read();
-                            notify('Successfully Saved :)', 'success');
+                            notify('@Resource.Successfully_Saved', 'success');
                         } else {
-                            notify('Something went wrong :(', 'warning');
+                            notify('@Resource.Something_went_wrong', 'warning');
                         }
                     })
                     .fail(function(msg) {
-                        notify('Something went wrong :(', 'error');
+                        notify('@Resource.Something_went_wrong', 'error');
                     });
             } else {
-                notify('Please fill the missing Data :(', 'error');
+                notify('Please fill the missing Data', 'error');
             }
 
         }
@@ -248,7 +249,7 @@
         }
 
         var cancelBill = function() {
-            var r = confirm('Confirm to cancel?');
+            var r = confirm('@Resource.Confirm_to_cancel');
             if (r) {
                 $('#wBill')
                     .data('kendoWindow')
@@ -276,7 +277,7 @@
         }
 
         var deleteBill = function() {
-            var r = confirm('Confirm to delete?');
+            var r = confirm('@Resource.Confirm_to_delete');
             if (r) {
                 var grid = $('#gBillHeader').data('kendoGrid');
                 $.ajax({
@@ -286,11 +287,11 @@
                     })
                     .done(function(msg) {
                         console.log(msg);
-                        notify('Successfully Deleted :)', 'success');
+                        notify('@Resource.Successfully_Deleted', 'success');
                     })
                     .fail(function(msg) {
                         console.log(msg);
-                        notify('Something went wrong :(', 'error');
+                        notify('@Resource.Something_went_wrong', 'error');
                     })
                     .always(function() {
                         $('#gBillHeader').data('kendoGrid').dataSource.read();
@@ -308,7 +309,7 @@
                 })
                 .fail(function(msg) {
                     console.log(msg);
-                    notify('Something went wrong :(', 'warning');
+                    notify('@Resource.Something_went_wrong', 'warning');
                 });
         }
 
@@ -337,24 +338,25 @@
           .Name("gBillHeader")
           .Columns(columns =>
           {
-              columns.Bound(c => c.BillNo).Width(120).ClientTemplate("#=BillNo#  #if(Finalized){#<span class=\"finalized\" style=\"float:right;\">" +
-                                                                     "<i class=\"fa fa-thumbs-up\" title=\"Finalized\"></i>" +
-                                                                     "</span>#}#");
-              columns.Bound(c => c.BillingDate).Width(100).Format("{0:d}").Title("Date").EditorTemplateName("Date");
-              columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Title("Area");
-              columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title("Customer");
-              columns.Bound(c => c.Discount).Width(75).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
-              columns.Bound(c => c.Deduction).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
-              columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
-              columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title("Paid");
-              columns.ForeignKey(x => x.BillStatusId, (IEnumerable)ViewData["Statuses"], "Id", "Name").Width(80).Title("Status");
+              columns.Bound(c => c.BillNo).Width(120).ClientTemplate("#=BillNo# <span style=\"float:right;\">" +
+                                                                     "#if(Finalized) { #<span class=\"finalized\" ><i class=\"fa fa-thumbs-up\" title=\"" + Resource.Finalized + "\"></i></span>#}#" +
+                                                                     "#if(Amount > PaidAmount){# <i class=\"fa fa-money red\" title=\"" + Resource.Pending + "\"></i> #} else {# <i class=\"fa fa-money green\" title=\"" + Resource.Paid + "\"></i> #}#" +
+                                                                     "</span>");
+              columns.Bound(c => c.BillingDate).Title(Resource.Date).Width(100).Format("{0:d}").Title("Date").EditorTemplateName("Date");
+              columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Title(Resource.Areas);
+              columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title(Resource.Customer);
+              columns.Bound(c => c.Discount).Title(Resource.Discount).Width(75).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.Deduction).Title(Resource.Deduction).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.Amount).Title(Resource.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
+              columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title(Resource.Paid);
+              columns.ForeignKey(x => x.BillStatusId, (IEnumerable)ViewData["Statuses"], "Id", "Name").Width(80).Title(Resource.Status);
           })
           .ToolBar(t =>
           {
-              t.Template("<span style=\"float: left; font-size: 18px; padding: 4px;\">Billing</span>" +
-                         "<button id=\"btnAddBill\" class=\"k-button k-button-icontext k-grid-add\"><span class=\"k-icon k-add\"></span>Add</button>" +
-                         "<button id=\"btnEditBill\" class=\"k-button k-button-icontext k-grid-edit\"><span class=\"k-icon k-i-edit\"></span>Edit</button>" +
-                         "<button id=\"btnDeleteBill\" class=\"k-button k-button-icontext k-grid-delete\"><span class=\"k-icon k-i-delete\"></span>Delete</button>");
+              t.Template("<span style=\"float: left; font-size: 18px; padding: 4px;\">" + Resource.Billing + "</span>" +
+                         "<button id=\"btnAddBill\" class=\"k-button k-button-icontext k-grid-add\"><span class=\"k-icon k-add\"></span>" + Resource.Add + "</button>" +
+                         "<button id=\"btnEditBill\" class=\"k-button k-button-icontext k-grid-edit\"><span class=\"k-icon k-i-edit\"></span>" + Resource.Edit + "</button>" +
+                         "<button id=\"btnDeleteBill\" class=\"k-button k-button-icontext k-grid-delete\"><span class=\"k-icon k-i-delete\"></span>" + Resource.Delete + "</button>");
           })
           .ClientDetailTemplateId("headerTemplate")
           .Pageable()
@@ -392,22 +394,22 @@
           .SelectedIndex(0)
           .Items(items =>
           {
-              items.Add().Text("Lines").Content(@<text>
+              items.Add().Text(Resource.Lines).Content(@<text>
         @(Html.Kendo().Grid
               <BMS.Entity.BMSTenant.BillLine>
               ()
               .Name("gBillLine_#=Id#")
               .Columns(columns =>
               {
-                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Items : \\#=count\\#");
-                  columns.Bound(c => c.Sale).Width(100).ClientFooterTemplate("\\#=sum\\#");
-                  columns.Bound(c => c.FreeIssue).Width(100).ClientFooterTemplate("\\#=sum\\#");
-                  columns.Bound(c => c.Expire).Width(100).ClientFooterTemplate("\\#=sum\\#");
-                  columns.Bound(c => c.Damage).Width(100).ClientFooterTemplate("\\#=sum\\#");
-                  columns.Bound(c => c.GoodReturn).Width(100).ClientFooterTemplate("\\#=sum\\#");
-                  columns.Bound(c => c.Discount).Width(100).Format("{0:N2}");
-                  columns.Bound(c => c.Deduction).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
-                  columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
+                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title(Resource.Item).ClientFooterTemplate(Resource.Items+" : \\#=count\\#");
+                  columns.Bound(c => c.Sale).Title(Resource.Sale).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.FreeIssue).Title(Resource.Free_Issue).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Expire).Title(Resource.Expire).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Damage).Title(Resource.Damage).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.GoodReturn).Title(Resource.Good_Return).Width(100).ClientFooterTemplate("\\#=sum\\#");
+                  columns.Bound(c => c.Discount).Title(Resource.Discount).Width(100).Format("{0:N2}");
+                  columns.Bound(c => c.Deduction).Title(Resource.Deduction).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
+                  columns.Bound(c => c.Amount).Title(Resource.Amount).Width(100).Format("{0:N2}").ClientFooterTemplate("\\#=kendo.toString(sum,'n2')\\#");
               })
               .Pageable()
               .Navigatable()
@@ -434,20 +436,20 @@
                       a.Add(x => x.Deduction).Sum();
                       a.Add(x => x.Amount).Sum();
                   })
-              ).Pageable(x=>x.Enabled(false)).ToClientTemplate())
+              ).Pageable(x => x.Enabled(false)).ToClientTemplate())
             </text>);
-              items.Add().Text("Details").Content(@<text>
+              items.Add().Text(Resource.Details).Content(@<text>
         <div class="container-fluid">
             <div class="row">
-                <label class="col-md-2">Vehicle</label>
+                <label class="col-md-2">@Resource.Vehicle</label>
                 <div class="col-md-3">#=VehicleNo#</div>
-                <label class="col-md-2">Deduction</label>
+                <label class="col-md-2">@Resource.Deduction</label>
                 <div class="col-md-3">#=Deduction#</div>
             </div>
             <div class="row">
-                <label class="col-md-2">Value</label>
+                <label class="col-md-2">@Resource.Value</label>
                 <div class="col-md-3">#=Value#</div>
-                <label class="col-md-2">Created Date Time</label>
+                <label class="col-md-2">@Resource.Created_Date_Time</label>
                 <div class="col-md-3">#=kendo.toString(CreatedDateTime, "D")#</div>
             </div>
         </div>
@@ -458,12 +460,12 @@
 </script>
 
 <script>
-    var wBillOnOpen = function(e) {
+    var wBillOnOpen = function (e) {
         $('#wBill').data("kendoWindow").center();
     }
 
-    var wBillOnActive = function(e) {
-        var timer = setInterval(function() {
+    var wBillOnActive = function (e) {
+        var timer = setInterval(function () {
             if (!$('#BillNo').is(':focus')) {
                 $('#BillNo').focus();
             } else {
@@ -472,14 +474,14 @@
         }, 500);
     }
 
-    var gBillHeaderOnDataBound = function(e) {
+    var gBillHeaderOnDataBound = function (e) {
         var grid = e.sender,
             row = grid.tbody.find(">tr:not(.k-grouping-row)").eq(0);
         grid.select(row);
     }
 
     $(document)
-        .ready(function() {
+        .ready(function () {
             //$('body')
             //   .on('focus','#BillingDate',
             //       function() {
@@ -489,38 +491,38 @@
 
             $('body')
                 .on('blur',
-                    '#Discount,#Deduction',
-                    function() {
-                        bill.renderLines();
-                    });
+                '#Discount,#Deduction',
+                function () {
+                    bill.renderLines();
+                });
 
             $('body')
                 .on('change',
-                    '#WholeSalePrice',
-                    function() {
-                        bill.updateLineAmount();
-                    });
+                '#WholeSalePrice',
+                function () {
+                    bill.updateLineAmount();
+                });
 
             $('body')
                 .on('click',
-                    '#btnAddBill',
-                    function() {
-                        bill.addBill();
-                    });
+                '#btnAddBill',
+                function () {
+                    bill.addBill();
+                });
 
             $('body')
                 .on('click',
-                    '#btnEditBill',
-                    function() {
-                        bill.editBill();
-                    });
+                '#btnEditBill',
+                function () {
+                    bill.editBill();
+                });
 
             $('body')
                 .on('click',
-                    '#btnDeleteBill',
-                    function() {
-                        bill.deleteBill();
-                    });
+                '#btnDeleteBill',
+                function () {
+                    bill.deleteBill();
+                });
 
         });
 
@@ -535,7 +537,7 @@
       .Draggable()
       .Position(p => p.Top(10))
       .AutoFocus(true)
-      .Title("Billing")
+      .Title(Resource.Billing)
       .Actions(actions => actions.Refresh().Minimize().Maximize().Close())
       .LoadContentFrom("_BillForm", "Bill", new { headerId = 0 })
       .Events(e => e.Open("wBillOnOpen").Activate("wBillOnActive"))
