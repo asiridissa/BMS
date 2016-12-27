@@ -66,16 +66,16 @@
               }
 
               i.Add().Text(Resource.Change_Password).Action("ChangePassword","Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });
-              i.Add().Text(Resource.Log_Off).HtmlAttributes(new { id = "log-out" }).HtmlAttributes(new { data_icon = "sign-out" });
+              //i.Add().Text(Resource.Log_Off).HtmlAttributes(new { id = "log-out" }).HtmlAttributes(new { data_icon = "sign-out" });
 
               if (User.IsInRole(Role.SAdmin))
               {
                   i.Add().Text(Resource.Super_Admin).Items(x =>
                   {
-                      x.Add().Text(Resource.User).Action("Index", "UserRole").HtmlAttributes(new { data_icon = "building" });
-                      x.Add().Text(Resource.Roles).Action("Index", "Role").HtmlAttributes(new { data_icon = "building" });
-                      x.Add().Text(Resource.Payment_Methods).Action("Index", "PaymentMethod").HtmlAttributes(new { data_icon = "building" });
-                  });
+                      x.Add().Text(Resource.User).Action("Index", "User").HtmlAttributes(new { data_icon = "users" });
+                      x.Add().Text(Resource.Roles).Action("Index", "Role").HtmlAttributes(new { data_icon = "user-circle" });
+                      x.Add().Text(Resource.Payment_Methods).Action("Index", "PaymentMethod").HtmlAttributes(new { data_icon = "credit-card" });
+                  }).HtmlAttributes(new { data_icon = "user-secret" });
               }
 
               i.Add().Text(Resource.Help).Url(Url.Content("~/Content/Help/Manual.pdf")).LinkHtmlAttributes(new {target="_blank"}).HtmlAttributes(new { data_icon = "life-ring" });

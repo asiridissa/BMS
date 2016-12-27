@@ -1,0 +1,371 @@
+﻿@using System.Collections
+@using BMS.Entity.BMSMaster
+@using BMS.Resource
+
+<div class="container-fluid">
+    <div class="col-md-4">
+        <h4>@Resource.Company</h4>
+        @(Html.Kendo().Grid<Entity>().Name("gEntity").Columns(columns =>
+          {
+              columns.Bound(x => x.Name).Title(Resource.Name);
+          }).Pageable().Selectable(selectable =>
+          {
+              selectable.Mode(GridSelectionMode.Single);
+              selectable.Type(GridSelectionType.Row);
+          }).Sortable(sortable =>
+          {
+              sortable.SortMode(GridSortMode.MultipleColumn);
+          })
+              .Filterable(f=>f.Mode(GridFilterMode.Row))
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .PageSize(10)
+                  .Model(m => m.Id(x => x.Id))
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Entities", action = "GetEntities" })))
+              )
+              .Events(e => e.Change("gEntityOnChange"))
+              .Pageable(p => p.Refresh(true)))
+    </div>
+    <div class="col-md-4">
+        <h4>@Resource.User</h4>
+        @(Html.Kendo().Grid<User>()
+              .Name("gUser")
+              .Columns(columns =>
+              {
+                  columns.Bound(c => c.Email).Title(Resource.Mapped_Users);
+              })
+              .ToolBar(t => t.Template(@<text>
+                                           <button id="remove-user" class="k-button k-button-icontext"><i class="fa fa-chain-broken"></i>@Resource.Unmap</button>
+                                        </text>))
+              .Pageable()
+              .Navigatable()
+              .Selectable(selectable =>
+              {
+                  selectable.Mode(GridSelectionMode.Single);
+                  selectable.Type(GridSelectionType.Row);
+              })
+              .Sortable(sortable =>
+              {
+                  sortable.SortMode(GridSortMode.SingleColumn);
+              })
+              .Filterable()
+              .AutoBind(false)
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .PageSize(10)
+                  .Model(m =>
+                  {
+                      m.Id(x => x.Id);
+                      m.Field(x => x.Email);
+                  })
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Users", action = "GetAllCompanyUsersGrid" })).Data("gUserReadData"))
+              )
+              .Events(e => e.Change("gUserOnChange"))
+              .Pageable(p => p.Refresh(true))
+              )
+        <hr />
+        @(Html.Kendo().Grid<User>()
+              .Name("gNonUser")
+              .Columns(columns =>
+              {
+                  columns.Bound(c => c.Email).Title(Resource.Unmapped_Users);
+              })
+              .ToolBar(t => t.Template(@<text>
+                                           <button id="add-user" class="k-button k-button-icontext"><i class="fa fa-link"></i>@Resource.Map</button>
+                                        </text>))
+              .Pageable()
+              .Navigatable()
+              .Selectable(selectable =>
+              {
+                  selectable.Mode(GridSelectionMode.Single);
+                  selectable.Type(GridSelectionType.Row);
+              })
+              .Sortable(sortable =>
+              {
+                  sortable.SortMode(GridSortMode.SingleColumn);
+              })
+              .Filterable(f => f.Mode(GridFilterMode.Row))
+              .AutoBind(false)
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .PageSize(10)
+                  .Model(m =>
+                  {
+                      m.Id(x => x.Id);
+                      m.Field(x => x.Email);
+                  })
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Users", action = "GetAllNonCompanyUsers" })).Data("gUserReadData"))
+              )
+              .Pageable(p => p.Refresh(true))
+              )
+    </div>
+    <div class="col-md-4">
+        <h4>@Resource.Roles</h4>
+        @(Html.Kendo().Grid<UserRole>()
+              .Name("gUserRole")
+              .Columns(columns =>
+              {
+                  columns.ForeignKey(x => x.RoleId, (IEnumerable)ViewData["Roles"], "Id", "Name").Title(Resource.Mapped_Roles);
+              })
+              .ToolBar(t => t.Template(@<text>
+                                           <button id="remove-role" class="k-button k-button-icontext"><i class="fa fa-chain-broken"></i>@Resource.Unmap</button>
+                                        </text>))
+              .Pageable()
+              .Selectable(selectable =>
+              {
+                  selectable.Mode(GridSelectionMode.Single);
+                  selectable.Type(GridSelectionType.Row);
+              })
+              .Sortable(sortable =>
+              {
+                  sortable.SortMode(GridSortMode.MultipleColumn);
+              })
+              .Filterable()
+              .AutoBind(false)
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .PageSize(10)
+                  .Model(m => m.Id(x => x.Id))
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "UserRoles", action = "GetUserRoles" })).Data("gUserRoleReadData"))
+              )
+              .Pageable(p => p.Refresh(true))
+              )
+        <hr />
+        @(Html.Kendo().Grid<Role>()
+              .Name("gNonUserRole")
+              .Columns(columns =>
+              {
+                  columns.Bound(x => x.Name).Title(Resource.Unapped_Roles);
+              })
+              .ToolBar(t => t.Template(@<text>
+                                           <button id="add-roles" class="k-button k-button-icontext"><i class="fa fa-link"></i>@Resource.Map</button>
+                                        </text>))
+              .Pageable()
+              .Selectable(selectable =>
+              {
+                  selectable.Mode(GridSelectionMode.Single);
+                  selectable.Type(GridSelectionType.Row);
+              })
+              .Sortable(sortable =>
+              {
+                  sortable.SortMode(GridSortMode.MultipleColumn);
+              })
+              .Filterable()
+              .AutoBind(false)
+              .DataSource(dataSource => dataSource
+                  .WebApi()
+                  .PageSize(10)
+                  .Model(m => m.Id(x => x.Id))
+                  .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Roles", action = "GetNonUserRoles" })).Data("gUserRoleReadData"))
+              )
+              .Pageable(p => p.Refresh(true))
+              )
+    </div>
+</div>
+
+<script>
+    var gEntityOnChange = function () {
+        $('#gUser').data('kendoGrid').dataSource.read();
+        $('#gNonUser').data('kendoGrid').dataSource.read();
+        gUserOnChange();
+    }
+
+    var gUserOnChange = function () {
+        $('#gUserRole').data('kendoGrid').dataSource.read();
+        $('#gNonUserRole').data('kendoGrid').dataSource.read();
+    }
+
+    var gUserReadData = function () {
+        var grid = $('#gEntity').data('kendoGrid');
+        var selected = grid.dataItem(grid.select());
+        return {
+            entityId: selected == null ? 0 : selected.Id
+        }
+    }
+
+    var gUserRoleReadData = function () {
+        var gridEntity = $('#gEntity').data('kendoGrid');
+        var gridUser = $('#gUser').data('kendoGrid');
+        var selectedEntity = gridEntity.dataItem(gridEntity.select());
+        var selectedUser = gridUser.dataItem(gridUser.select());
+        return {
+            entityId: selectedEntity == null ? 0 : selectedEntity.Id,
+            userId: selectedUser == null ? 0 : selectedUser.Id
+        }
+    }
+
+    $(document).ready(function() {
+        $('#add-roles').bind('click',
+            function() {
+                var gridEntity = $('#gEntity').data('kendoGrid');
+                var gridUser = $('#gUser').data('kendoGrid');
+                var gridNonUserRole = $('#gNonUserRole').data('kendoGrid');
+                var selectedEntity = gridEntity.dataItem(gridEntity.select());
+                var selectedUser = gridUser.dataItem(gridUser.select());
+                var selectedRole = gridNonUserRole.dataItem(gridNonUserRole.select());
+
+                switch (true) {
+                case selectedEntity == null:
+                    notify('@Resource.Select_a_Company_first', 'info');
+                    return;
+                case selectedUser == null:
+                    notify('@Resource.Select_a_Mapped_user_first', 'info');
+                    return;
+                case selectedRole == null:
+                    notify('@Resource.Select_an_Unmapped_role_first', 'info');
+                    return;
+                }
+
+                var entityId=  selectedEntity == null ? 0 : selectedEntity.Id;
+                var userId = selectedUser == null ? 0 : selectedUser.Id;
+                var roleId = selectedRole == null ? 0 : selectedRole.Id;
+
+                $.post('@Url.HttpRouteUrl("ActionApi",new{controller="UserRoles",action="PostUserRole"})?entityId=' +
+                        entityId +
+                        '&userId=' +
+                        userId +
+                        '&roleId=' +
+                        roleId)
+                    .done(function(msg) {
+                        if (msg.Id > 0) {
+                            notify('@Resource.Successfully_Saved', 'success');
+                        } else {
+                            notify('@Resource.Something_went_wrong', 'warning');
+                        }
+                    }).fail(function() {
+                        notify('@Resource.Something_went_wrong', 'error');
+                    }).always(function() {
+                        gUserOnChange();
+                    });
+            });
+
+        $('#add-user').bind('click',
+            function() {
+                var gridEntity = $('#gEntity').data('kendoGrid');
+                var gridUser = $('#gNonUser').data('kendoGrid');
+                var gridNonUserRole = $('#gNonUserRole').data('kendoGrid');
+                var selectedEntity = gridEntity.dataItem(gridEntity.select());
+                var selectedUser = gridUser.dataItem(gridUser.select());
+                var selectedRole = gridNonUserRole.dataItem(gridNonUserRole.select());
+
+                switch (true) {
+                case selectedEntity == null:
+                    notify('@Resource.Select_a_Company_first', 'info');
+                    return;
+                case selectedUser == null:
+                    notify('@Resource.Select_an_Unmapped_user_first', 'info');
+                    return;
+                case selectedRole == null:
+                    notify('@Resource.Select_an_Unmapped_role_first', 'info');
+                    return;
+                }
+
+                var entityId=  selectedEntity == null ? 0 : selectedEntity.Id;
+                var userId = selectedUser == null ? 0 : selectedUser.Id;
+                var roleId = selectedRole == null ? 0 : selectedRole.Id;
+
+                $.post('@Url.HttpRouteUrl("ActionApi",new{controller="UserRoles",action="PostUserRole"})?entityId=' +
+                        entityId +
+                        '&userId=' +
+                        userId +
+                        '&roleId=' +
+                        roleId)
+                    .done(function(msg) {
+                        if (msg.Id > 0) {
+                            notify('@Resource.Successfully_Saved', 'success');
+                        } else {
+                            notify('@Resource.Something_went_wrong', 'warning');
+                        }
+                    }).fail(function() {
+                        notify('@Resource.Something_went_wrong', 'error');
+                    }).always(function() {
+                        gEntityOnChange();
+                    });
+            });
+
+        $('#remove-user').bind('click',
+            function() {
+                var gridEntity = $('#gEntity').data('kendoGrid');
+                var gridUser = $('#gUser').data('kendoGrid');
+                var selectedEntity = gridEntity.dataItem(gridEntity.select());
+                var selectedUser = gridUser.dataItem(gridUser.select());
+
+                switch (true) {
+                case selectedEntity == null:
+                    notify('@Resource.Select_a_Company_first', 'info');
+                    return;
+                case selectedUser == null:
+                    notify('@Resource.Select_a_Mapped_user_first', 'info');
+                    return;
+                }
+
+                var entityId=  selectedEntity == null ? 0 : selectedEntity.Id;
+                var userId = selectedUser == null ? 0 : selectedUser.Id;
+
+                $.ajax({ url:'@Url.HttpRouteUrl("ActionApi",new{controller="Users",action="DeleteUserMap"})?entityId=' +
+                            entityId +
+                            '&userId=' +
+                            userId,
+                        method:'DELETE'
+                    })
+                    .done(function(msg) {
+                        if (msg==true) {
+                            notify('@Resource.Successfully_Saved', 'success');
+                        } else {
+                            notify('@Resource.Something_went_wrong', 'warning');
+                        }
+                    }).fail(function() {
+                        notify('@Resource.Something_went_wrong', 'error');
+                    }).always(function() {
+                        gEntityOnChange();
+                    });
+            });
+
+        $('#remove-role').bind('click',
+            function() {
+                var gridEntity = $('#gEntity').data('kendoGrid');
+                var gridUser = $('#gUser').data('kendoGrid');
+                var gridUserRole = $('#gUserRole').data('kendoGrid');
+                var selectedEntity = gridEntity.dataItem(gridEntity.select());
+                var selectedUser = gridUser.dataItem(gridUser.select());
+                var selectedRole = gridUserRole.dataItem(gridUserRole.select());
+
+                switch (true) {
+                case selectedEntity == null:
+                    notify('@Resource.Select_a_Company_first', 'info');
+                    return;
+                case selectedUser == null:
+                    notify('@Resource.Select_a_Mapped_user_first', 'info');
+                    return;
+                case selectedRole == null:
+                    notify('@Resource.Select_a_Mapped_role_first', 'info');
+                    return;
+                }
+
+                var entityId=  selectedEntity == null ? 0 : selectedEntity.Id;
+                var userId = selectedUser == null ? 0 : selectedUser.Id;
+                var roleId = selectedRole == null ? 0 : selectedRole.RoleId;
+
+                $.ajax({ url:'@Url.HttpRouteUrl("ActionApi",new{controller="Users",action="DeleteUserRole"})?entityId=' +
+                            entityId +
+                            '&userId=' +
+                            userId +
+                            '&roleId=' +
+                            roleId,
+                        method:'DELETE'
+                    })
+                    .done(function(msg) {
+                        if (msg==true) {
+                            notify('@Resource.Successfully_Saved', 'success');
+                        } else {
+                            notify('@Resource.Something_went_wrong', 'warning');
+                        }
+                    }).fail(function() {
+                        notify('@Resource.Something_went_wrong', 'error');
+                    }).always(function() {
+                        gEntityOnChange();
+                    });
+            });
+
+    });
+</script>

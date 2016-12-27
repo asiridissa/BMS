@@ -1,0 +1,156 @@
+﻿@using BMS.Entity
+@using BMS.Entity.BMSMaster
+
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Content/highcharts/highcharts.js"></script>
+<script src="~/Content/highcharts/modules/exporting.js"></script>
+
+<div class="alert alert-info">
+    <label>From </label>
+    @Html.Kendo().DatePicker().Name("dtFrom").Value(new DateTime(2016, 10, 1)).Events(e => e.Change("refreshDashboard"))
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <label>To </label>
+    @Html.Kendo().DatePicker().Name("dtTo").Value(new DateTime(2016, 12, 10)).Events(e => e.Change("refreshDashboard"))
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div id="Sales-amount" class="col-md-6"></div>
+        <div id="Sales-qty" class="col-md-6"></div>
+    </div>
+    <div class="row">
+        <div id="SalesDetails-amount" class="col-md-6"></div>
+        <div id="Wasted-qty" class="col-md-6"></div>
+    </div>
+</div>
+<script>
+    var date1, date2, day, between, series = [];
+
+    var refreshDashboard = function () {
+        $.ajax({
+            url: '@Url.HttpRouteUrl("ActionApi", new {controller="Dashboards", action="GetSalesDashboard"})?from='
+                + $('#dtFrom').val()
+                + '&to='
+                + $('#dtTo').val(),
+            type: 'GET',
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                generateSeies(data);
+                renderCharts(data);
+            }
+        });
+    };
+
+    var generateSeies = function (data) {
+        //Full Date Range
+        date1 = new Date($('#dtFrom').val());
+        date2 = new Date($('#dtTo').val());
+        between = [Highcharts.dateFormat('%m-%d-%Y',new Date($('#dtFrom').val()))];
+        while (date2 > date1) {
+            day = date1.getDate();
+            between.push(Highcharts.dateFormat('%m-%d-%Y', date1));
+            date1 = new Date(date1.setDate(++day));
+        }
+
+        //Create Series
+        series = []; var categories = [];
+        categories = between;
+        series.push({ name: "Sales", data: [], color: 'rgb(144, 237, 125)' });
+        series.push({ name: "Paid", data: [], color: 'rgb(124, 181, 236)' });
+        series.push({ name: "Sales", data: [], color: 'rgb(144, 237, 125)' });
+        series.push({ name: "Free", data: [], color: 'rgb(124, 181, 236)' });
+        series.push({ name: "Damage", data: [], color: 'rgb(92, 92, 97)' });
+        series.push({ name: "Expire", data: [], color: 'rgb(255, 188, 117)' });
+        series.push({ name: "Collection", data: [], color: 'rgb(144, 237, 125)' });
+        series.push({ name: "Deduction", data: [], color: 'rgb(124, 181, 236)' });
+
+        $.each(categories,
+            function (i, e) {
+                var valSales = 0;
+                var valPaid = 0;
+                var valCollection = 0;
+                var valDiduction = 0;
+                var valSaleQty = 0;
+                var valFree = 0;
+                var valExpire = 0;
+                var valDamage = 0;
+                $.each(data,
+                    function (i1, e1) {
+                        var match = new Date(e1.BillingDate).getDate() === new Date(e).getDate() &&
+                            new Date(e1.BillingDate).getMonth() === new Date(e).getMonth() &&
+                            new Date(e1.BillingDate).getYear() === new Date(e).getYear();
+                        if (match) {
+                            valSales = e1.Sale;
+                            valPaid = e1.Paid;
+                            valCollection = e1.Collection;
+                            valDiduction = e1.Diduction + e1.Discount;
+                            valSaleQty = e1.SaleQty;
+                            valFree = e1.Free;
+                            valExpire = e1.Expire;
+                            valDamage = e1.Damage;
+                        }
+                    });
+                series[0].data.push(valSales);
+                series[1].data.push(valPaid);
+                series[2].data.push(valSaleQty);
+                series[3].data.push(valFree);
+                series[4].data.push(valDamage);
+                series[5].data.push(valExpire);
+                series[6].data.push(valCollection);
+                series[7].data.push(valDiduction);
+            });
+    }
+
+    var renderCharts = function (data) {
+        Highcharts.chart('Sales-amount', {
+            chart: { type: 'area' },
+            title: { text: 'Sales' },
+            subtitle: { text: 'Sales amounts over the period' },
+            xAxis: { categories: between },
+            yAxis: { title: { text: 'Amount (Rs)' } },
+            tooltip: { shared:true },
+            data: data,
+            series: [series[0],series[1]]
+        });
+   
+        Highcharts.chart('Sales-qty', {
+            chart: { type: 'area' },
+            title: { text: 'Billing' },
+            subtitle: { text: 'Billing quantities over the period' },
+            xAxis: { categories: between },
+            yAxis: { title: { text: 'Quanty (Pieces)' } },
+            tooltip: { shared: true },
+            data: data,
+            series: [series[2], series[3]]
+        });
+
+        Highcharts.chart('SalesDetails-amount', {
+            chart: { type: 'area' },
+            title: { text: 'Payments/Deduction' },
+            subtitle: { text: 'Amounts over the period per bills' },
+            xAxis: { categories: between },
+            yAxis: { title: { text: 'Quanty (Pieces)' } },
+            tooltip: { shared: true },
+            data: data,
+            series: [series[6], series[7]]
+        });
+
+        Highcharts.chart('Wasted-qty', {
+            chart: { type: 'area' },
+            title: { text: 'Expiery/Damage' },
+            subtitle: { text: 'Expiery/Damage quantities over the period' },
+            xAxis: { categories: between },
+            yAxis: { title: { text: 'Quanty (Pieces)' } },
+            tooltip: { shared: true },
+            data: data,
+            series: [series[4], series[5]]
+        });
+    };
+
+    $(document).ready(function () {
+        refreshDashboard();
+    });
+</script>
