@@ -76,7 +76,7 @@
         </td>
         <td class="amount">
             @(Html.Kendo().NumericTextBox<decimal>().Name("DeductionL").Events(e => e.Change("bill.updateLineAmount")).Format("#")
-                .Min(0).Placeholder("0.00").Spinners(false).Decimals(2).Format("").HtmlAttributes(new { @class = "line-qty" }))
+                .Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}").HtmlAttributes(new { @class = "line-qty" }))
         </td>
         <td class="amount">
             <span id="Amount" style="width: 70px;">0.00</span>

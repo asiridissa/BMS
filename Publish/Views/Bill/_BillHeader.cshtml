@@ -61,8 +61,7 @@
             <label for="Deduction">@Resource.Deduction</label>
         </td>
         <td>
-            @(Html.Kendo().NumericTextBoxFor(x=>x.Deduction).Format("#")
-                .Min(0).Placeholder("0.00").Spinners(false).Decimals(2).Format(""))
+            @(Html.Kendo().NumericTextBoxFor(x=>x.Deduction).Format("#").Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}"))
         </td>
         <td>
             <label for="PaidAmount">@Resource.Paid</label>
