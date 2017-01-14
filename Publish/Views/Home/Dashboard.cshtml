@@ -10,7 +10,7 @@
 
 <div class="alert alert-info">
     <label>From </label>
-    @Html.Kendo().DatePicker().Name("dtFrom").Value(DateTime.Now.AddMonths(-3)).Events(e => e.Change("refreshDashboard"))
+    @Html.Kendo().DatePicker().Name("dtFrom").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).Events(e => e.Change("refreshDashboard"))
     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <label>To </label>
     @Html.Kendo().DatePicker().Name("dtTo").Value(DateTime.Now).Events(e => e.Change("refreshDashboard"))
