@@ -110,7 +110,9 @@
                   )
                   .Pageable(p => p.Refresh(true))
                 .Events(e => e.SaveChanges("gInvoiceLineOnSaveChanges")
-                .Remove("gInvoiceLineOnRemove"))
+                .Remove("gInvoiceLineOnRemove")
+                .Edit("gInvoiceLineOnEdit")
+                )
                 )
             </div>
         </div>
@@ -148,6 +150,15 @@
             notify('You cannot change finalized invoice.', 'error');
             e.preventDefault();
             grid.dataSource.read();
+        }
+    }
+
+    var gInvoiceLineOnEdit = function (e) {
+        var grid = $("#gInvoiceHeader").data("kendoGrid");
+        if (grid.select().length == 1 && grid.dataItem(grid.select()).Id == 0) {
+            notify('You have to save the header details first.', 'error');
+            e.preventDefault();
+            $("#gInvoiceLine").data("kendoGrid").dataSource.read();
         }
     }
 

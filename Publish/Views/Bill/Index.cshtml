@@ -85,18 +85,26 @@
         };
 
         var updateLineTotal = function() {
-            var lineTotal = 0.00, total = 0.00;
+            var lineTotal = 0.00, total = 0.00, headerDiscountable = 0.00, headerDiscountExcept = 0.00;
             var discount = $('#Discount').data('kendoNumericTextBox').value();
             var deduction = $('#Deduction').data('kendoNumericTextBox').value();
 
             $(billLines)
                 .each(function(i, e) {
-                    if (!e.deleted)
+                    if (!e.deleted) {
                         lineTotal += e.Amount;
+                        if (e.Discount == 0 && e.Deduction == 0) {
+                            headerDiscountable += e.Amount;
+                        } else {
+                            headerDiscountExcept += e.Amount;
+                        }
+                    }
                 });
             $('#billLinesTotal').text(lineTotal.toFixed(2));
-
-            total = (lineTotal.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction;
+            $('#billHeaderDiscountable').text(headerDiscountable.toFixed(2));
+            
+            //total = (lineTotal.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction;
+            total = headerDiscountExcept + ((headerDiscountable.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction);
             $('#billTotal').text(total.toFixed(2));
         };
 
@@ -401,7 +409,7 @@
               .Name("gBillLine_#=Id#")
               .Columns(columns =>
               {
-                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title(Resource.Item).ClientFooterTemplate(Resource.Items+" : \\#=count\\#");
+                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title(Resource.Item).ClientFooterTemplate(Resource.Items + " : \\#=count\\#");
                   columns.Bound(c => c.Sale).Title(Resource.Sale).Width(100).ClientFooterTemplate("\\#=sum\\#");
                   columns.Bound(c => c.FreeIssue).Title(Resource.Free_Issue).Width(100).ClientFooterTemplate("\\#=sum\\#");
                   columns.Bound(c => c.Expire).Title(Resource.Expire).Width(100).ClientFooterTemplate("\\#=sum\\#");
