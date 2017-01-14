@@ -8,25 +8,7 @@
 }
 
 <div class="container-fluid">
-    <div class="row payment-row">
-        <div class="col-md-2">
-            <label style="padding: 4px;">@Resource.Payment_Methods</label>
-        </div>
-        <div class="col-md-4">
-            <div style="padding: 4px;">
-                @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Cash.ToString()).Value((int)PaymentTypeEnum.Cash).Checked(true).HtmlAttributes(new { autofocus = "autofocus" })
-                @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Credit.ToString()).Value((int)PaymentTypeEnum.Credit)
-                @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Cheque.ToString()).Value((int)PaymentTypeEnum.Cheque)
-            </div>
-        </div>
-        <div class="col-md-6">
-            <label for="Payment">@Resource.Amount</label>
-            @Html.Kendo().NumericTextBox().Name("Payment").Min(0.01).Placeholder("0").Decimals(2).Spinners(false)
-            <label for="PaymentDate">@Resource.Date</label>
-            @Html.Kendo().DatePicker().Name("PaymentDate").Value(DateTime.Now.Date)
-            <button onclick="pay()" class="k-button k-button-icontext k-grid-edit"><i class="fa fa-money"></i>@Resource.Pay</button>
-        </div>
-    </div>
+
     <div id="cheque-row" class="row payment-row" style="display: none;">
         <div class="col-md-12">
             @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Cheque>()
@@ -84,7 +66,9 @@
                       columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
                       columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title(Resource.Paid);
                   })
-                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Paid + "</span>"))
+                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Billing + "</span>" +
+                                           "<input type=\"checkbox\" id=\"showAllBills\" class=\"k-checkbox\">" +
+                                           "<label class=\"k-checkbox-label\" style=\"margin: 6px;\" for=\"showAllBills\">" + Resource.Show_All_Bills+"</label>"))
                   .Groupable()
                   .Pageable()
                   .Navigatable()
@@ -103,36 +87,61 @@
                       .Batch(false)
                       .PageSize(10)
                       .Model(model => model.Id(p => p.Id))
-                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillHeaders", action = "GetBillHeaders" })))
+                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillHeaders", action = "GetBillHeaders" })).Data("gBillHeaderData"))
                       .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillHeaders", action = "DeleteBillHeader", id = "{0}" })))
                   )
-                  .Pageable(p => p.Refresh(true))
+                  .Pageable(p => p.Refresh(true).ButtonCount(5))
                   .Events(e => e.Change("gBillHeaderOnChange").DataBound("gBillHeaderOnDataBound"))
-            )
+                  )
         </div>
         <div class="col-md-6">
-            @(Html.Kendo().Grid<BMS.Entity.BMSTenant.BillPayment>()
-                  .Name("gBillPayment")
-                  .Columns(columns =>
-                  {
-                      columns.ForeignKey(x => x.PaymentMethodId, (IEnumerable)ViewData["PaymentMethods"], "Id", "ShortName").Title(Resource.Payment_Method);
-                      columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}");
-                      columns.Bound(c => c.PaymentDate).Title(Resource.Payment_Date).Width(100).Format("{0:d}");
-                      columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
-                  })
-                  .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Payments + "</span>"))
-                  .Pageable()
-                  .Filterable()
-                  .AutoBind(false)
-                  .DataSource(dataSource => dataSource
-                      .WebApi()
-                      .PageSize(10)
-                      .Model(model => model.Id(p => p.Id))
-                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillPayments", action = "GetBillPayments" })).Data("gBillPaymentOnRead"))
-                      .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillPayments", action = "DeleteBillPayment", id = "{0}" })))
-                  )
-                  .Pageable(p => p.Refresh(true))
-            )
+            <div class="payment-row">
+                <div class="row">
+                    <label class="col-md-4">@Resource.Payment_Methods</label>
+                    <div class="col-md-6">
+                        @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Cash.ToString()).Value((int)PaymentTypeEnum.Cash).Checked(true).HtmlAttributes(new { autofocus = "autofocus" })
+                        @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Credit.ToString()).Value((int)PaymentTypeEnum.Credit)
+                        @Html.Kendo().RadioButton().Name("paymentType").Label(PaymentTypeEnum.Cheque.ToString()).Value((int)PaymentTypeEnum.Cheque)
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-md-4" for="Payment">@Resource.Payment_Amount</label>
+                    <div class="col-md-6">
+                        @Html.Kendo().NumericTextBox().Name("Payment").Min(0.01).Placeholder("0.00").Decimals(2).Spinners(false)
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-md-4" for="PaymentDate">@Resource.Payment_Date</label>
+                    <div class="col-md-6">
+                        @Html.Kendo().DatePicker().Name("PaymentDate").Value(DateTime.Now.Date.AddDays(-1))
+                        <button onclick="pay()" class="k-button k-button-icontext k-grid-edit"><i class="fa fa-money"></i> @Resource.Pay</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                @(Html.Kendo().Grid<BMS.Entity.BMSTenant.BillPayment>()
+                      .Name("gBillPayment")
+                      .Columns(columns =>
+                      {
+                          columns.ForeignKey(x => x.PaymentMethodId, (IEnumerable)ViewData["PaymentMethods"], "Id", "ShortName").Title(Resource.Payment_Method);
+                          columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}");
+                          columns.Bound(c => c.PaymentDate).Title(Resource.Payment_Date).Width(100).Format("{0:d}");
+                          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
+                      })
+                      .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Payments + "</span>"))
+                      .Pageable()
+                      .Filterable()
+                      .AutoBind(false)
+                      .DataSource(dataSource => dataSource
+                          .WebApi()
+                          .PageSize(10)
+                          .Model(model => model.Id(p => p.Id))
+                          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillPayments", action = "GetBillPayments" })).Data("gBillPaymentOnRead"))
+                          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BillPayments", action = "DeleteBillPayment", id = "{0}" })))
+                      )
+                      .Pageable(p => p.Refresh(true))
+                )
+            </div>
         </div>
     </div>
 </div>
@@ -353,11 +362,22 @@
         console.log(e);
     }
 
+    var gBillHeaderData = function(e) {
+        return {
+            showAllBills: $('#showAllBills').is(':checked')
+        }
+    }
+
     $(document)
         .ready(function() {
             $('input[type="radio"][name="paymentType"]')
                 .change(function() {
                     paymentTypeChage(this.value);
+                });
+
+            $('#showAllBills')
+                .change(function () {
+                    $('#gBillHeader').data('kendoGrid').dataSource.read();
                 });
 
             $('body').on('click', '#btnAddCheque', addCheque);

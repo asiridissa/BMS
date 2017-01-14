@@ -32,20 +32,25 @@
                       x.Add().Text(Resource.Unit_of_Measures).Action("Index", "UnitOfMeasure").HtmlAttributes(new { data_icon = "balance-scale" });
                   }).HtmlAttributes(new { data_icon = "cogs" });
 
-                  i.Add().Text(Resource.Inventory).Items(x =>
-                  {
-                      x.Add().Text(Resource.Items).Action("Index", "Item").HtmlAttributes(new { data_icon = "stack-overflow" });
-                      x.Add().Text(Resource.Invoices).Action("Index", "Invoice").HtmlAttributes(new { data_icon = "newspaper-o" });
-                  }).HtmlAttributes(new { data_icon = "cubes" });
+                  //i.Add().Text(Resource.Inventory).Items(x =>
+                  //{
+                  i.Add().Text(Resource.Items).Action("Index", "Item").HtmlAttributes(new { data_icon = "stack-overflow" });
+                  i.Add().Text(Resource.Invoices).Action("Index", "Invoice").HtmlAttributes(new { data_icon = "newspaper-o" });
+                  //}).HtmlAttributes(new { data_icon = "cubes" });
               }
 
               if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
-                  i.Add().Text(Resource.Sales).Items(x =>
-                  {
-                      x.Add().Text(Resource.Billing).Action("Index", "Bill").HtmlAttributes(new { data_icon = "clipboard" });
-                      x.Add().Text(Resource.Road_Distribution).Action("Index", "RoadDistribution").HtmlAttributes(new { data_icon = "map-o" });
-                  }).HtmlAttributes(new { data_icon = "handshake-o" });
+                  //i.Add().Text(Resource.Sales).Items(x =>
+                  //{
+                  i.Add().Text(Resource.Billing).Action("Index", "Bill").HtmlAttributes(new { data_icon = "clipboard" });
+                  i.Add().Text(Resource.Road_Distribution).Action("Index", "RoadDistribution").HtmlAttributes(new { data_icon = "map-o" });
+                  //}).HtmlAttributes(new { data_icon = "handshake-o" });
+              }
+
+              if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
+              {
+                  i.Add().Text(Resource.Payments).Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
               }
 
               if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id ?? 0))
@@ -58,11 +63,6 @@
                       x.Add().Text(Resource.Road_Distribution).Action("RoadDistribution", "Report").HtmlAttributes(new { data_icon = "print" });
                       x.Add().Text(Resource.Spot_Stock_Test).Action("SpotStockTest", "Report").HtmlAttributes(new { data_icon = "print" });
                   }).HtmlAttributes(new { data_icon = "line-chart" });
-              }
-
-              if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
-              {
-                  i.Add().Text(Resource.Payments).Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
               }
 
               i.Add().Text(Resource.Change_Password).Action("ChangePassword","Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });

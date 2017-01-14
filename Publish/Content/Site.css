@@ -192,3 +192,9 @@ td.number {
 .fa.green {
     color: green;
 }
+
+/*radio dot alignment fix*/
+.k-radio:checked + .k-radio-label:after {
+    top: 2px !important;
+    left: 2px !important;
+}
