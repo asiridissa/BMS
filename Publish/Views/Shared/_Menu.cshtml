@@ -13,7 +13,7 @@
           {
               i.Add().Text(Resource.Change_Company).Items(x =>
               {
-                  foreach (var entity in User.GetEntities())
+                  foreach (var entity in User.GetEntities().OrderBy(z=>z.Id).ToList())
                   {
                       x.Add().Text(entity.Name).Action("ChangeEntity", "Account", new { id = entity.Id, returnUrl = Request.Url?.AbsolutePath }).HtmlAttributes(new { data_icon = "building-o" });
                   }

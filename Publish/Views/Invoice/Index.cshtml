@@ -40,7 +40,7 @@
                       .WebApi()
                       .PageSize(11)
                       .Model(model => model.Id(p => p.Id))
-                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action="GetInvoiceHeaders" })))
+                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "GetInvoiceHeaders" })))
                       .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "PostInvoiceHeader" })))
                       .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "PutInvoiceHeader", id = "{0}" })))
                       .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "InvoiceHeaders", action = "DeleteInvoiceHeader", id = "{0}" })))
@@ -59,7 +59,7 @@
                   .Name("gInvoiceLine")
                   .Columns(columns =>
                   {
-                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Total : #=count#");
+                      columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").ClientFooterTemplate("Total : #=count#").Title(Resource.Item);
                       //columns.Bound(c => c.CurrentStockQuantity).Title("StockQ").Filterable(false).Width(100).HtmlAttributes(new {style="text-align:right;"});
                       columns.Bound(c => c.Case).ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
                       columns.Bound(c => c.Piece).ClientFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").Width(60).HtmlAttributes(new { style = "text-align:right;" });
@@ -108,7 +108,7 @@
                           a.Add(x => x.FreePiese).Sum();
                       })
                   )
-                  .Pageable(p => p.Refresh(true))
+                  .Pageable(p => p.Refresh(true).ButtonCount(5).PageSizes(new[] { 10, 25, 50, 100 }))
                 .Events(e => e.SaveChanges("gInvoiceLineOnSaveChanges")
                 .Remove("gInvoiceLineOnRemove")
                 .Edit("gInvoiceLineOnEdit")
