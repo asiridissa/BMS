@@ -90,7 +90,6 @@
                   .DataSource(dataSource => dataSource
                       .WebApi()
                       .PageSize(10)
-                      .AutoSync(true)
                       .Model(model =>
                       {
                           model.Id(p => p.Id);
