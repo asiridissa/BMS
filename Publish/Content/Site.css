@@ -22,6 +22,16 @@ textarea {
     max-width: 280px;
 }*/
 
+#moving-image {
+    background: url('images/corporate/corporate4.jpg') -25px -50px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+    height: 100%;
+    background-size: calc(100% + 50px);
+}
+
 /*Align grid toolbar buttons right*/
 .k-grid-toolbar {
     text-align: right;
@@ -127,7 +137,6 @@ td.number {
 }
 
 #loginForm {
-    margin-top: 135px;
     box-shadow: 0 0 5px #999;
     padding: 10px;
     border: 10px;
@@ -141,7 +150,7 @@ td.number {
         font-size: 150%;
     }
 
-.login-body {
+/*.login-body {
     background: url('images/office_room.jpg') no-repeat;
     background-size: cover;
     background-color: #ffffff;
@@ -149,7 +158,7 @@ td.number {
     margin: 0;
     padding: 0;
     overflow: hidden;
-}
+}*/
 
 .login-para {
     background-color: #FFF;
