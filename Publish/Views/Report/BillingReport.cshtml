@@ -4,25 +4,36 @@
     ViewBag.Title = "Billing Report";
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
-<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-10.2.16.1025.min.js")"></script>
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.0.17.118.min.js")"></script>
 
 
 
-<div class="alert alert-info">
-    <label>Date </label>
-    @Html.Kendo().DatePicker().Name("dpBillDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
-    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    <label>Vehicle </label>
-    @(Html.Kendo().DropDownList().Name("ddVehicle")
-          .DataValueField("Id")
-          .DataTextField("No")
-          .DataSource(s => s
-              .Read(r =>
+<div id="report-filters" class="container-fluid">
+    <div class="row">
+        <label class="col-md-1">From </label>
+        <div class="col-md-2">
+            @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+        </div>
+        <label class="col-md-1">To </label>
+        <div class="col-md-2">
+            @Html.Kendo().DatePicker().Name("dpBillToDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+        </div>
+        <label class="col-md-1">Vehicle </label>
+        <div class="col-md-4">
+            @(Html.Kendo().MultiSelect().Name("msVehicle")
+        .Placeholder("Select Here...")
+              .DataTextField("No")
+              .DataValueField("Id")
+              .DataSource(s =>
               {
-                  r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
-              }))
-          .Events(e => e.Change("refreshViewer"))
-    )
+                  s.Read(r =>
+                  {
+                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                  });
+              }).Events(e => e.Change("refreshViewer"))
+            )
+        </div>
+    </div>
 </div>
 
 <div id="reportViewer">
@@ -36,8 +47,9 @@
         viewer.reportSource({
             report: viewer.reportSource().report,
             parameters: {
-                VehiceId: $('#ddVehicle').data('kendoDropDownList').value(),
-                Date: $('#dpBillDate').val(),
+                VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
+                FromDate: $('#dpBillFromDate').val(),
+                ToDate: $('#dpBillToDate').val(),
                 DatabaseName: '@entity.DatabaseName',
                 CompanyName: '@entity.Name'
             }
@@ -52,8 +64,9 @@
                     reportSource: {
                         report: "Billing Report.trdp",
                         parameters: {
-                            VehiceId: $('#ddVehicle').data('kendoDropDownList').value(),
-                            Date: $('#dpBillDate').val(),
+                            VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
+                            FromDate: $('#dpBillFromDate').val(),
+                            ToDate: $('#dpBillToDate').val(),
                             DatabaseName: '@entity.DatabaseName',
                             CompanyName: '@entity.Name'
                         }

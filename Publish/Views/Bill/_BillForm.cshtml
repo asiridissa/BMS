@@ -40,13 +40,13 @@
     @if (!Model.Finalized)
     {
         <button class="k-button k-button-icontext" onclick="bill.saveBill()">
-            <span class="k-icon k-update"></span>@Resource.Save
+            <span class="k-icon k-i-check"></span>@Resource.Save
         </button>
         <button class="k-button k-button-icontext" title="Update and Add New" onclick="bill.saveBillAndNew()">
-            <span class="k-icon k-update"></span>@Resource.Save_and_New
+            <span class="k-icon k-i-check"></span>@Resource.Save_and_New
         </button>
         <button class="k-button k-button-icontext" onclick="bill.cancelBill()">
-            <span class="k-icon k-cancel"></span>@Resource.Cancel
+            <span class="k-icon k-i-cancel"></span>@Resource.Cancel
         </button>
     }
     else

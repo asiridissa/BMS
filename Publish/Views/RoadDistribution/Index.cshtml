@@ -35,7 +35,8 @@
                                               {
                                                   columns.Bound(x => x.Id).Hidden(true);
                                                   columns.Bound(x => x.UnitsPerCase).Hidden(true);
-                                                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title("Item");
+                                                  columns.Bound(x => x.StockQuantity).ClientTemplate("#=warnStock(UnitsPerCase,LoadingCase,LoadingPiece,StockQuantity)#").Title("Stock").HtmlAttributes(new { @class = "number" });
+                                                  columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title("Item").HtmlAttributes(new { data_nostock = "#=StockQuantity#", data_nofreestock = "#=StockFreeQuantity#" });
                                                   columns.Bound(c => c.UnitsPerCase).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockCase).Width(60).Title("BSC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockPiece).Width(60).Title("BSP").HtmlAttributes(new { @class = "number" });
@@ -46,20 +47,21 @@
                                                   columns.Bound(c => c.UnloadingCase).Width(60).Title("ULC").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number strong" });
                                                   columns.Bound(c => c.UnloadingPiece).Width(60).Title("ULP").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number strong" });
                                                   columns.Bound(c => c.UnloadingQuantity).Width(60).Title("ULQ").ClientTemplate("#=getQty(UnloadingCase,UnloadingPiece,UnitsPerCase)#").HtmlAttributes(new { @class = "number" });
-                                                  columns.Bound(c => c.RoadDistributionQuantity).Width(60).Title("RDQ").ClientTemplate("#=getRDQty(BalanceStockQuantity,UnitsPerCase,LoadingCase,LoadingPiece,UnloadingCase,UnloadingPiece)#").HtmlAttributes(new { @class = "number" });
+                                                  columns.Bound(c => c.RoadDistributionQuantity).Width(60).Title("RDQ").ClientTemplate("#=getRDQty(BalanceStockQuantity,UnitsPerCase,LoadingCase,LoadingPiece,UnloadingCase,UnloadingPiece)#")
+                                                  .HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BillingQuantity).Width(60).Title("Bil").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.Varience).Width(60).ClientTemplate("#=getVar(BalanceStockQuantity,UnitsPerCase,LoadingCase,LoadingPiece,UnloadingCase,UnloadingPiece,BillingQuantity)#").Title("Var")
                                                   .HtmlAttributes(new { @class = "number" });
                                               })
                                               .ToolBar(toolbar =>
                                               {
-                                                  toolbar.Template(@<text>
+                                              toolbar.Template(@<text>
         <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
         <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
         <div id="finalized" style="display: none;">
             <i class="fa fa-thumbs-up"></i>Finalized
         </div>
-                                                </text>);
+                                            </text>);
                                               })
                                               .Editable(editable => editable.Mode(GridEditMode.InCell))
                                               .Pageable()
@@ -71,10 +73,12 @@
                                               .AutoBind(false)
                                               .DataSource(dataSource => dataSource
                                                   .WebApi()
+                                                  .PageSize(Int32.MaxValue)
                                                   .AutoSync(true)
                                                   .Model(model =>
                                                   {
                                                       model.Id(p => p.Id);
+                                                      model.Field(x => x.StockQuantity).Editable(false);
                                                       model.Field(x => x.ItemId).Editable(false);
                                                       model.Field(x => x.UnitsPerCase).Editable(false);
                                                       model.Field(x => x.BalanceStockCase).Editable(false);
@@ -90,14 +94,14 @@
                                                   .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "RoadDistributions", action = "PutRoadDistributions", id = "{0}" })))
                                               //.Events(e=>e.Change("gRoadDistributionOnChange"))
                                               )
-                                              .Pageable(x => x.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 }))
+                                              .Pageable(x => x.Refresh(true).PageSizes(new[] { 20, 50, 100, 200 }))
                                               .Events(e => e.DataBound("gRoadDistributionOnDataBound")
                                               .Save("save")
 )
 )
 <script>
     //Cell coordinates of first editable
-    var lastEditIndex = { row: 0, col: 6 };
+    var lastEditIndex = { row: 0, col: 7 };
     var finalized = false;
 
     var getQty = function (LoadingCase, LoadingPiece, UnitsPerCase) {
@@ -106,6 +110,14 @@
 
     var getRDQty = function (BalanceStockQuantity, UnitsPerCase, LoadingCase, LoadingPiece, UnloadingCase, UnloadingPiece) {
         return BalanceStockQuantity + getQty(LoadingCase, LoadingPiece, UnitsPerCase) - getQty(UnloadingCase, UnloadingPiece, UnitsPerCase);
+    }
+
+    var warnStock = function (UnitsPerCase, LoadingCase, LoadingPiece, StockQuantity) {
+        if (getQty(LoadingCase, LoadingPiece, UnitsPerCase ) <= StockQuantity) {
+            return StockQuantity + " <span class=\"k-icon k-i-heart-outline stock-health-good\"></span>";
+        } else {
+            return StockQuantity + " <span class=\"k-icon k-i-heart stock-health-bad blink_me\"></span>";
+        }
     }
 
     var getVar = function (BalanceStockQuantity, UnitsPerCase, LoadingCase, LoadingPiece, UnloadingCase, UnloadingPiece, BillingQuantity) {
@@ -130,7 +142,7 @@
             e.sender.table.focus();
             $(cell).trigger('click');
         }
-        lastEditIndex = { row: 0, col: 6 };
+        lastEditIndex = { row: 0, col: 7 };
     }
 
     //get the coordinates of saved cell
@@ -163,18 +175,31 @@
 
 
     var gRoadDistributionOnDataBound = function (e) {
-        finalized = e.sender.dataItems()[0].FinalizedUserId != null;
-        if (finalized) {
-            $('.k-grid-Finalize').hide();
-            $('#finalized').show();
-            notify('Finalized on ' + kendo.toString(e.sender.dataItems()[0].FinalizedDateTime, 'g'), 'info');
+        if (e.sender.dataItems().length > 0) {
+            finalized = e.sender.dataItems()[0].FinalizedUserId != null;
+            if (finalized) {
+                $('.stock-health-good, .stock-health-bad, .k-grid-Finalize').hide();
+                $('#finalized').show();
+                notify('Finalized on ' + kendo.toString(e.sender.dataItems()[0].FinalizedDateTime, 'g'), 'info');
+            } else {
+                $('.stock-health-good, .stock-health-bad ,.k-grid-Finalize').show();
+                $('#finalized').hide();
+                //indicate stock warning
+                if ($('.stock-health-bad').length > 0) {
+                    notify('There is/are ' + $('.stock-health-bad').length + ' Item(s) with Stock shortage to finalize.<br/>' +
+                        'Please check for <span class="k-icon k-i-heart blink_me" style="color:red;"></span> indicator.', 'warning');
+                }
+            }
+            toBeFinalized();
+            lastFinalized();
+            dataBound(e);
         } else {
-            $('.k-grid-Finalize').show();
-            $('#finalized').hide();
+            notify('There are no Balance Stock or Bills for <b>' +
+                $('#ddVehicle').data('kendoDropDownList').text() +
+                '</b> on <b>' +
+                $('#dpDate').data('kendoDatePicker').value().toLocaleDateString() + '<b>',
+                'info');
         }
-        toBeFinalized();
-        lastFinalized();
-        dataBound(e);
     }
 
     var gRoadDistributionReadData = function (e) {
@@ -203,7 +228,7 @@
                                     gRoadDistributionRead();
                                     notify('Save Successful', 'success');
                                 } else {
-                                    notify('@Resource.Something_went_wrong. Please check your stock', 'warning');
+                                    notify('@Resource.Something_went_wrong. <br/>Please check for <span class="k-icon k-i-heart blink_me" style="color:red;"></span> indicator.', 'warning');
                                 };
                             });
                     } else {

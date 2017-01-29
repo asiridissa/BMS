@@ -207,3 +207,21 @@ td.number {
     top: 2px !important;
     left: 2px !important;
 }
+
+#report-filters {
+    margin-bottom: 10px;
+}
+
+#report-filters label {
+    text-align: right;
+}
+
+.stock-health-bad{
+    float:left;
+    color:red !important;
+}
+
+.stock-health-good {
+    float: left;
+    color: green !important;
+}

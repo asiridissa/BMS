@@ -13,8 +13,8 @@
         <td class="number">{{>~prettyPrice(Deduction)}}</td>
         <td class="amount number">{{>~prettyPrice(Amount)}}</td>
         <td>
-            <span class="k-icon k-edit line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.editItem(this)"></span>
-            <span class="k-icon k-delete line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.deleteItem(this)"></span>
+            <span class="k-icon k-i-edit line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.editItem(this)"></span>
+            <span class="k-icon k-i-delete line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.deleteItem(this)"></span>
         </td>
     </tr>
     {{/if}}
@@ -83,10 +83,10 @@
         </td>
         <td>
             <button id="saveLine" class="k-button" onclick="bill.saveLine()">
-                <span class="k-icon k-update"></span>
+                <span class="k-icon k-i-check"></span>
             </button>
             <button id="cancelLine" class="k-button" onclick="bill.clearEdit()">
-                <span class="k-icon k-cancel"></span>
+                <span class="k-icon k-i-cancel"></span>
             </button>
         </td>
     </tr>
