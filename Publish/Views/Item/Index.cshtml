@@ -25,9 +25,9 @@
           //toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
           toolbar.Template(@<text>
         <span style="float: left; font-size: 18px; padding: 4px;">@Resource.Inventory</span>
-        <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-add"></span>@Resource.Add</a>
-        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-update"></span>@Resource.Save</a>
-        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-cancel"></span>@Resource.Cancel</a>
+        <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-i-add"></span>@Resource.Add</a>
+        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>@Resource.Save</a>
+        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>@Resource.Cancel</a>
         </text>);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
