@@ -1,41 +1,71 @@
-﻿@using BMS.Resource
+﻿@using System.Collections
+@using BMS.Resource
+@{
+    ViewBag.Title = "Stock Adjustments";
+}
 
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Lot>()
       .Name("gLot")
       .Columns(columns =>
       {
-          columns.Bound(c => c.Case).Width(140);
-          columns.Bound(c => c.Piece).Width(140);
-          columns.Bound(c => c.Quantity).Width(140);
-          columns.Bound(c => c.CreatedDateTime).Width(140);
-          columns.Bound(c => c.CreatedUserId).Width(140);
-          columns.Bound(c => c.DeletedDateTime).Width(140);
-          columns.Bound(c => c.DeletedUserId).Width(140);
-          columns.Command(command => {command.Destroy().Text(Resource.Delete); }).Width(180);
+          columns.ForeignKey(x => x.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Width(400).ClientGroupFooterTemplate("Available Batchs : #=count#");
+          columns.Bound(c => c.Case).Width(100).ClientGroupFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number" }).FooterHtmlAttributes(new { @class = "number" });
+          columns.Bound(c => c.Piece).Width(100).ClientGroupFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number" }).FooterHtmlAttributes(new { @class = "number" });
+          columns.Bound(c => c.FreeCase).Width(100).ClientGroupFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number" }).FooterHtmlAttributes(new { @class = "number" });
+          columns.Bound(c => c.FreePiece).Width(100).ClientGroupFooterTemplate("#=sum#").EditorTemplateName("PossitiveInteger").HtmlAttributes(new { @class = "number" }).FooterHtmlAttributes(new { @class = "number" });
+          columns.Bound(c => c.CreatedDateTime).Title(Resource.Date).Width(100).Format("{0:d}").Title("Received On").EditorTemplateName("Date");
+          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(80);
       })
-      .ToolBar(toolbar => {
-          toolbar.Create();
-          toolbar.Save();
-      })
+      .ToolBar(toolbar => toolbar.Template(@<text>
+        <span style="float: left; font-size: 18px; padding: 4px;">Stock Adjustments</span>
+        <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>@Resource.Save</a>
+        <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>@Resource.Cancel</a>
+    </text>))
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
       .Navigatable()
-      .Selectable(selectable => {
+      .Selectable(selectable =>
+      {
           selectable.Mode(GridSelectionMode.Single);
           selectable.Type(GridSelectionType.Row);
       })
-      .Sortable(sortable => {
+      .Sortable(sortable =>
+      {
           sortable.SortMode(GridSortMode.MultipleColumn);
       })
       .Filterable()
-      .Scrollable()
       .DataSource(dataSource => dataSource
           .WebApi()
-          .Model(model => model.Id(p => p.Id))
-          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "GetCustomers" })))
-          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "PostCustomer" })))
-          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "PutCustomer", id = "{0}" })))
-          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "DeleteCustomer", id = "{0}" })))
-      )
+          .Model(model =>
+          {
+              model.Id(p => p.Id);
+              model.Field(x => x.ItemId).Editable(false);
+              model.Field(x => x.CreatedDateTime).Editable(false);
+          })
+          .Aggregates(a =>
+          {
+              a.Add(x => x.ItemId).Count();
+              a.Add(x => x.Case).Sum();
+              a.Add(x => x.Piece).Sum();
+              a.Add(x => x.Quantity).Sum();
+              a.Add(x => x.FreeCase).Sum();
+              a.Add(x => x.FreePiece).Sum();
+              a.Add(x => x.FreeQuantity).Sum();
+          })
+          .Events(e => e.RequestEnd("gLotOnRequestEnd"))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Lots", action = "GetLots" })))
+          //.Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Lots", action = "PostLot" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Lots", action = "PutLot", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Lots", action = "DeleteLot", id = "{0}" })))
+      ).Pageable(x => x.Refresh(true).PageSizes(new[] { 20, 50, 100, 200 }))
+
 )
 
+
+<script>
+    var gLotOnRequestEnd = function (e) {
+        if (e.type !== 'read') {
+            $('#gLot').data('kendoGrid').dataSource.read();
+        }
+    }
+</script>
