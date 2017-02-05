@@ -1,44 +1,218 @@
-﻿@using BMS.Resource
+﻿@using System.Collections
+@using BMS.Entity.Enum
+@using BMS.Resource
 @using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "Cheque";
+}
 
 @(Html.Kendo().Grid<BMS.Entity.BMSTenant.Cheque>()
-      .Name("gCheque")
-      .Columns(columns =>
-      {
-          columns.Bound(c => c.Bank).Title(Resource.Bank).Width(140);
-          columns.Bound(c => c.Branch).Title(Resource.Branch).Width(140);
-          columns.Bound(c => c.Number).Title(Resource.Number);
-          columns.Bound(c => c.ChequeDate).Title(Resource.Date).Width(140);
-          columns.Bound(c => c.Amount).Title(Resource.Amount).Width(140);
-          columns.Template(x => { }).ClientTemplate("#=Amount - UtilizedAmount#").Title(Resource.Available).Width(140);
-          columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(180);
-      })
-      .ToolBar(toolbar =>
-      {
-          toolbar.Create().Text(Resource.Add);
-          toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
-      })
-      .Editable(editable => editable.Mode(GridEditMode.InCell))
-      .Pageable()
-      .Navigatable()
-      .Selectable(selectable =>
-      {
-          selectable.Mode(GridSelectionMode.Single);
-          selectable.Type(GridSelectionType.Row);
-      })
-      .Sortable(sortable =>
-      {
-          sortable.SortMode(GridSortMode.MultipleColumn);
-      })
-      .Filterable()
-      .Scrollable()
-      .DataSource(dataSource => dataSource
-          .WebApi()
-          .Model(model => model.Id(p => p.Id))
-          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "GetCheques" })))
-          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "PostCheque" })))
-          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "PutCheque", id = "{0}" })))
-          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "DeleteCheque", id = "{0}" })))
-      )
-      .Pageable(p => p.Refresh(true))
+                  .Name("gCheque")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(c => c.Number).Title(Resource.Number).Width(100).HtmlAttributes(new { @class = "number" }).ClientTemplate("#=chequeIcon(ChequeDate,ChequeStatusId)# #=Number#");
+                      columns.Bound(c => c.ChequeDate).Title(Resource.Date).Width(100).Format("{0:d}").HtmlAttributes(new { @class = "number" });
+                      columns.Bound(c => c.Bank).Title(Resource.Bank);
+                      columns.Bound(c => c.Branch).Title(Resource.Branch);
+                      columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}").Width(140).HtmlAttributes(new { @class = "number" });
+                      columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title(Resource.Customer);
+                      columns.ForeignKey(x => x.ChequeStatusId, (IEnumerable)ViewData["ChequeStatuses"], "Id", "ShortName").Title(Resource.Status).Width(140).Filterable(true);
+                  })
+                  .ToolBar(t =>
+                      t.Template(@<text>
+                    <span style="float: left; font-size: 18px; padding: 4px;">Cheques</span>
+                    <label>Area</label>
+                    @(Html.Kendo().DropDownList()
+                          .Name("ddArea")
+                  .DataValueField("Id")
+                  .DataTextField("ShortName")
+                  .OptionLabel(" ")
+                  .DataSource(s =>
+                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "GetAll" })))
+                  ))
+                    <label>Customer</label>
+                    @(Html.Kendo().DropDownList()
+                          .Name("ddCustomer")
+                  .DataValueField("Id")
+                  .DataTextField("ShortName")
+                  .CascadeFrom("ddArea")
+                  .CascadeFromField("AreaId")
+                  .Filter(FilterType.Contains)
+                  .AutoBind(false)
+                  .DataSource(s =>
+                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "GetAll" })))
+                  ))
+                    <button id="btnAddCheque" class="k-button k-button-icontext"><span class="k-icon k-i-add"></span>@Resource.Add</button>
+                    <button id="btnEditCheque" class="k-button k-button-icontext"><span class="k-icon k-i-edit"></span>@Resource.Edit</button>
+                    <button id="btnDeleteCheque" class="k-button k-button-icontext"><span class="k-icon k-i-delete"></span>@Resource.Delete</button>
+                    </text>)
+                  ).Pageable()
+                  .Navigatable()
+                  .Selectable(selectable =>
+                  {
+                      selectable.Mode(GridSelectionMode.Single);
+                      selectable.Type(GridSelectionType.Row);
+                  })
+                  .Sortable(sortable =>
+                  {
+                      sortable.SortMode(GridSortMode.MultipleColumn);
+                  })
+                  .Filterable()
+                  .DataSource(dataSource => dataSource
+                      .WebApi()
+                      .PageSize(20)
+                      .Model(model => model.Id(p => p.Id))
+                      .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "GetCheques" })))
+                      .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "PutCheque", id = "{0}" })))
+                  //.Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Cheques", action = "DeleteCheque", id = "{0}" })))
+                  )
+                  .Pageable(p => p.Refresh(true).PageSizes(new[] { 20, 50, 100, 200 }))
+.Events(e => e.DataBound("gChequeOnDataBound"))
+)
+
+<script>
+    var gChequeOnDataBound = function (e) {
+        var grid = e.sender,
+            row = grid.tbody.find(">tr:not(.k-grouping-row)").eq(0);
+        grid.select(row);
+    }
+
+    var chequeIcon = function(date,status) {
+        switch (true) {
+            case status == 1 && date < new Date().setHours(0, 0, 0, 0):
+            return '<i class="fa fa-exclamation-triangle blink_me red left-float" title="Late"></i>';
+        case status == 1 && date.toDateString() == new Date().toDateString():
+            return '<i class="fa fa-bell-o faa-ring animated orange left-float" title="Today"></i>';
+        default:
+            return '';
+        }
+    }
+
+    var addCheque = function () {
+        if ($('#ddCustomer').data('kendoDropDownList').value()=="") {
+            notify('Select Customer First', 'warning');
+            return;
+        }
+
+        $('#wCheque').html('');
+        $('#wCheque')
+            .data("kendoWindow")
+            .refresh({
+                url: '@Url.Action("_Cheque", "Cheque")/0',
+                data: { customerId: $('#ddCustomer').data('kendoDropDownList').value() }
+            })
+            .open();
+    }
+
+    var editCheque = function() {
+        var gridCheque = $('#gCheque').data('kendoGrid');
+        $('#wCheque').html('');
+        $('#wCheque')
+            .data("kendoWindow")
+            .refresh({
+                url: '@Url.Action("_Cheque", "Cheque")/' + gridCheque.dataItem(gridCheque.select()).Id,
+                data: { customerId: gridCheque.dataItem(gridCheque.select()).CustomerId }
+            })
+            .open();
+    }
+
+    var validateCheque = function() {
+        return cheque.Bank != "" && cheque.Branch != "" && cheque.Number != "" && cheque.Amount > 0;
+    }
+
+    var collectChequeData = function() {
+        cheque = {
+            Id: $('#ChequeId').val(),
+            Bank: $('#Bank').val(),
+            Branch: $('#Branch').val(),
+            Number: $('#Number').val(),
+            Amount: $('#Amount').data('kendoNumericTextBox').value(),
+            ChequeDate: $('#ChequeDate').val(),
+            CustomerId: $('#CustomerId').val(),
+            ChequeStatusId: $('#ChequeStatusId').data('kendoDropDownList').value()
+        };
+    }
+
+    var saveCheque = function() {
+        collectChequeData();
+        if (validateCheque()) {
+            if (cheque.Id == 0) {
+                $.post('@Url.HttpRouteUrl("ActionApi", new {controller = "Cheques", action = "PostCheque"})', cheque)
+                    .done(function(msg) {
+                        console.log(msg);
+                        notify('@Resource.Successfully_Saved', 'success');
+                        $('#gCheque').data('kendoGrid').dataSource.read();
+                        $('#wCheque').data('kendoWindow').close().refresh();
+                    })
+                    .fail(function(msg) {
+                        notify('@Resource.Something_went_wrong', 'warning');
+                        console.log(msg);
+                    });
+            } else if (cheque.Id > 0) {
+                $.ajax({
+                        url: '@Url.HttpRouteUrl("ActionApi", new {controller = "Cheques", action = "PutCheque"})',
+                        method: 'PUT',
+                        data: cheque
+                    })
+                    .done(function(msg) {
+                        console.log(msg);
+                        notify('@Resource.Successfully_Saved', 'success');
+                        $('#gCheque').data('kendoGrid').dataSource.read();
+                        $('#wCheque').data('kendoWindow').close().refresh();
+                    })
+                    .fail(function(msg) {
+                        notify('@Resource.Something_went_wrong', 'warning');
+                        console.log(msg);
+                    });
+            }
+        } else {
+            notify('@Resource.Please_fill_the_missing_Data', 'error');
+        }
+    };
+
+    var deleteCheque = function() {
+        var r = confirm('@Resource.Confirm_to_delete_this_cheque.\n @Resource.All_the_transactions_will_be_reversed.');
+        if (r) {
+            var gridCheque = $('#gCheque').data('kendoGrid');
+            $.ajax({
+                    url: '@(Url.HttpRouteUrl("ActionApi", new {controller = "Cheques", action = "DeleteCheque"}))/' +
+                        gridCheque.dataItem(gridCheque.select()).id,
+                    method: 'DELETE'
+                })
+                .done(function(msg) {
+                    console.log(msg);
+                    notify('@Resource.Successfully_Deleted', 'success');
+                    $('#gCheque').data('kendoGrid').dataSource.read();
+                    $('#wCheque').data('kendoWindow').close().refresh();
+                })
+                .fail(function(msg) {
+                    notify('@Resource.Something_went_wrong', 'warning');
+                    console.log(msg);
+                });
+        }
+    }
+
+    $(document)
+        .ready(function() {
+            $('body').on('click', '#btnAddCheque', addCheque);
+            $('body').on('click', '#btnEditCheque', editCheque);
+            $('body').on('click', '#btnSaveCheque', saveCheque);
+            $('body').on('click', '#btnDeleteCheque', deleteCheque);
+
+        });
+</script>
+
+@(Html.Kendo().Window()
+      .Name("wCheque")
+      .Width(800)
+      .Height(180)
+      .Visible(false)
+      .Modal(true)
+      .Draggable()
+      .Position(p => p.Top(10))
+      .AutoFocus(true)
+      .Title("Cheque")
+      .Actions(actions => actions.Refresh().Minimize().Maximize().Close())
+      .LoadContentFrom("_Cheque", "Cheque", new { id = 0, customerId = 0 })
+      .Events(e => e.Open("function(e){e.sender.center();}"))
 )

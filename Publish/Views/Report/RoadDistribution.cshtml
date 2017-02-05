@@ -11,34 +11,42 @@
     <div class="row">
         <label class="col-md-1">From </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+            @Html.Kendo().DatePicker().Name("dpBillFromDate").Value((DateTime?)ViewData["Date"] ?? DateTime.Today).Events(e => e.Change("refreshViewer"))
         </div>
         <label class="col-md-1">To </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillToDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+            @Html.Kendo().DatePicker().Name("dpBillToDate").Value((DateTime?)ViewData["Date"] ?? DateTime.Today).Events(e => e.Change("refreshViewer"))
         </div>
         <label class="col-md-1">Vehicle </label>
         <div class="col-md-4">
             @(Html.Kendo().MultiSelect().Name("msVehicle")
-        .Placeholder("Select Here...")
-              .DataTextField("No")
-              .DataValueField("Id")
-              .DataSource(s =>
-              {
-                  s.Read(r =>
+                  .Placeholder("Select Here...")
+                  .DataTextField("No")
+                  .DataValueField("Id")
+                  .DataSource(s =>
                   {
-                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
-                  });
-              }).Events(e => e.Change("refreshViewer"))
+                      s.Read(r =>
+                      {
+                          r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                      });
+                  }).Events(e => e.Change("refreshViewer").DataBound("msVehicleOnDataBound"))
             )
         </div>
     </div>
 </div>
+
 <div id="reportViewer">
     <img style="margin: auto" src="~/Content/kendo/Metro/loading-image.gif" />
 </div>
 
 <script>
+    var msVehicleOnDataBound = function (e) {
+        var vehicleId = @((int?)ViewData["Vehicle"]??0);
+        if (vehicleId > 0) {
+            e.sender.value(vehicleId);
+        }
+    };
+
     var refreshViewer = function () {
         var viewer = $("#reportViewer").data("telerik_ReportViewer");
 
@@ -54,31 +62,38 @@
         }).refreshReport();
     };
 
+    var initReportViewer = function() {
+        $("#reportViewer")
+            .telerik_ReportViewer({
+                serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
+                reportSource: {
+                    report: "RoadDistribution.trdp",
+                    parameters: {
+                        VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
+                        FromDate: $('#dpBillFromDate').val(),
+                        ToDate: $('#dpBillToDate').val(),
+                        DatabaseName: '@entity.DatabaseName',
+                        CompanyName: '@entity.Name'
+                    }
+                },
+                scaleMode: "FIT_PAGE_WIDTH",
+                viewMode: "INTERACTIVE",
+                printMode: "AUTO_SELECT",
+                error: function() {
+                    notify('Something went Wrong', 'warning');
+                },
+                renderingEnd: function() {
+                    @if ((bool?)ViewData["Print"] == true)
+                    {
+                        @:this.commands.print.exec();
+                    }
+                }
+            });
+    };
+
     $(document).ready(function () {
         setTimeout(function () {
-            $("#reportViewer")
-                .telerik_ReportViewer({
-                    serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
-                    reportSource: {
-                        report: "RoadDistribution.trdp",
-                        parameters: {
-                            VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
-                            FromDate: $('#dpBillFromDate').val(),
-                            ToDate: $('#dpBillToDate').val(),
-                            DatabaseName: '@entity.DatabaseName',
-                            CompanyName: '@entity.Name'
-                        }
-                    },
-                    scaleMode: "FIT_PAGE_WIDTH",
-                    viewMode: "INTERACTIVE",
-                    printMode: "AUTO_SELECT",
-                    error: function () {
-                        notify('Something went Wrong', 'warning');
-                    },
-                    ready: function () {
-                        //this.refreshReport();
-                    }
-                });
+            initReportViewer();
         }, 2500);
     });
 </script>

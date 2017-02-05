@@ -52,6 +52,7 @@
               if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
                   i.Add().Text(Resource.Payments).Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
+                  i.Add().Text("Cheques").Action("Index", "Cheque").HtmlAttributes(new { data_icon = "credit-card" });
               }
 
               if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id ?? 0))

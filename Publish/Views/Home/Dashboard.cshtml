@@ -8,7 +8,7 @@
 <script src="~/Content/highcharts/highcharts.js"></script>
 <script src="~/Content/highcharts/modules/exporting.js"></script>
 
-<div class="alert alert-info">
+<div class="">
     <label>From </label>
     @Html.Kendo().DatePicker().Name("dtFrom").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).Events(e => e.Change("refreshDashboard"))
     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -17,17 +17,50 @@
 </div>
 <div class="container-fluid">
     <div class="row">
-        <div id="Sales-amount" class="col-md-6"></div>
-        <div id="Sales-qty" class="col-md-6"></div>
-    </div>
-    <div class="row">
-        <div id="SalesDetails-amount" class="col-md-6"></div>
-        <div id="Wasted-qty" class="col-md-6"></div>
+        <div id="col1" class="col-md-6">
+            <div class="dashboard-widjet">
+                <div id="Sales-amount"></div>
+            </div>
+            <div id="Cheques" class="dashboard-widjet">
+                <h4>Pending Cheques</h4>
+                @(Html.Kendo().Grid<sp_ChequeDashboard_Result>()
+                      .Name("gCheques")
+                      .Columns(c =>
+                      {
+                          c.Bound(x => x.Number).ClientTemplate("#if(Status=='late'){#" +
+                                                                "<i class='fa fa-exclamation-triangle blink_me red left-float' title='Late'></i>" +
+                                                                "#}else if(Status=='today'){#" +
+                                                                "<i class='fa fa-bell-o faa-ring animated orange left-float' title='Today'></i>" +
+                                                                "#}#" +
+                                                                "#=Number#").HtmlAttributes(new {@class = "number"});
+                          c.Bound(x => x.ChequeDate).Format("{0:d}").HtmlAttributes(new {@class = "number"});
+                          c.Bound(x => x.Amount).Format("{0:N2}").HtmlAttributes(new {@class = "number"});
+                          c.Bound(x => x.Bank);
+                          c.Bound(x => x.Branch);
+                          c.Bound(x => x.Customer);
+                      })
+                      .DataSource(s =>
+                      {
+                          s.WebApi()
+                              .ServerOperation(false)
+                              .PageSize(10)
+                              .Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "Dashboards", action = "GetChequeDashboard"})));
+                      })
+                      .Pageable(p => p.Refresh(true))
+                      )
+            </div>
+            <div id="Wasted-qty" class="dashboard-widjet"></div>
+        </div>
+        <div id="col2" class="col-md-6">
+            <div id="Sales-qty" class="dashboard-widjet"></div>
+            <div id="SalesDetails-amount" class="dashboard-widjet"></div>
+        </div>
     </div>
 </div>
+
 <script>
     var date1, date2, day, between, series = [];
-
+    
     var refreshDashboard = function () {
         $.ajax({
             url: '@Url.HttpRouteUrl("ActionApi", new {controller="Dashboards", action="GetSalesDashboard"})?from='
@@ -67,6 +100,7 @@
         series.push({ name: "Collection", data: [], color: 'rgb(144, 237, 125)' });
         series.push({ name: "Deduction", data: [], color: 'rgb(124, 181, 236)' });
 
+        var sumSales = 0, sumPaid = 0, sumSalesQty = 0, sumFree = 0, sumCollection = 0, sumDeduction=0;
         $.each(categories,
             function (i, e) {
                 var valSales = 0;
@@ -101,7 +135,47 @@
                 series[5].data.push(valExpire);
                 series[6].data.push(valCollection);
                 series[7].data.push(valDiduction);
+                sumSales += valSales;
+                sumPaid += valPaid;
+                sumSalesQty += valSaleQty;
+                sumFree += valFree;
+                sumCollection += valCollection;
+                sumDeduction += valDiduction;
             });
+
+        series.push({
+            type: "pie",
+            data: [
+                { name: 'Sales', y: sumSales, color: 'rgb(144, 237, 125)' },
+                { name: 'Paid', y: sumPaid, color: 'rgb(124, 181, 236)' }
+            ],
+            center: [50, 0],
+            size: 50,
+            dataLabels: { enabled: false },
+            tooltip: { pointFormat: '{point.y} / {point.percentage:.1f} %', headerFormat:'<b>{point.key}</b><br/>' }
+        });
+        series.push({
+            type: "pie",
+            data: [
+                { name: 'Sales', y: sumSalesQty, color: 'rgb(144, 237, 125)' },
+                { name: 'Free', y: sumFree, color: 'rgb(124, 181, 236)' }
+            ],
+            center: [50, 0],
+            size: 50,
+            dataLabels: { enabled: false },
+            tooltip: { pointFormat: '{point.y} / {point.percentage:.1f} %', headerFormat: '<b>{point.key}</b><br/>' }
+        });
+        series.push({
+            type: "pie",
+            data: [
+                { name: 'Payment', y: sumCollection, color: 'rgb(144, 237, 125)' },
+                { name: 'Deduction', y: sumDeduction, color: 'rgb(124, 181, 236)' }
+            ],
+            center: [50, 0],
+            size: 50,
+            dataLabels: { enabled: false },
+            tooltip: { pointFormat: '{point.y} / {point.percentage:.1f} %', headerFormat: '<b>{point.key}</b><br/>' }
+        });
     }
 
     var renderCharts = function (data) {
@@ -111,11 +185,11 @@
             subtitle: { text: 'Sales amounts over the period' },
             xAxis: { categories: between },
             yAxis: { title: { text: 'Amount (Rs)' } },
-            tooltip: { shared:true },
+            tooltip: { shared: true },
             data: data,
-            series: [series[0],series[1]]
+            series: [series[0], series[1], series[8]]
         });
-   
+
         Highcharts.chart('Sales-qty', {
             chart: { type: 'area' },
             title: { text: 'Billing' },
@@ -124,7 +198,7 @@
             yAxis: { title: { text: 'Quanty (Pieces)' } },
             tooltip: { shared: true },
             data: data,
-            series: [series[2], series[3]]
+            series: [series[2], series[3],series[9]]
         });
 
         Highcharts.chart('SalesDetails-amount', {
@@ -135,7 +209,7 @@
             yAxis: { title: { text: 'Quanty (Pieces)' } },
             tooltip: { shared: true },
             data: data,
-            series: [series[6], series[7]]
+            series: [series[6], series[7], series[10]]
         });
 
         Highcharts.chart('Wasted-qty', {
@@ -151,6 +225,11 @@
     };
 
     $(document).ready(function () {
+        Highcharts.setOptions({
+            lang: {
+                thousandsSep: ','
+            }
+        });
         refreshDashboard();
     });
 </script>

@@ -202,6 +202,10 @@ td.number {
     color: green;
 }
 
+.fa.orange {
+    color: orange;
+}
+
 /*radio dot alignment fix*/
 .k-radio:checked + .k-radio-label:after {
     top: 2px !important;
@@ -224,4 +228,19 @@ td.number {
 .stock-health-good {
     float: left;
     color: green !important;
+}
+
+.left-float {
+    float: left !important;
+}
+
+.dashboard-widjet {
+    margin: 5px auto;
+    padding: 5px;
+    box-shadow: 0 0 2px #CCC;
+}
+
+.highcharts-container {
+    width: 100% !important;
+    height: 100% !important;
 }
