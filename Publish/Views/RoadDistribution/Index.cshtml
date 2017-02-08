@@ -35,8 +35,9 @@
                                               {
                                                   columns.Bound(x => x.Id).Hidden(true);
                                                   columns.Bound(x => x.UnitsPerCase).Hidden(true);
-                                                  columns.Bound(x => x.StockQuantity).ClientTemplate("#=warnStock(UnitsPerCase,LoadingCase,LoadingPiece,StockQuantity)#").Title("Stock").HtmlAttributes(new { @class = "number" });
+                                                  columns.Bound(x => x.StockQuantity).ClientTemplate("#=warnStock(UnitsPerCase,LoadingCase,LoadingPiece,StockQuantity,StockFreeQuantity,BillingFreeQuantity)#").Title("Stock").HtmlAttributes(new { @class = "number" });
                                                   columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title("Item").HtmlAttributes(new { data_nostock = "#=StockQuantity#", data_nofreestock = "#=StockFreeQuantity#" });
+                                                  columns.Bound(c => c.BillingFreeQuantity).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.UnitsPerCase).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockCase).Width(60).Title("BSC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockPiece).Width(60).Title("BSP").HtmlAttributes(new { @class = "number" });
@@ -113,8 +114,8 @@
         return BalanceStockQuantity + getQty(LoadingCase, LoadingPiece, UnitsPerCase) - getQty(UnloadingCase, UnloadingPiece, UnitsPerCase);
     }
 
-    var warnStock = function (UnitsPerCase, LoadingCase, LoadingPiece, StockQuantity) {
-        if (getQty(LoadingCase, LoadingPiece, UnitsPerCase ) <= StockQuantity) {
+    var warnStock = function (UnitsPerCase, LoadingCase, LoadingPiece, StockQuantity, StockFreeQuantity, BillingFreeQuantity) {
+        if (getQty(LoadingCase, LoadingPiece, UnitsPerCase) <= StockQuantity && BillingFreeQuantity <= (StockQuantity + StockFreeQuantity)) {
             return StockQuantity + " <span class=\"k-icon k-i-heart-outline stock-health-good\"></span>";
         } else {
             return StockQuantity + " <span class=\"k-icon k-i-heart stock-health-bad blink_me\"></span>";
