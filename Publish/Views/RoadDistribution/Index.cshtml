@@ -57,13 +57,13 @@
                                               .ToolBar(toolbar =>
                                               {
                                                   toolbar.Template(@<text>
-                                                                       <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
-                                                                       <button id="print-roadDistribution" class="k-button" style="float: right;"><i class="fa fa-print"></i>Print</button>
-                                                                       <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
-                                                                       <div id="finalized" style="display: none;">
-                                                                           <i class="fa fa-thumbs-up"></i>Finalized
-                                                                       </div>
-                                                                    </text>);
+        <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
+        <button id="print-roadDistribution" class="k-button" style="float: right;"><i class="fa fa-print"></i>Print</button>
+        <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
+        <div id="finalized" style="display: none;">
+            <i class="fa fa-thumbs-up"></i>Finalized
+        </div>
+                                                </text>);
                                               })
                                               .Editable(editable => editable.Mode(GridEditMode.InCell))
                                               .Pageable()
@@ -192,16 +192,17 @@
                         'Please check for <span class="k-icon k-i-heart blink_me" style="color:red;"></span> indicator.', 'warning');
                 }
             }
-            toBeFinalized();
-            lastFinalized();
-            dataBound(e);
         } else {
+            $('.stock-health-good, .stock-health-bad, .k-grid-Finalize').hide();
             notify('There are no Balance Stock or Bills for <b>' +
                 $('#ddVehicle').data('kendoDropDownList').text() +
                 '</b> on <b>' +
                 $('#dpDate').data('kendoDatePicker').value().toLocaleDateString() + '<b>',
                 'info');
         }
+        toBeFinalized();
+        lastFinalized();
+        dataBound(e);
     }
 
     var gRoadDistributionReadData = function (e) {
