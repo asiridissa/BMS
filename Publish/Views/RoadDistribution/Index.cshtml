@@ -37,7 +37,7 @@
                                                   columns.Bound(x => x.UnitsPerCase).Hidden(true);
                                                   columns.Bound(x => x.StockQuantity).ClientTemplate("#=warnStock(UnitsPerCase,LoadingCase,LoadingPiece,StockQuantity,StockFreeQuantity,BillingFreeQuantity)#").Title("Stock").HtmlAttributes(new { @class = "number" });
                                                   columns.ForeignKey(c => c.ItemId, (IEnumerable)ViewData["Items"], "Id", "Value").Title("Item").HtmlAttributes(new { data_nostock = "#=StockQuantity#", data_nofreestock = "#=StockFreeQuantity#" });
-                                                  columns.Bound(c => c.BillingFreeQuantity).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
+                                                  //columns.Bound(c => c.BillingFreeQuantity).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.UnitsPerCase).Width(60).Title("UPC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockCase).Width(60).Title("BSC").HtmlAttributes(new { @class = "number" });
                                                   columns.Bound(c => c.BalanceStockPiece).Width(60).Title("BSP").HtmlAttributes(new { @class = "number" });
@@ -57,13 +57,17 @@
                                               .ToolBar(toolbar =>
                                               {
                                                   toolbar.Template(@<text>
-        <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
-        <button id="print-roadDistribution" class="k-button" style="float: right;"><i class="fa fa-print"></i>Print</button>
-        <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
-        <div id="finalized" style="display: none;">
-            <i class="fa fa-thumbs-up"></i>Finalized
-        </div>
-                                                </text>);
+                                                                       <span style="float: left; font-size: 18px; padding: 4px;">Loading Unloading</span>
+                                                                       <button id="print-roadDistribution" class="k-button" style="float: right;"><i class="fa fa-print"></i>Print</button>
+                                                                       <a class="k-button k-button-icontext k-grid-Finalize" href="javascript:finalize()" style="float: right;"><i class="fa fa-thumbs-o-up"></i>Finalize</a>
+                                                                       <div id="finalized" style="display: none; float: right;">
+                                                                           <i class="fa fa-thumbs-up"></i>Finalized
+                                                                       </div>
+                                                                       <div style="float: right;">
+                                                                           <input type="checkbox" id="showAllItems" class="k-checkbox">
+                                                                           <label class="k-checkbox-label" style="margin: 6px;" for="showAllItems">@Resource.Show_All_Items</label>
+                                                                       </div>
+                                                                    </text>);
                                               })
                                               .Editable(editable => editable.Mode(GridEditMode.InCell))
                                               .Pageable()
@@ -156,7 +160,6 @@
     var toBeFinalized = function () {
         $.post('@Url.HttpRouteUrl("ActionApi", new { action = "ToBeFinalized", controller = "RoadDistributions" })?vehicleId=' + $('#ddVehicle').data('kendoDropDownList').value())
             .done(function (msg) {
-                console.log(msg);
                 var dates = "";
                 for (var i in msg) {
                     if (dates != "") {
@@ -210,7 +213,8 @@
         var date = $('#dpDate').data('kendoDatePicker');
         return {
             vehicleId: vehicle.value(),
-            date: date.value()
+            date: date.value(),
+            showAllItems: $('#showAllItems').is(':checked')
         }
     }
 
@@ -252,6 +256,12 @@
                     '&print=true',
                     '_blank');
             });
+
+        $('#showAllItems')
+            .change(function () {
+                $('#gRoadDistribution').data('kendoGrid').dataSource.read();
+            });
+
     });
 
 </script>
