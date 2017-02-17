@@ -4,7 +4,7 @@
 <table id="header" style="width: 100%">
     <tr>
         <td>
-            <input id="BillHeaderId" type="hidden" value="@Convert.ToInt64(Model?.Id)"/>
+            <input id="BillHeaderId" type="hidden" value="@Convert.ToInt64(Model?.Id)" />
             <label for="BillNo">@Resource.Bill_No</label>
         </td>
         <td>
@@ -25,7 +25,7 @@
                   .DataTextField("ShortName")
                   .OptionLabel(" ")
                   .DataSource(s =>
-                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "Areas", action = "GetAll"})))
+                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Areas", action = "GetAll" })))
                   ))
         </td>
         <td>
@@ -40,7 +40,7 @@
                   .Filter(FilterType.Contains)
                   .AutoBind(false)
                   .DataSource(s =>
-                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "Customers", action = "GetAll"})))
+                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Customers", action = "GetAll" })))
                   ))
         </td>
     </tr>
@@ -49,7 +49,7 @@
             <label for="Discount">@Resource.Discount</label>
         </td>
         <td>
-            @(Html.Kendo().NumericTextBoxFor<decimal>(x=>x.Discount)
+            @(Html.Kendo().NumericTextBoxFor<decimal>(x => x.Discount)
                 .Format("p0")
                 .Min(0)
                 .Max(1)
@@ -61,13 +61,13 @@
             <label for="Deduction">@Resource.Deduction</label>
         </td>
         <td>
-            @(Html.Kendo().NumericTextBoxFor(x=>x.Deduction).Format("#").Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}"))
+            @(Html.Kendo().NumericTextBoxFor(x => x.Deduction).Format("#").Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}"))
         </td>
         <td>
             <label for="PaidAmount">@Resource.Paid</label>
         </td>
         <td>
-            @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount).Value(0).Decimals(2).Spinners(false).Enable(false)
+            @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount).Value(0).Decimals(2).Spinners(false).Enable(Model== null || Model?.Id == 0)
         </td>
         <td>
             <label for="VehicleId">@Resource.Vehicle</label>
@@ -77,7 +77,7 @@
                   .DataValueField("Id")
                   .DataTextField("No")
                   .DataSource(s =>
-                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "Vehicles", action = "GetAll"})))
+                      s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" })))
                   ))
         </td>
     </tr>
