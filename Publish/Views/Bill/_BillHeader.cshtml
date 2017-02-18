@@ -14,7 +14,7 @@
             <label for="BillingDate">@Resource.Date</label>
         </td>
         <td>
-            @(Html.Kendo().DatePickerFor(x => x.BillingDate).Value(DateTime.UtcNow))
+            @(Html.Kendo().DatePickerFor(x => x.BillingDate).Value(Model == null || Model?.Id == 0 ? DateTime.UtcNow : Model.BillingDate))
         </td>
         <td>
             <label for="AreaId">@Resource.Area</label>
@@ -67,7 +67,7 @@
             <label for="PaidAmount">@Resource.Paid</label>
         </td>
         <td>
-            @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount).Value(0).Decimals(2).Spinners(false).Enable(Model== null || Model?.Id == 0)
+            @Html.Kendo().NumericTextBoxFor(x => x.PaidAmount).Value(Model == null || Model?.Id == 0? 0: Model.PaidAmount).Decimals(2).Spinners(false).Enable(Model == null || Model?.Id == 0)
         </td>
         <td>
             <label for="VehicleId">@Resource.Vehicle</label>
