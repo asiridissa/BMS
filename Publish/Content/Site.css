@@ -251,3 +251,12 @@ td.number {
     width: 100% !important;
     height: 100% !important;
 }
+
+.fa.dim {
+    color: #eeeeee;
+}
+
+/*kendo tree view node take full width*/
+.k-in {
+    width: 90%;
+}

@@ -76,8 +76,9 @@
                   i.Add().Text(Resource.Super_Admin).Items(x =>
                   {
                       x.Add().Text(Resource.User).Action("Index", "User").HtmlAttributes(new { data_icon = "users" });
-                      x.Add().Text(Resource.Roles).Action("Index", "Role").HtmlAttributes(new { data_icon = "user-circle" });
+                      //x.Add().Text(Resource.Roles).Action("Index", "Role").HtmlAttributes(new { data_icon = "user-circle" });
                       x.Add().Text(Resource.Payment_Methods).Action("Index", "PaymentMethod").HtmlAttributes(new { data_icon = "credit-card" });
+                      x.Add().Text(Resource.Role_Permission).Action("Index", "RoleFunctioPermission").HtmlAttributes(new { data_icon = "unlock-alt" });
                   }).HtmlAttributes(new { data_icon = "user-secret" });
               }
 

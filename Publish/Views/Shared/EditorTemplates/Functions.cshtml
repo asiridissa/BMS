@@ -1,0 +1,13 @@
+﻿@model object
+           
+@(
+        //Html.Kendo().DropDownListFor(m => m)        
+        //       .BindTo((SelectList)ViewData[ViewData.TemplateInfo.GetFullHtmlFieldName("") + "_Data"])
+        Html.Kendo().DropDownList().Name("ParentId")
+            .DataValueField("Id")
+            .DataTextField("Name")
+            .DataSource(s =>
+            {
+                s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Functions", action = "GetAll" })));
+            })
+)

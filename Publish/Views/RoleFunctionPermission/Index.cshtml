@@ -1,0 +1,185 @@
+﻿@using BMS.Resource
+@{
+    ViewBag.Title = "Role Permission";
+}
+
+<script id="twFunction-template" type="text/kendo-ui-template">
+    <div style="width:100%;">
+        <span>#=item.id#) #=item.Name#</span>
+        <span style="float:right;">
+            <i class="fa fa-eye#if(!item.hasView){# dim#}#"></i>
+            <i class="fa fa-plus#if(!item.hasAdd){# dim#}#"></i>
+            <i class="fa fa-pencil-square-o #if(!item.hasEdit){# dim#}#"></i>
+            <i class="fa fa-trash-o #if(!item.hasDelete){# dim#}#"></i>
+        </span>
+    </div>
+</script>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            @Html.Action("_Roles", "Role")
+        </div>
+        <div class="col-md-4">
+            <button id="refresh-twFunction" class="k-button"><span class="k-icon k-i-refresh"></span> Refresh</button>
+            <div style="float: right;">
+                <input type="checkbox" id="apply-to-children" class="k-checkbox">
+                <label class="k-checkbox-label" style="margin: 6px;" for="apply-to-children">Apply to Children</label>
+            </div>
+            @(Html.Kendo().TreeView()
+                  .Name("twFunction")
+                  .DataTextField("Name")
+                  .TemplateId("twFunction-template")
+                  //.Template("#=item.id# #=item.Name#")
+                  .Checkboxes(c => c.Enabled(true).Name("function-node"))
+                  .AutoBind(false)
+                  .DataSource(dataSource => dataSource
+                      .Read(read => read
+                          .Url(Url.HttpRouteUrl("ActionApi", new { controller = "Functions", action = "GetFunctionByParentIdRoleId", id = "{0}" })).Data("twFunctionData")
+                      )
+                  )
+                  .Events(e => e.Change("twFunctionOnChange").DataBound("twFunctionOnDataBound"))
+            )
+        </div>
+        <div class="col-md-4">
+            @Html.Action("_Permissions", "Permission")
+        </div>
+    </div>
+</div>
+<script>
+    var twFunctionOnDataBound = function (e) {
+        e.sender.expand(".k-item");
+    }
+
+    var twFunctionOnChange = function (e) {
+        var model = e.sender.dataItem(e.sender.select());
+        $('[data-id="permission-1"]').prop('checked', model.hasView ? 'checked' : '');
+        $('[data-id="permission-2"]').prop('checked', model.hasAdd ? 'checked' : '');
+        $('[data-id="permission-3"]').prop('checked', model.hasEdit ? 'checked' : '');
+        $('[data-id="permission-4"]').prop('checked', model.hasDelete ? 'checked' : '');
+    }
+
+    var twFunctionData = function (e) {
+        var role = $('#gRole').data('kendoGrid');
+        return {
+            roleId: role.dataItem(role.select()).Id
+        }
+    }
+
+    var gRoleOnDataBound = function (e) {
+        var role = $('#gRole').data('kendoGrid');
+        role.select(role.tbody.find("tr:first"));
+        $('#twFunction').data('kendoTreeView').dataSource.read();
+    }
+
+    var gRoleOnChange = function (e) {
+        $('#twFunction').data('kendoTreeView').dataSource.read();
+    }
+
+    var addPermission = function () {
+        var applyChildren = $('#apply-to-children').prop('checked');
+        var functions = $.map($('[name="function-node"]:checked'),
+            function (e) {
+                return $(e).val();
+            });
+        var permissions = $.map($('[data-id*="permission-"]:checked'),
+            function (e) {
+                return $(e).val();
+            });
+        var role = $('#gRole').data('kendoGrid');
+
+        if (functions.length == 0) {
+            notify('Select Function(s) first', 'error');
+            return;
+        }
+        if (permissions.length == 0) {
+            notify('Select Permission(s) first', 'error');
+            return;
+        }
+
+        console.log(functions, permissions, applyChildren, role.dataItem(role.select()).Id);
+        $
+            .post('@Url.HttpRouteUrl("ActionApi",new{controller="RoleFunctionPermissions", action="PostRoleFunctionPermissions"})',
+            {
+                RoleId: role.dataItem(role.select()).Id,
+                ApplyAllChildren: applyChildren,
+                Functions: functions,
+                Permissions: permissions
+            })
+            .done(function(msg) {
+                notify('@Resource.Successfully_Saved','success');
+            })
+            .fail(function(msg) {
+                notify('@Resource.Something_went_wrong', 'error');
+            })
+            .always(function(msg) {
+                console.log(msg);
+                $('#twFunction').data('kendoTreeView').dataSource.read();
+                $('#gPermission').data('kendoGrid').dataSource.read();
+            });
+    }
+
+    var denyPermission = function() {
+        var applyChildren = $('#apply-to-children').prop('checked');
+        var functions = $.map($('[name="function-node"]:checked'),
+            function(e) {
+                return $(e).val();
+            });
+        var permissions = $.map($('[data-id*="permission-"]:checked'),
+            function(e) {
+                return $(e).val();
+            });
+        var role = $('#gRole').data('kendoGrid');
+
+        if (functions.length == 0) {
+            notify('Select Function(s) first', 'error');
+            return;
+        }
+        if (permissions.length == 0) {
+            notify('Select Permission(s) first', 'error');
+            return;
+        }
+
+        console.log(functions, permissions, applyChildren, role.dataItem(role.select()).Id);
+        $.ajax({
+                url:
+                    '@Url.HttpRouteUrl("ActionApi", new {controller = "RoleFunctionPermissions", action = "DeleteRoleFunctionPermissions"})',
+                method: 'DELETE',
+                data: {
+                    RoleId: role.dataItem(role.select()).Id,
+                    ApplyAllChildren: applyChildren,
+                    Functions: functions,
+                    Permissions: permissions
+                }
+            })
+            .done(function(msg) {
+                notify('@Resource.Successfully_Saved', 'success');
+            })
+            .fail(function(msg) {
+                notify('@Resource.Something_went_wrong', 'error');
+            })
+            .always(function(msg) {
+                console.log(msg);
+                $('#twFunction').data('kendoTreeView').dataSource.read();
+                $('#gPermission').data('kendoGrid').dataSource.read();
+            });
+    }
+
+    $(document).ready(function () {
+        var tv = $('#twFunction').data('kendoTreeView');
+
+        $('#refresh-twFunction').bind('click',
+            function () {
+                tv.dataSource.read();
+            });
+
+        $('#allow-permission').bind('click',
+            function() {
+                addPermission();
+            });
+        $('#deny-permission').bind('click',
+            function () {
+                denyPermission();
+            });
+    });
+</script>
