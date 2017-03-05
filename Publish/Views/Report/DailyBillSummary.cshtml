@@ -1,8 +1,9 @@
 ﻿@using BMS.Entity
+@using BMS.Resource
 @using BMS.Web.Models
 
 @{
-    ViewBag.Title = "Daily Bill Summary";
+    ViewBag.Title = Resource.Daily_Bill_Summary;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 

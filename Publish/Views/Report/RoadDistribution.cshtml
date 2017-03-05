@@ -1,7 +1,8 @@
 ﻿@using BMS.Entity
+@using BMS.Resource
 @using BMS.Web.Models
 @{
-    ViewBag.Title = "Road Distribution";
+    ViewBag.Title = Resource.Road_Distribution;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 

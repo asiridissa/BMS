@@ -1,7 +1,8 @@
 ﻿@using BMS.Entity
+@using BMS.Resource
 @using BMS.Web.Models
 @{
-    ViewBag.Title = "Collection Report";
+    ViewBag.Title = Resource.Collection_Report;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 
@@ -16,6 +17,14 @@
         <label class="col-md-1">To </label>
         <div class="col-md-2">
             @Html.Kendo().DatePicker().Name("dpBillToDate").Value((DateTime?)ViewData["Date"] ?? DateTime.Today).Events(e => e.Change("refreshViewer"))
+        </div>
+        <div class="col-md-2">
+            <input type="checkbox" id="show-summary" class="k-checkbox" />
+            <label class="k-checkbox-label" for="show-summary" style="margin: 6px;">Summary</label>
+        </div>
+        <div class="col-md-2">
+            <input type="checkbox" id="show-only-summary" class="k-checkbox" />
+            <label class="k-checkbox-label" for="show-only-summary" style="margin: 6px;">Summary Only</label>
         </div>
     </div>
 </div>
@@ -34,7 +43,9 @@
                 FromDate: $('#dpBillFromDate').val(),
                 ToDate: $('#dpBillToDate').val(),
                 DatabaseName: '@entity.DatabaseName',
-                CompanyName: '@entity.Name'
+                CompanyName: '@entity.Name',
+                ShowSummary: $('#show-summary').prop('checked') || $('#show-only-summary').prop('checked'),
+                ShowDetails: !$('#show-only-summary').prop('checked')
             }
         }).refreshReport();
     };
@@ -49,7 +60,9 @@
                         FromDate: $('#dpBillFromDate').val(),
                         ToDate: $('#dpBillToDate').val(),
                         DatabaseName: '@entity.DatabaseName',
-                        CompanyName: '@entity.Name'
+                        CompanyName: '@entity.Name',
+                        ShowSummary: $('#show-summary').prop('checked') || $('#show-only-summary').prop('checked'),
+                        ShowDetails: !$('#show-only-summary').prop('checked')
                     }
                 },
                 //scaleMode: "FIT_PAGE_WIDTH",
@@ -71,5 +84,10 @@
         setTimeout(function () {
             initReportViewer();
         }, 2500);
+
+        $('#show-summary,#show-only-summary')
+            .change(function () {
+                refreshViewer();
+            });
     });
 </script>

@@ -60,6 +60,7 @@
                   i.Add().Text(Resource.Reports).Items(x =>
                   {
                       x.Add().Text(Resource.Billing_Report).Action("BillingReport", "Report").HtmlAttributes(new { data_icon = "print" });
+                      x.Add().Text(Resource.Billing_Report_Summary).Action("BillingReportSummary", "Report").HtmlAttributes(new { data_icon = "print" });
                       x.Add().Text(Resource.Collection_Report).Action("CollectionReport", "Report").HtmlAttributes(new { data_icon = "print" });
                       x.Add().Text(Resource.Daily_Bill_Summary).Action("DailyBillSummary", "Report").HtmlAttributes(new { data_icon = "print" });
                       x.Add().Text(Resource.Road_Distribution).Action("RoadDistribution", "Report").HtmlAttributes(new { data_icon = "print" });

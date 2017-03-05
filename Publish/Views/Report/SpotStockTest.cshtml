@@ -1,7 +1,8 @@
 ﻿@using BMS.Entity
+@using BMS.Resource
 @using BMS.Web.Models
 @{
-    ViewBag.Title = "Spot Stock Test";
+    ViewBag.Title = Resource.Spot_Stock_Test;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 

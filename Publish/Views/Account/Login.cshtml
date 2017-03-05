@@ -88,6 +88,8 @@
             var newvalueY = height * pageY * -1 - 50;
             $('#moving-image').css("background-position", newvalueX + "px     " + newvalueY + "px");
         });
+
+        $('.container-fluid').css('margin-top', ($(document).height() - $('.container-fluid').height()) / 2 + 'px');
     });
 </script>
 

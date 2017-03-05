@@ -2,11 +2,10 @@
 @using BMS.Resource
 @using BMS.Web.Models
 @{
-    ViewBag.Title = Resource.Billing_Report;
+    ViewBag.Title = Resource.Billing_Report_Summary;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 <script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.0.17.222.min.js")"></script>
-
 
 
 <div id="report-filters" class="container-fluid">
@@ -63,7 +62,7 @@
                 .telerik_ReportViewer({
                     serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
                     reportSource: {
-                        report: "Billing Report.trdp",
+                        report: "Billing Report Summary.trdp",
                         parameters: {
                             VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
                             FromDate: $('#dpBillFromDate').val(),
