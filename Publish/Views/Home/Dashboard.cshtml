@@ -81,12 +81,14 @@
         //Full Date Range
         date1 = new Date($('#dtFrom').val());
         date2 = new Date($('#dtTo').val());
-        between = [Highcharts.dateFormat('%m-%d-%Y',new Date($('#dtFrom').val()))];
+        //between = [Highcharts.dateFormat('%m-%d-%Y',new Date($('#dtFrom').val()))];
+        between = [new Date($('#dtFrom').val()).toLocaleDateString()];
         while (date2 > date1) {
             day = date1.getDate();
-            between.push(Highcharts.dateFormat('%m-%d-%Y', date1));
+            between.push(date1.toLocaleDateString());
             date1 = new Date(date1.setDate(++day));
         }
+        between.shift();
 
         //Create Series
         series = []; var categories = [];
@@ -152,7 +154,7 @@
             center: [50, 0],
             size: 50,
             dataLabels: { enabled: false },
-            tooltip: { pointFormat: '{point.y} / {point.percentage:.1f} %', headerFormat:'<b>{point.key}</b><br/>' }
+            tooltip: { pointFormat: '{point.y:.2f} / {point.percentage:.1f} %', headerFormat:'<b>{point.key}</b><br/>' }
         });
         series.push({
             type: "pie",
@@ -174,24 +176,25 @@
             center: [50, 0],
             size: 50,
             dataLabels: { enabled: false },
-            tooltip: { pointFormat: '{point.y} / {point.percentage:.1f} %', headerFormat: '<b>{point.key}</b><br/>' }
+            tooltip: { pointFormat: '{point.y:.2f} / {point.percentage:.1f} %', headerFormat: '<b>{point.key}</b><br/>' }
         });
+        console.log(categories,series);
     }
 
     var renderCharts = function (data) {
         Highcharts.chart('Sales-amount', {
-            chart: { type: 'area' },
+            chart: { type: 'area', zoomType: 'xy', panning: true, panKey: 'shift' },
             title: { text: 'Sales' },
             subtitle: { text: 'Sales amounts over the period' },
             xAxis: { categories: between },
             yAxis: { title: { text: 'Amount (Rs)' } },
-            tooltip: { shared: true },
+            tooltip: { shared: true, pointFormat: '{series.name}: <b>{point.y:.2f}</b><br/>' },
             data: data,
             series: [series[0], series[1], series[8]]
         });
 
         Highcharts.chart('Sales-qty', {
-            chart: { type: 'area' },
+            chart: { type: 'area', zoomType: 'xy', panning: true, panKey: 'shift' },
             title: { text: 'Billing' },
             subtitle: { text: 'Billing quantities over the period' },
             xAxis: { categories: between },
@@ -202,18 +205,18 @@
         });
 
         Highcharts.chart('SalesDetails-amount', {
-            chart: { type: 'area' },
+            chart: { type: 'area', zoomType: 'xy', panning: true, panKey: 'shift' },
             title: { text: 'Payments/Deduction' },
             subtitle: { text: 'Amounts over the period per bills' },
             xAxis: { categories: between },
-            yAxis: { title: { text: 'Quanty (Pieces)' } },
-            tooltip: { shared: true },
+            yAxis: { title: { text: 'Amount (Rs)' } },
+            tooltip: { shared: true, pointFormat: '{series.name}: <b>{point.y:.2f}</b><br/>' },
             data: data,
             series: [series[6], series[7], series[10]]
         });
 
         Highcharts.chart('Wasted-qty', {
-            chart: { type: 'area' },
+            chart: { type: 'area', zoomType: 'xy',panning: true,panKey: 'shift' },
             title: { text: 'Expiery/Damage' },
             subtitle: { text: 'Expiery/Damage quantities over the period' },
             xAxis: { categories: between },
