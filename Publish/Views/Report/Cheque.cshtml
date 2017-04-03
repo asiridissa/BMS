@@ -1,0 +1,75 @@
+﻿@using BMS.Entity
+@using BMS.Resource
+@using BMS.Web.Models
+@model BMS.Entity.BMSTenant.ChequeBook
+@{
+    ViewBag.Title = (Model.CheckNo + " " + Model.BankName + " " + Model.BranchName).ToString();
+    var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
+}
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.0.17.222.min.js")"></script>
+
+<div id="report-filters" class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            @Html.Kendo().CheckBox().Name("cbPrintDate").Label(Resource.Print + " " + Resource.Date).Checked(true);
+        </div>
+        <div class="col-md-2">
+            @Html.Kendo().CheckBox().Name("cbPrintAmount").Label(Resource.Print + " " + Resource.Amount).Checked(true);
+        </div>
+        <div class="col-md-2">
+            @Html.Kendo().CheckBox().Name("cbPrintPayee").Label(Resource.Print + " " + Resource.Payee).Checked(true);
+        </div>
+    </div>
+</div>
+
+<div id="reportViewer">
+    <img style="margin: auto" src="~/Content/kendo/Metro/loading-image.gif" />
+</div>
+
+<script>
+    var refreshViewer = function () {
+        var viewer = $("#reportViewer").data("telerik_ReportViewer");
+
+        viewer.reportSource({
+            report: viewer.reportSource().report,
+            parameters: {
+                ChequePrintId: '@Model.Id',
+                PrintDate: $('#cbPrintDate').is(":checked"),
+                PrintAmount: $('#cbPrintAmount').is(":checked"),
+                PrintPayee: $('#cbPrintPayee').is(":checked"),
+                DatabaseName: '@entity.DatabaseName'
+            }
+        }).refreshReport();
+    };
+
+    $(document).ready(function () {
+        setTimeout(function() {
+                $("#reportViewer")
+                    .telerik_ReportViewer({
+                        serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
+                        reportSource: {
+                            report: "Cheque.trdp",
+                            parameters: {
+                                ChequePrintId: '@Model.Id',
+                                PrintDate: $('#cbPrintDate').is(":checked"),
+                                PrintAmount: $('#cbPrintAmount').is(":checked"),
+                                PrintPayee: $('#cbPrintPayee').is(":checked"),
+                                DatabaseName: '@entity.DatabaseName'
+                            }
+                        },
+                        //scaleMode: "FIT_PAGE_WIDTH",
+                        viewMode: "PRINT_PREVIEW", //'INTERACTIVE',
+                        printMode: "AUTO_SELECT",
+                        error: function() {
+                            notify('Something went Wrong', 'warning');
+                        },
+                        ready: function() {
+                            //this.refreshReport();
+                        }
+                    });
+            },
+            2500);
+
+        $('#cbPrintDate,#cbPrintAmount,#cbPrintPayee').on('change', refreshViewer);
+    });
+</script>

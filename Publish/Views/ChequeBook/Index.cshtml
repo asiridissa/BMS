@@ -1,0 +1,86 @@
+﻿@using System.Collections
+@using BMS.Resource
+@{
+    ViewBag.Title = "Cheque Book";
+}
+<style>
+    .print-button {
+        min-width: 5px !important;
+    }
+</style>
+
+@(Html.Kendo().Grid<BMS.Entity.BMSTenant.ChequeBook>()
+      .Name("gChequeBook")
+      .Columns(columns =>
+      {
+          columns.Bound(x => x.Id).ClientTemplate("<a class=\"k-button print-button\" href=\"" + Url.Action("Cheque", "Report") + "/#=Id#\" target=\"_blank\" title=\"Print\"><span class=\"k-icon k-i-print\"></span></a>").Filterable(false).Title("").Width(50);
+          columns.ForeignKey(x => x.BankId, (IEnumerable)ViewData["Banks"], "Id", "Name").Title(Resource.Bank);
+          columns.ForeignKey(x => x.BranchId, (IEnumerable)ViewData["Branches"], "Id", "Name").Title(Resource.Branch);
+          columns.Bound(c => c.CheckNo).HtmlAttributes(new { @class = "number" });
+          columns.Bound(c => c.Date).Title(Resource.Date).Width(100).Format("{0:d}");
+          columns.Bound(c => c.Amount).Title(Resource.Amount).Format("{0:N2}").HtmlAttributes(new{@class="number"});
+          columns.Bound(c => c.PayeeName);
+          columns.Bound(c => c.PayeeOnly).ClientTemplate("#if(PayeeOnly){#<i class=\"fa fa-check\"></i>#}#");
+          columns.Command(command =>
+          {
+              command.Edit().UpdateText(Resource.Save).CancelText(Resource.Cancel);
+              command.Destroy().Text(Resource.Delete);
+          }).Width(180);
+      })
+      .ToolBar(toolbar =>
+      {
+          toolbar.Create().Text(Resource.Add);
+      })
+      .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("ChequeBook").Window(w => w.Width(800)))
+      .Pageable()
+      .Groupable()
+      .Navigatable()
+      .Selectable(selectable =>
+      {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable =>
+      {
+          sortable.SortMode(GridSortMode.MultipleColumn);
+      })
+      .Filterable()
+      .DataSource(dataSource => dataSource
+          .WebApi()
+          .ServerOperation(true)
+          .PageSize(10)
+          .Model(model => model.Id(p => p.Id))
+          .Read(read => read.Url(Url.HttpRouteUrl("ActionApi", new { controller = "ChequeBooks", action = "GetCheques" })))
+          .Create(create => create.Url(Url.HttpRouteUrl("ActionApi", new { controller = "ChequeBooks", action = "PostCheque" })))
+          .Update(update => update.Url(Url.HttpRouteUrl("ActionApi", new { controller = "ChequeBooks", action = "PutCheque", id = "{0}" })))
+          .Destroy(destroy => destroy.Url(Url.HttpRouteUrl("ActionApi", new { controller = "ChequeBooks", action = "DeleteCheque", id = "{0}" })))
+      )
+      .Pageable(p => p.Refresh(true).PageSizes(new[] { 10, 25, 50, 100 }))
+)
+
+<script>
+    var bankCodeOnChange = function() {
+        $('#BranchCode').data('kendoDropDownList').dataSource.read();
+    }
+
+    var bankBranchReadData = function (e) {
+        var bank = $('#BankCode').data('kendoDropDownList');
+        return {
+            bankid: bank.dataItem(bank.select()).Id
+        }
+    }
+
+    var getAmountInWords = function() {
+        $.post('@Url.HttpRouteUrl("ActionApi",new{controller="ChequeBooks",action="HumanizeAmount"})?amount=' +
+                $('#Amount').val())
+            .done(function(msg) {
+                $('#AmountInWords').val(msg);
+                $('#amount-word').html(msg);
+            })
+            .fail(function(msg) {
+                $('#AmountInWords').val('');
+                $('#amount-word').html('');
+                notify('@Resource.Something_went_wrong', 'error');
+            });
+    }
+</script>

@@ -14,7 +14,7 @@
             <div class="row">
                 <label class="col-md-2">From </label>
                 <div class="col-md-4">
-                    @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today.AddMonths(-1)).Events(e => e.Change("refreshViewer"))
+                    @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today.AddYears(-2)).Events(e => e.Change("refreshViewer"))
                 </div>
             </div>
             <div class="row">

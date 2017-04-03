@@ -1,0 +1,52 @@
+﻿@model BMS.Entity.BMSTenant.ChequeBook
+
+<style>
+    .k-edit-form-container {
+        width: auto;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">Payee Name</div>
+        <div class="col-md-6">@Html.Kendo().TextBoxFor(x => x.PayeeName).HtmlAttributes(new { required = "required", style="width:100%;" })</div>
+        <div class="col-md-2">@Html.Kendo().CheckBoxFor(x => x.PayeeOnly).Label("Payee Only")</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Bank</div>
+        <div class="col-md-3">
+            @(Html.Kendo().DropDownListFor(x => x.BankId)
+                  .DataValueField("Id")
+                  .DataTextField("Name")
+                  .DataSource(s => s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Banks", action = "GetAll" }))))
+                  .HtmlAttributes(new { required = "required", style = "width:100%;" })
+                  )
+        </div>
+        <div class="col-md-2">Branch</div>
+        <div class="col-md-3">
+            @(Html.Kendo().DropDownListFor(x => x.BranchId)
+                  .DataValueField("Id")
+                  .DataTextField("Name")
+                  .CascadeFrom("BankId")
+                  .CascadeFromField("BankId")
+                  .DataSource(s => s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "BankBranches", action = "GetAll" }))))
+                  .HtmlAttributes(new { required = "required", style = "width:100%;" })
+            )
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Check No</div>
+        <div class="col-md-3">@Html.Kendo().TextBoxFor(x => x.CheckNo)</div>
+        <div class="col-md-2">Date</div>
+        <div class="col-md-3">@Html.Kendo().DatePickerFor(x => x.Date)</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Amount</div>
+        <div class="col-md-4">@Html.Kendo().NumericTextBoxFor(x => x.Amount).Decimals(2).Min(0.01M).Spinners(false).Placeholder("0.00").Events(e => e.Change("getAmountInWords"))</div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">Amount In Words</div>
+        @Html.HiddenFor(x=>x.AmountInWords)
+        <div class="col-md-8" id="amount-word"></div>
+    </div>
+</div>
