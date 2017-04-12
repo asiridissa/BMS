@@ -2,106 +2,122 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - BMS</title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/kendo/kendo")
-    @Scripts.Render("~/bundles/modernizr")
-
-    <!--This bundle was moved by the Telerik VS Extensions for compatibility reasons-->
+    @Styles.Render("~/Content/mmenu")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/kendo/js")
+    @Scripts.Render("~/bundles/mmenuJS")
     <script src="~/Scripts/jsviews.min.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.Partial("_Logo")
+    <div id="page">
+        <div>
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a href="#" id="hamburger" class="Fixed">
+                            <span class="hamburger hamburger--collapse">
+                                <span class="hamburger-box">
+                                    <span class="hamburger-inner"></span>
+                                </span>
+                            </span>
+                        </a>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        @Html.Partial("_Logo")
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        @Html.Partial("_LoginPartial")
+                    </div>
+                </div>
             </div>
-            <div class="navbar-collapse collapse">
-                @Html.Partial("_LoginPartial")
+            <div class="body-content">
+                @(Html.Kendo().Notification().Name("notify")
+                  .Position(x => x.Bottom(50))
+                  .Animation(x =>
+                  {
+                      x.Open(e => e.SlideIn(SlideDirection.Left).Duration(100));
+                      x.Close(e => e.Fade(FadeDirection.Out));
+                  })
+                  .Stacking(NotificationStackingSettings.Up)
+                  .AllowHideAfter(8)
+                  .HideOnClick(true)
+                  .Events(e => e.Show("notificationOnShow"))
+                )
+                @RenderBody()
+            </div>
+            <footer>
+                <div class="row">
+                    <div class="col-md-1"><a href="mailto:bms17@gmail.com" target="_blank"><i class="fa fa-envelope-o faa-shake animated"></i>  Contact Us</a></div>
+                    <div class="col-md-1"><small><i class="fa fa-phone faa-shake animated"></i>  (+94)716 271 610</small></div>
+                    <div class="col-md-8">
+                        <small>&copy; @DateTime.Now.Year - BMS</small>
+                    </div>
+                    <div class="col-md-2">@Html.Partial("_Language")</div>
+                </div>
+            </footer>
+            <div>
+                @Html.Partial("_WhatsNew")
+                @Html.Partial("_LeftMenu")
+                @Html.Partial("_Menu");
             </div>
         </div>
     </div>
-    <div class="body-content">
-        @(Html.Kendo().Notification().Name("notify")
-          .Position(x => x.Bottom(50))
-          .Animation(x =>
-          {
-              x.Open(e => e.SlideIn(SlideDirection.Left).Duration(100));
-              x.Close(e => e.Fade(FadeDirection.Out));
-          })
-          .Stacking(NotificationStackingSettings.Up)
-          .AllowHideAfter(8)
-          .HideOnClick(true)
-          .Events(e => e.Show("notificationOnShow"))
-        )
-        @RenderBody()
-    </div>
-    <footer>
-        <div class="row">
-            <div class="col-lg-offset-2 col-md-8"><small>&copy; @DateTime.Now.Year - BMS</small></div>
-            <div class="col-md-2">@Html.Partial("_Language")</div>
-        </div>
-    </footer>
 
     @Scripts.Render("~/bundles/bootstrap")
+
     <script>
-        var notificationOnShow = function (e) {
-            if (!$("." + e.sender._guid)[1]) {
-                e.element.parent().css({ zIndex: 22222 });
-            }
+    var notificationOnShow = function(e) {
+        if (!$("." + e.sender._guid)[1]) {
+            e.element.parent().css({ zIndex: 22222 });
         }
+    }
 
-        var notify = function (text, type) {
-            $("#notify").data("kendoNotification").show(text, (type == null || type == "") ? "info" : type);
-        }
+    var notify = function(text, type) {
+        $("#notify").data("kendoNotification").show(' ' + text, (type == null || type == "") ? "info" : type);
+    }
 
-        $(document)
-            .ready(function () {
-                $('body')
-                    .on('focus',
-                        '[data-role="datepicker"]',
-                        function () {
-                            $(this).data('kendoDatePicker').open();
-                        });
-
-                notify('@Resource.Right_Click_to_open_the_menu', 'info');
-
-                $('body')
-                    .on('click',
-                        '#log-out',
-                        function () {
-                            document.getElementById('logoutForm').submit();
-                        });
-
-                $('body')
-                    .on('click',
-                        '#change-password',
-                        function () {
-                            location.replace('@Url.Action("ChangePassword","Manage")');
-                        });
-
-                $("#form-cult img")
-                    .click(function () {
-                        $('#langCode').val(this.id);
-                        $(this).parents("form").submit();
+    $(document)
+        .ready(function() {
+            $('body')
+                .on('focus',
+                    '[data-role="datepicker"]',
+                    function() {
+                        $(this).data('kendoDatePicker').open();
                     });
 
-            });
+            //notify('@Resource.Right_Click_to_open_the_menu', 'info');
 
+            $('body')
+                .on('click',
+                    '#log-out',
+                    function() {
+                        document.getElementById('logoutForm').submit();
+                    });
 
+            $('body')
+                .on('click',
+                    '#change-password',
+                    function() {
+                        location.replace('@Url.Action("ChangePassword", "Manage")');
+                    });
+
+            $("#form-cult img")
+                .click(function() {
+                    $('#langCode').val(this.id);
+                    $(this).parents("form").submit();
+                });
+
+        });
     </script>
     @RenderSection("scripts", required: false)
-    @{
-        Html.RenderPartial("_Menu");
-    }
 </body>
 </html>

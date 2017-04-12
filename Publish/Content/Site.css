@@ -80,6 +80,10 @@ footer {
     padding: 1px;
 }
 
+    footer a {
+        color: #fff;
+    }
+
 #form-cult img {
     filter: gray; /* IE6-9 */
     filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
@@ -223,13 +227,13 @@ td.number {
     margin-bottom: 10px;
 }
 
-#report-filters label {
-    text-align: right;
-}
+    #report-filters label {
+        text-align: right;
+    }
 
-.stock-health-bad{
-    float:left;
-    color:red !important;
+.stock-health-bad {
+    float: left;
+    color: red !important;
 }
 
 .stock-health-good {
@@ -259,4 +263,21 @@ td.number {
 /*kendo tree view node take full width*/
 .k-in {
     width: 90%;
+}
+
+.retroshadow {
+    font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+    font-size: 35px;
+    text-align: center;
+    text-transform: uppercase;
+    text-rendering: optimizeLegibility;
+    text-shadow: 2px 2px 0px #d5d5d5, 3px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.hit-the-floor {
+    color: #fff;
+    font-size: 36px !important;
+    font-weight: bold;
+    font-family: Helvetica;
+    text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
 }

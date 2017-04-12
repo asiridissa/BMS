@@ -1,0 +1,92 @@
+﻿@using Microsoft.AspNet.Identity
+@if (User.Identity.IsAuthenticated)
+{
+    <div id="whats-new" style="display: none">
+        <div id="message-top" class="retroshadow">ලැබුවා වූ නව වසර ඔබ සැමට සෞභාග්‍යමත් නව වසරක් වේවා !!!</div>
+        <br />
+        <br />
+        <div>
+            <div class="alert alert-warning">
+                <h3><i class="fa fa-bell-o faa-ring animated"></i> Attention !</h3>
+                Please note that from <strong>28th of April 2017</strong>, We move in to new domain <h4><strong>bms17.xyz</strong></h4>
+                You can use our services from both <strong>bms16.com</strong> and <strong>bms17.xyz</strong> domains until 28th April.
+            </div>
+            <br />
+            <br />
+            <h4><i class="fa fa-wrench faa-wrench animated"></i> New in this version <strong>1.0.8.175</strong></h4>
+            <ul>
+                <li>Brand new Theme</li>
+                <li>Easy Left Menu Navigation.</li>
+                <li>Faster Billing Screan loading</li>
+                <li>Faster Payment Screan loading</li>
+                <li>Minor Bug fixes</li>
+            </ul>
+        </div>
+        <div style="float: right">
+            <button id="got-it" class="k-button"><i class="fa fa-thumbs-o-up"></i> Got It. Do not show for 2 days</button>
+        </div>
+    </div>
+    <script>
+        var WN = function() {
+            var sStore = window.sessionStorage;
+            var lStore = window.localStorage;
+
+            var openWindow = function() {
+                $('#whats-new').data("kendoWindow").center().open();
+            }
+
+            var init = function() {
+                if (typeof (Storage) !== "undefined") {
+                    // Code for localStorage/sessionStorage.
+                    if (new Date() > new Date(2017, 04, 30)) {
+                        $('#message-top').hide();
+                    }
+
+                    var gotItTimeVar = lStore.getItem('got-it-time-@(User.Identity.GetUserId())');
+
+                    if (moment(new Date(gotItTimeVar)).add(2, 'd')._d < moment()._d) {
+                        openWindow();
+                    }
+                } else {
+                    console.error('Sorry! No Web Storage support..');
+                }
+            }
+
+            var gotIt = function() {
+                $('#whats-new').data("kendoWindow").close();
+                lStore.setItem('got-it-time-@(User.Identity.GetUserId())', moment()._d);
+            };
+
+            var initWindow = function() {
+                $('#whats-new').kendoWindow({
+                    width: "600px",
+                    title: "What's New",
+                    visible: false,
+                    modal: true,
+                    actions: [
+                        "Pin",
+                        "Minimize",
+                        "Maximize",
+                        "Close"
+                    ]
+                });
+            }
+
+            return {
+                init: init,
+                initWindow: initWindow,
+                gotIt: gotIt
+            }
+        }();
+
+        $(document).ready(function() {
+            WN.initWindow();
+            WN.init();
+            $('body').on('click',
+                '#got-it',
+                function() {
+                    WN.gotIt();
+                });
+        });
+    </script>
+}

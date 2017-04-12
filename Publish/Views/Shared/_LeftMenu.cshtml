@@ -1,0 +1,84 @@
+﻿@using BMS.Entity
+@using BMS.Resource
+@using BMS.Web.Models
+<!-- The menu -->
+
+<nav id="menu">
+    <ul>
+        <li><a href="@Url.Action("Index","Home")"><i class="fa fa-home"></i> Home</a></li>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <li>
+                <a href="javascript:void(0)"><i class="fa fa-sitemap"></i> @Resource.Change_Company</a>
+                <ul>
+                    @foreach (var entity in User.GetEntities().OrderBy(z => z.Id).ToList())
+                    {
+                        <li><a href="@Url.Action("ChangeEntity", "Account", new {id = entity.Id, returnUrl = Request.Url?.AbsolutePath})"><i class="fa fa-building-o"></i> @entity.Name</a></li>
+                    }
+                </ul>
+            </li>
+            if (User.IsInEntityRole(Role.Admin, ((BMS.Entity.BMSMaster.Entity)Session[Key.Entity])?.Id ?? 0))
+            {
+                <li>
+                    <a href="javascript:void(0)"><i class="fa fa-cogs"></i> @Resource.Master_Data</a>
+                    <ul>
+                        <li><a href="@Url.Action("Index", "Area")"><i class="fa fa-map-signs"></i> @Resource.Areas</a></li>
+                        <li><a href="@Url.Action("Index", "Vehicle")"><i class="fa fa-bus"></i> @Resource.Vehicles</a></li>
+                        <li><a href="@Url.Action("Index", "Customer")"><i class="fa fa-id-card-o"></i> @Resource.Customers</a></li>
+                        <li><a href="@Url.Action("Index", "Brand")"><i class="fa fa-certificate"></i> @Resource.Brands</a></li>
+                        <li><a href="@Url.Action("Index", "Category")"><i class="fa fa-creative-commons"></i> @Resource.Categories</a></li>
+                        <li><a href="@Url.Action("Index", "Product")"><i class="fa fa-product-hunt"></i> @Resource.Products</a></li>
+                        <li><a href="@Url.Action("Index", "UnitOfMeasure")"><i class="fa fa-balance-scale"></i> @Resource.Unit_of_Measures</a></li>
+                    </ul>
+                </li>
+                <li><a href="@Url.Action("Index", "Item")"><i class="fa fa-stack-overflow"></i> @Resource.Items</a></li>
+                <li><a href="@Url.Action("Index", "Invoice")"><i class="fa fa-newspaper-o"></i> @Resource.Invoices</a></li>
+                <li><a href="@Url.Action("Index", "Lot")"><i class="fa fa-adjust"></i> @Resource.Stock_Adjustments</a></li>
+            }
+            if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((BMS.Entity.BMSMaster.Entity)Session[Key.Entity])?.Id ?? 0))
+            {
+                <li><a href="@Url.Action("Index", "Bill")"><i class="fa fa-clipboard"></i> @Resource.Billing</a></li>
+                <li><a href="@Url.Action("Index", "RoadDistribution")"><i class="fa fa-map-o"></i> @Resource.Road_Distribution</a></li>
+            }
+            if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((BMS.Entity.BMSMaster.Entity)Session[Key.Entity])?.Id ?? 0))
+            {
+                <li><a href="@Url.Action("Index", "BillPayment")"><i class="fa fa-money"></i> @Resource.Payments</a></li>
+                <li>
+                    <a href="javascript:void(0)"><i class="fa fa-credit-card"></i> @Resource.Cheque</a>
+                    <ul>
+                        <li><a href="@Url.Action("Index", "Cheque")"><i class="fa fa-sign-in"></i> @Resource.Receavable</a></li>
+                        <li><a href="@Url.Action("Index", "ChequeBook")"><i class="fa fa-sign-out"></i> @Resource.Payable</a></li>
+                    </ul>
+                </li>
+            }
+            if (User.IsInEntityRole(Role.Admin, ((BMS.Entity.BMSMaster.Entity)Session[Key.Entity])?.Id ?? 0))
+            {
+                <li>
+                    <a href="javascript:void(0)"><i class="fa fa-line-chart"></i> @Resource.Reports</a>
+                    <ul>
+                        <li><a href="@Url.Action("BillingReport", "Report")"><i class="fa fa-print"></i> @Resource.Billing_Report</a></li>
+                        <li><a href="@Url.Action("BillingReportSummary", "Report")"><i class="fa fa-print"></i> @Resource.Billing_Report_Summary</a></li>
+                        <li><a href="@Url.Action("CollectionReport", "Report")"><i class="fa fa-print"></i> @Resource.Collection_Report</a></li>
+                        <li><a href="@Url.Action("DailyBillSummary", "Report")"><i class="fa fa-print"></i> @Resource.Daily_Bill_Summary</a></li>
+                        <li><a href="@Url.Action("RoadDistribution", "Report")"><i class="fa fa-print"></i> @Resource.Road_Distribution</a></li>
+                        <li><a href="@Url.Action("CollectionSheet", "Report")"><i class="fa fa-print"></i> @Resource.Collection_Sheet</a></li>
+                        <li><a href="@Url.Action("SpotStockTest", "Report")"><i class="fa fa-print"></i> @Resource.Spot_Stock_Test</a></li>
+                    </ul>
+                </li>
+            }
+            <li><a id="change-password" href="@Url.Action("ChangePassword", "Manage")"><i class="fa fa-wrench"></i> @Resource.Change_Password</a></li>
+            if (User.IsInRole(Role.SAdmin))
+            {
+                <li>
+                    <a href="javascript:void(0)"><i class="fa fa-user-secret"></i> @Resource.Super_Admin</a>
+                    <ul>
+                        <li><a href="@Url.Action("Index", "User")"><i class="fa fa-print"></i> @Resource.User</a></li>
+                        <li><a href="@Url.Action("Index", "PaymentMethod")"><i class="fa fa-credit-card"></i> @Resource.Payment_Methods</a></li>
+                        <li><a href="@Url.Action("Index", "RoleFunctionPermission")"><i class="fa fa-unlock-alt"></i> @Resource.Collection_Report</a></li>
+                    </ul>
+                </li>
+            }
+            <li><a href="@Url.Content("~/Content/Help/Manual.pdf")" target="_blank"><i class="fa fa-life-ring"></i> @Resource.Help</a></li>
+        }
+    </ul>
+</nav>

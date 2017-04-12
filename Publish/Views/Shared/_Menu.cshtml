@@ -13,13 +13,13 @@
           {
               i.Add().Text(Resource.Change_Company).Items(x =>
               {
-                  foreach (var entity in User.GetEntities().OrderBy(z=>z.Id).ToList())
+                  foreach (var entity in User.GetEntities().OrderBy(z => z.Id).ToList())
                   {
                       x.Add().Text(entity.Name).Action("ChangeEntity", "Account", new { id = entity.Id, returnUrl = Request.Url?.AbsolutePath }).HtmlAttributes(new { data_icon = "building-o" });
                   }
-              }).HtmlAttributes(new {data_icon="sitemap"});
+              }).HtmlAttributes(new { data_icon = "sitemap" });
 
-              if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id??0))
+              if (User.IsInEntityRole(Role.Admin, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
                   i.Add().Text(Resource.Master_Data).Items(x =>
                   {
@@ -52,7 +52,7 @@
               if (User.IsInEntityRole(new[] { Role.Admin, Role.Accountant }, ((Entity)Session[Key.Entity])?.Id ?? 0))
               {
                   i.Add().Text(Resource.Payments).Action("Index", "BillPayment").HtmlAttributes(new { data_icon = "money" });
-                  i.Add().Text(Resource.Cheque).HtmlAttributes(new {data_icon = "credit-card"}).Items(x =>
+                  i.Add().Text(Resource.Cheque).HtmlAttributes(new { data_icon = "credit-card" }).Items(x =>
                   {
                       x.Add().Text(Resource.Receavable).Action("Index", "Cheque").HtmlAttributes(new { data_icon = "sign-in" });
                       x.Add().Text(Resource.Payable).Action("Index", "ChequeBook").HtmlAttributes(new { data_icon = "sign-out" });
@@ -73,7 +73,7 @@
                   }).HtmlAttributes(new { data_icon = "line-chart" });
               }
 
-              i.Add().Text(Resource.Change_Password).Action("ChangePassword","Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });
+              i.Add().Text(Resource.Change_Password).Action("ChangePassword", "Manage").HtmlAttributes(new { id = "change-password", data_icon = "wrench" });
               //i.Add().Text(Resource.Log_Off).HtmlAttributes(new { id = "log-out" }).HtmlAttributes(new { data_icon = "sign-out" });
 
               if (User.IsInRole(Role.SAdmin))
@@ -87,23 +87,23 @@
                   }).HtmlAttributes(new { data_icon = "user-secret" });
               }
 
-              i.Add().Text(Resource.Help).Url(Url.Content("~/Content/Help/Manual.pdf")).LinkHtmlAttributes(new {target="_blank"}).HtmlAttributes(new { data_icon = "life-ring" });
+              i.Add().Text(Resource.Help).Url(Url.Content("~/Content/Help/Manual.pdf")).LinkHtmlAttributes(new { target = "_blank" }).HtmlAttributes(new { data_icon = "life-ring" });
           })
-          .Events(e=>e.Activate("contextMenuOnOpen"))
-          .HtmlAttributes(new {style="width:175px;"})
-          )
+          .Events(e => e.Activate("contextMenuOnOpen"))
+          .HtmlAttributes(new { style = "width:175px;" })
+    )
 
-    <script id="navbar-tooltip" type="text/x-kendo-template">
-        <h4><i class="fa fa-bell-o blink_me" style="font-size:110%;"></i> @Resource.Right_Click_to_open_the_menu</h4>
-    </script>
+    @*<script id="navbar-tooltip" type="text/x-kendo-template">
+            <h4><i class="fa fa-bell-o blink_me" style="font-size:110%;"></i> @Resource.Right_Click_to_open_the_menu</h4>
+        </script>*@
 
-    @Html.Kendo().Tooltip().For(".navbar").Filter("i").ContentTemplateId("navbar-tooltip").Callout(true).ShowOn(TooltipShowOnEvent.MouseEnter)
+    @*@Html.Kendo().Tooltip().For(".navbar").Filter("i").ContentTemplateId("navbar-tooltip").Callout(true).ShowOn(TooltipShowOnEvent.MouseEnter)*@
 
     <script>
-        var contextMenuOnOpen = function(e) {
+        var contextMenuOnOpen = function (e) {
             if ($('[data-icon] .k-link > i').length == 0) {
                 $('[data-icon] .k-link')
-                    .each(function(i, e) {
+                    .each(function (i, e) {
                         var content = $(e).html();
                         var icon = '<i class="fa fa-' + $(e).parent().data('icon') + '"></i>&nbsp;';
                         $(e).html(icon + content);
