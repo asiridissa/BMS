@@ -1,7 +1,7 @@
 ﻿@model long
 <script id="itemTemplate" type="text/x-jsrender">
     {{if !deleted}}
-    <tr class="billLine">
+    <tr class="billLine" style="border-top:1px solid #CCC;">
         <td>{{:ItemName}}</td>
         <td class="number">{{>~prettyPrice(UnitPrice)}}</td>
         <td class="number">{{:Sale}}</td>
@@ -16,6 +16,9 @@
             <span class="k-icon k-i-edit line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.editItem(this)"></span>
             <span class="k-icon k-i-delete line" data-item="{{:ItemId}}" data-uid="{{:uid}}" onclick="bill.deleteItem(this)"></span>
         </td>
+    </tr>
+    <tr class="billGRLine">
+        <td colspan="11">{{>~prettyGRBill(GoodReturnReferenceBillNo,GoodReturnReferenceBillingDate,GoodReturnReferenceBillAmount)}}</td>
     </tr>
     {{/if}}
 </script>
@@ -57,7 +60,7 @@
             @(Html.Kendo().NumericTextBox().Name("FreeIssue").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
         </td>
         <td>
-            @(Html.Kendo().NumericTextBox().Name("GoodReturn").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+            @Html.Kendo().CheckBox().Name("HasGoodReturn").Checked(false)
         </td>
         <td>
             @(Html.Kendo().NumericTextBox().Name("Damage").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
@@ -67,16 +70,16 @@
         </td>
         <td>
             @(Html.Kendo().NumericTextBox<double>().Name("DiscountL").Events(e => e.Change("bill.updateLineAmount"))
-                .Format("p0")
-                .Min(0)
-                .Max(1)
-                .Step(0.01)
-                .Placeholder("0")
-                .Spinners(false).HtmlAttributes(new { @class = "line-qty" }))
+                  .Format("p0")
+                  .Min(0)
+                  .Max(1)
+                  .Step(0.01)
+                  .Placeholder("0")
+                  .Spinners(false).HtmlAttributes(new { @class = "line-qty" }))
         </td>
         <td class="amount">
             @(Html.Kendo().NumericTextBox<decimal>().Name("DeductionL").Events(e => e.Change("bill.updateLineAmount")).Format("#")
-                .Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}").HtmlAttributes(new { @class = "line-qty" }))
+                  .Placeholder("0.00").Spinners(false).Decimals(2).Format("{0:N2}").HtmlAttributes(new { @class = "line-qty" }))
         </td>
         <td class="amount">
             <span id="Amount" style="width: 70px;">0.00</span>
@@ -88,6 +91,39 @@
             <button id="cancelLine" class="k-button" onclick="bill.clearEdit()">
                 <span class="k-icon k-i-cancel"></span>
             </button>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="11">
+            <table id="gr-section" style="width: 100%; margin-top: 4px; display: none;">
+                <tr>
+                    <td style="width: 30px"><label>GR</label></td>
+                    <td style="width: 50px">
+                        @(Html.Kendo().NumericTextBox().Name("GoodReturn").Events(e => e.Change("bill.updateLineAmount")).Format("#").Min(0).Placeholder("0").Spinners(false).Decimals(0).HtmlAttributes(new { @class = "line-qty" }))
+                    </td>
+                    <td style="width: 100px">
+                        <label>GR Reference</label>
+                    </td>
+                    <td>
+                        <input id="GoodReturnReferenceBillHeaderId" type="hidden" />
+                        <input id="GoodReturnReferenceBillNo" type="hidden" />
+                        <input id="GoodReturnReferenceBillingDate" type="hidden" />
+                        <input id="GoodReturnReferenceBillAmount" type="hidden" />
+                        @(Html.Kendo().DropDownList().Name("ddBillReference")
+                              .DataValueField("Id")
+                              .DataTextField("BillNo")
+                              //.OptionLabel(new { Id= 0, BillNo = "Select Bill", BillingDate = DateTime.Now, Amount = 0 })
+                              .AutoBind(false)
+                              .Template("#:BillNo# | #:kendo.toString(kendo.parseDate(BillingDate),'MM/dd/yyyy')# | #:Amount.toFixed(2)#/=")
+                              .ValueTemplate("#:BillNo# | #:kendo.toString(kendo.parseDate(BillingDate),'MM/dd/yyyy')# | #:Amount.toFixed(2)#/=")
+                              .DataSource(s =>
+                              {
+                                  s.Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "BillHeaders", action = "GetPreviousBillHeadersByCustomerId"})).Data("ddBillReferenceData"));
+                              }).HtmlAttributes(new {style = "width:100%;"})
+                              .Events(e => e.Change("ddBillReferenceOnChange").DataBound("ddBillReferenceOnDataBound")))
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>

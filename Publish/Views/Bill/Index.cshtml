@@ -42,7 +42,11 @@
                 Value: 0,
                 inEdit: false,
                 deleted: false,
-                edited: false
+                edited: false,
+                GoodReturnReferenceBillHeaderId: null,
+                GoodReturnReferenceBillNo: null,
+                GoodReturnReferenceBillingDate: null,
+                GoodReturnReferenceBillAmount: null
             };
         };
 
@@ -67,7 +71,19 @@
             item.Discount = $('#DiscountL').val() ? parseFloat($('#DiscountL').val()) : 0;
             item.Deduction = $('#DeductionL').val() ? parseFloat($('#DeductionL').val()) : 0;
             item.Amount = 0;
-        };
+            item.GoodReturnReferenceBillHeaderId = $('#HasGoodReturn').prop('checked')
+                ? parseInt($('#GoodReturnReferenceBillHeaderId').val())
+                : null;
+            item.GoodReturnReferenceBillNo = $('#HasGoodReturn').prop('checked')
+                ? $('#GoodReturnReferenceBillNo').val()
+                : null;
+            item.GoodReturnReferenceBillingDate = $('#HasGoodReturn').prop('checked')
+                ? $('#GoodReturnReferenceBillingDate').val()
+                : null;
+            item.GoodReturnReferenceBillAmount = $('#HasGoodReturn').prop('checked')
+                ? $('#GoodReturnReferenceBillAmount').val()
+                : null;
+        }
 
         var calculateAmounts = function() {
             var discountable = item.Sale - item.GoodReturn - item.Damage - item.Expire;
@@ -76,8 +92,23 @@
             return price;
         };
 
-        var updateLineAmount = function(e) {
+        var updateLineAmount = function (e) {
             if ($("#ItemId").data('kendoDropDownList').select() > 0) {
+                collectItemData();
+                item.Amount = calculateAmounts();
+                $('#Amount').text(item.Amount.toFixed(2));
+            }
+        };
+
+        var hideShowGoodReturn = function (e) {
+            if ($("#ItemId").data('kendoDropDownList').select() > 0) {
+                var has = $('#HasGoodReturn').is(':checked');
+                if (has) {
+                    $('#gr-section').show();
+                } else {
+                    $('#gr-section').hide();
+                    $('#GoodReturn').val(0);
+                }
                 collectItemData();
                 item.Amount = calculateAmounts();
                 $('#Amount').text(item.Amount.toFixed(2));
@@ -102,7 +133,7 @@
                 });
             $('#billLinesTotal').text(lineTotal.toFixed(2));
             $('#billHeaderDiscountable').text(headerDiscountable.toFixed(2));
-            
+
             //total = (lineTotal.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction;
             total = headerDiscountExcept + ((headerDiscountable.toFixed(2) * (discount > 0 ? 1 - discount : 1)) - deduction);
             $('#billTotal').text(total.toFixed(2));
@@ -110,7 +141,7 @@
 
         var renderLines = function() {
             if (billLines.length > 0) {
-                $('.billLine').remove();
+                $('.billLine,.billGRLine').remove();
                 var template = $.templates('#itemTemplate');
                 var htmlOutput = template.render(billLines,
                 {
@@ -119,6 +150,10 @@
                     },
                     prettyPrice: function(price) {
                         return parseFloat(price).toFixed(2);
+                    },
+                    prettyGRBill: function (billNo, date, amount) {
+                        if (date == null && billNo == null) return "";
+                        return '(GR Reference "' + billNo + '" on ' + date.toString().split('T')[0] + ' with ' + parseFloat(amount).toFixed(2) + '/=)' ;
                     }
                 });
                 $("#billLinesHeader").after(htmlOutput);
@@ -139,10 +174,23 @@
             $('#DiscountL').data("kendoNumericTextBox").value(null);
             $('#DeductionL').data("kendoNumericTextBox").value(null);
             $('#Amount').text("0");
+            $('#HasGoodReturn').prop('checked', false);
+            $('#gr-section').hide();
             calculateAmounts();
         };
 
-        var saveLine = function() {
+        var saveLine = function () {
+            if ($('#HasGoodReturn').prop('checked')) {
+                if ($('#GoodReturnReferenceBillHeaderId').val() == "") {
+                    notify('Select Good Return Reference Bill first', 'warning');
+                    return;
+                }
+                if ($('#GoodReturn').val() == 0) {
+                    notify('Good Return quantity should be entered', 'warning');
+                    return;
+                }
+            }
+
             if (item.inEdit) {
                 $(billLines)
                     .each(function(i, e) {
@@ -195,6 +243,13 @@
             $('#DiscountL').data("kendoNumericTextBox").value(item.Discount);
             $('#DeductionL').data("kendoNumericTextBox").value(item.Deduction);
             $('#Amount').text(parseFloat(item.Amount).toFixed(2));
+            $('#HasGoodReturn').prop('checked', item.GoodReturn > 0 ? true : false);
+            $('#GoodReturnReferenceBillHeaderId').val(item.GoodReturnReferenceBillHeaderId);
+            $('#GoodReturnReferenceBillNo').val(item.GoodReturnReferenceBillNo);
+            $('#GoodReturnReferenceBillingDate').val(item.GoodReturnReferenceBillingDate);
+            $('#GoodReturnReferenceBillAmount').val(item.GoodReturnReferenceBillAmount);
+            $('#ddBillReference').data('kendoDropDownList').dataSource.read();
+            hideShowGoodReturn();
         }
 
         var collectBillData = function() {
@@ -308,15 +363,14 @@
         }
 
         var parseLines = function(id) {
-            $.get('@Url.HttpRouteUrl("ActionApi", new {controller = "BillLines", action = "GetBillLines"})',
+            $.get('@Url.HttpRouteUrl("ActionApi", new {controller = "BillLines", action = "GetBillLinesWithGoodReturnBillHeader" })',
                 { id: id })
                 .done(function(msg) {
-                    console.log(msg);
                     billLines = msg;
                     renderLines();
                 })
                 .fail(function(msg) {
-                    console.log(msg);
+                    console.error(msg);
                     notify('@Resource.Something_went_wrong', 'warning');
                 });
         }
@@ -336,7 +390,9 @@
             addBill: addBill,
             editBill: editBill,
             deleteBill: deleteBill,
-            parseLines: parseLines
+            parseLines: parseLines,
+            hideShowGoodReturn: hideShowGoodReturn,
+            item: item
         }
     }();
 </script>
@@ -488,6 +544,26 @@
         grid.select(row);
     }
 
+    var ddBillReferenceData = function (e) {
+        return {
+            customerId: $('#CustomerId').data('kendoDropDownList').value(),
+            billHeaderId: $('#BillHeaderId').val(),
+            date: $('#BillingDate').data('kendoDatePicker').value().toISOString().split('T')[0]
+        }
+    }
+
+    var ddBillReferenceOnDataBound = function (e) {
+        e.sender.value($('#GoodReturnReferenceBillHeaderId').val());
+    }
+
+    var ddBillReferenceOnChange = function (e) {
+        $('#GoodReturnReferenceBillHeaderId').val(e.sender.dataItem(e.sender.select()).Id);
+        $('#GoodReturnReferenceBillNo').val(e.sender.dataItem(e.sender.select()).BillNo);
+        $('#GoodReturnReferenceBillingDate').val(kendo.toString(kendo.parseDate(e.sender.dataItem(e.sender.select()).BillingDate), 'MM/dd/yyyy'));
+        $('#GoodReturnReferenceBillAmount').val(e.sender.dataItem(e.sender.select()).Amount.toFixed(2));
+        bill.updateLineAmount();
+    }
+
     $(document)
         .ready(function () {
             //$('body')
@@ -530,6 +606,13 @@
                 '#btnDeleteBill',
                 function () {
                     bill.deleteBill();
+                });
+
+            $('body')
+                .on('change',
+                '#HasGoodReturn',
+                function () {
+                    bill.hideShowGoodReturn();
                 });
 
         });

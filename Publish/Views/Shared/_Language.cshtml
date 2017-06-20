@@ -15,8 +15,8 @@ if (c == culture)
     var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.ToLowerInvariant();
 
     <div class="row">
-        <div class="col-lg-4">@Resource.Language</div>
-        <div class="col-lg-8">
+        <div class="col-sm-4">@Resource.Language</div>
+        <div class="col-sm-8">
             <input id="langCode" name="langCode" type="hidden" value="" />
             <input id="returnUrl" name="returnUrl" type="hidden" value="@(Request.Url?.LocalPath)" />
             <div style="text-align: center" id="cult-list">
