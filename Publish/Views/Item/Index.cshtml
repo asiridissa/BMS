@@ -1,4 +1,5 @@
 ﻿@using System.Collections
+@using BMS.Entity.BMSTenant
 @using BMS.Resource
 @{
     ViewBag.Title = "Item";
@@ -7,6 +8,7 @@
       .Name("gItem")
       .Columns(columns =>
       {
+          columns.Bound(x => x.Id).ClientTemplate("<i class=\"fa fa-barcode\" style=\"color:#if(BarCode){#green#}else{#red#}#\" title=\"Barcode status\"></i>").Width(50).Title("").Filterable(false);
           columns.ForeignKey(c => c.BrandId, (IEnumerable)ViewData["Brands"], "Id", "ShortName").Title(Resource.Brand).Width(120);
           columns.ForeignKey(c => c.CategoryId, (IEnumerable)ViewData["Categories"], "Id", "ShortName").Title(Resource.Category).Width(120);
           columns.ForeignKey(c => c.ProductId, (IEnumerable)ViewData["Products"], "Id", "ShortName").Title(Resource.Product);
@@ -21,19 +23,20 @@
       })
       .ToolBar(toolbar =>
       {
-          //toolbar.Create().Text(Resource.Add);
-          //toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
-          toolbar.Template(@<text>
+      //toolbar.Create().Text(Resource.Add);
+      //toolbar.Save().SaveText(Resource.Save).CancelText(Resource.Cancel);
+      toolbar.Template(@<text>
         <span style="float: left; font-size: 18px; padding: 4px;">@Resource.Inventory</span>
         <a class="k-button k-button-icontext k-grid-add" href="/data/Items/GetItems"><span class="k-icon k-i-add"></span>@Resource.Add</a>
         <a class="k-button k-button-icontext k-grid-save-changes" href="javascript:void(0)"><span class="k-icon k-i-check"></span>@Resource.Save</a>
         <a class="k-button k-button-icontext k-grid-cancel-changes" href="javascript:void(0)"><span class="k-icon k-i-cancel"></span>@Resource.Cancel</a>
-        </text>);
+    </text>);
       })
       .Editable(editable => editable.Mode(GridEditMode.InCell))
       .Pageable()
       .Groupable()
       .Navigatable()
+      .ClientDetailTemplateId("gItem-detail-template")
       .Selectable(selectable =>
       {
           selectable.Mode(GridSelectionMode.Single);
@@ -51,6 +54,7 @@
           .Model(model =>
           {
               model.Id(p => p.Id);
+              model.Field(x => x.Id).Editable(false);
               model.Field(x => x.BrandId);
               model.Field(x => x.CategoryId);
               model.Field(x => x.ProductId);
@@ -68,3 +72,67 @@
       )
       .Pageable(p => p.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 })))
 
+<script type="text/x-kendo-template" id="gItem-detail-template">
+    @(Html.Kendo().TabStrip().Name("tItem-detail-#=Id#").Items(i =>
+      {
+          i.Add().Text("Bar Code").Content(@<text>
+        <div>
+            <label class="col-md-1">Barcode</label>
+            <div class="col-md-8">
+                <input data-id="#=Id#" name="BarCode" class="k-textbox" style="width:100%" value="#:BarCode||''#" focus />
+            </div>
+            <div class="col-md-1">
+                <button data-id="#=Id#" class="update-barcode k-button k-button-icontext"><span class="k-icon k-i-check"></span> @Resource.Save</button>
+            </div>
+        </div>
+</text>);
+          i.Add().Text("Lots").LoadContentFrom("_LotByItem", "Lot", new { itemId= "#:Id#"});
+          i.Add().Text("Images").Content(@<text>
+        @*//todo:Upload image*@
+    <h4>Coming soon&hellip;</h4>
+        </text>);
+      }).SelectedIndex(0).ToClientTemplate())
+</script>
+
+<script>
+    var update = function (e) {
+        var itemId = $(e.currentTarget).data('id'),
+            val = $('[name="BarCode"][data-id="' + itemId + '"]').val(),
+            grid = $('#gItem').data('kendoGrid'),
+            dataItem = $.grep(grid.dataItems(), function(n, i) { return n.Id === itemId; })[0];
+        if (val.trim().length > 0) {
+            working();
+            dataItem.set('BarCode', val);
+            dataItem.CreatedDateTime = moment(dataItem.CreatedDateTime).format('YYYY-MM-DD');
+            $.ajax({
+                url: '@Url.HttpRouteUrl("ActionApi", new {controller = "Items", action = "PutItem"})/' + itemId,
+                method: 'PUT',
+                data: dataItem.toJSON()
+            }).done(function(data) {
+                notify('@Resource.Successfully_Saved', 'success');
+            }).fail(function() {
+                notify('@Resource.Something_went_wrong', 'error');
+            }).always(function() {
+                working(false);
+            });
+        } else {
+            notify('@Resource.Please_fill_the_missing_Data', 'warning');
+        }
+    }
+
+    $(document).ready(function () {
+        $('body').on('keypress',
+            '[name="BarCode"]',
+            function(e) {
+                if (e.which == 13 || e.keyCode == 13) {
+                    update(e);
+                }
+            });
+
+        $('body').on('click',
+            '.update-barcode',
+            function(e) {
+                update(e);
+            });
+    });
+</script>

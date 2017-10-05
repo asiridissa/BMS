@@ -13,46 +13,37 @@
     @Scripts.Render("~/bundles/mmenuJS")
     <script src="~/Scripts/jsviews.min.js"></script>
     <script src="~/Scripts/moment.min.js"></script>
-    <script type = 'text/javascript' >
-        var appInsights=window.appInsights||function(config)
-        {
-            function r(config){ t[config] = function(){ var i = arguments; t.queue.push(function(){ t[config].apply(t, i)})} }
-            var t = { config:config},u=document,e=window,o='script',s=u.createElement(o),i,f;for(s.src=config.url||'//az416426.vo.msecnd.net/scripts/a/ai.0.js',u.getElementsByTagName(o)[0].parentNode.appendChild(s),t.cookie=u.cookie,t.queue=[],i=['Event','Exception','Metric','PageView','Trace','Ajax'];i.length;)r('track'+i.pop());return r('setAuthenticatedUserContext'),r('clearAuthenticatedUserContext'),config.disableExceptionTracking||(i='onerror',r('_'+i),f=e[i],e[i]=function(config, r, u, e, o) { var s = f && f(config, r, u, e, o); return s !== !0 && t['_' + i](config, r, u, e, o),s}),t
-        }({
-            instrumentationKey:'8bccb266-d562-4b94-96ff-3d693d6f706d'
-        });
-        
-        window.appInsights=appInsights;
-        appInsights.trackPageView();
-    </script>
 </head>
 <body>
-    <div id="page">
-        <div>
-            <div class="navbar navbar-inverse navbar-fixed-top">
-                <div class="container">
-                    <div class="navbar-header">
-                        <a href="#" id="hamburger" class="Fixed">
-                            <span class="hamburger hamburger--collapse">
-                                <span class="hamburger-box">
-                                    <span class="hamburger-inner"></span>
-                                </span>
+<div id="page">
+    <div>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a href="#" id="hamburger" class="Fixed">
+                        <span class="hamburger hamburger--collapse">
+                            <span class="hamburger-box">
+                                <span class="hamburger-inner"></span>
                             </span>
-                        </a>
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        @Html.Partial("_Logo")
-                    </div>
-                    <div class="navbar-collapse collapse">
-                        @Html.Partial("_LoginPartial")
-                    </div>
+                        </span>
+                    </a>
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.Partial("_Logo")
+                </div>
+                <div class="navbar-collapse collapse">
+                    @Html.Partial("_LoginPartial")
                 </div>
             </div>
-            <div class="body-content">
-                @(Html.Kendo().Notification().Name("notify")
+        </div>
+        <div class="body-content">
+            <div id="po-working-cog" style="position: absolute ; top: 0; left:0; width: 100%; height: 100%; text-align: center;background-color: rgba(255, 255, 255, 0.5)">
+                <i class="fa fa-cog fa-spin fa-3x fa-fw" style="position: fixed; top: 50%; left: 50%; margin: -8px;"></i>
+            </div>
+            @(Html.Kendo().Notification().Name("notify")
                   .Position(x => x.Bottom(50))
                   .Animation(x =>
                   {
@@ -63,30 +54,32 @@
                   .AllowHideAfter(8)
                   .HideOnClick(true)
                   .Events(e => e.Show("notificationOnShow"))
-                )
-                @RenderBody()
-            </div>
-            <footer>
-                <div class="row">
-                    <div class="col-md-1 col-sm-2"><a href="mailto:bms17@gmail.com" target="_blank"><i class="fa fa-envelope-o faa-shake animated"></i>  Contact Us</a></div>
-                    <div class="col-md-1 col-sm-2 "><small><i class="fa fa-phone faa-shake animated"></i>  (+94)716 271 610</small></div>
-                    <div class="col-md-8 col-sm-5">
-                        <small>&copy; @DateTime.Now.Year - BMS</small>
-                    </div>
-                    <div class="col-md-2 col-sm-3">@Html.Partial("_Language")</div>
+                  )
+            @RenderBody()
+        </div>
+        <footer>
+            <div class="row">
+                <div class="col-md-1 col-sm-2"><a href="mailto:bms17@gmail.com" target="_blank"><i class="fa fa-envelope-o faa-shake animated"></i> Contact Us</a>
                 </div>
-            </footer>
-            <div>
-                @Html.Partial("_WhatsNew")
-                @Html.Partial("_LeftMenu")
-                @Html.Partial("_Menu");
+                <div class="col-md-1 col-sm-2 "><small><i class="fa fa-phone faa-shake animated"></i> (+94)716 271 610</small>
+                </div>
+                <div class="col-md-8 col-sm-5">
+                    <small>&copy; @DateTime.Now.Year - BMS</small>
+                </div>
+                <div class="col-md-2 col-sm-3">@Html.Partial("_Language")</div>
             </div>
+        </footer>
+        <div>
+            @Html.Partial("_WhatsNew")
+            @Html.Partial("_LeftMenu")
+            @Html.Partial("_Menu");
         </div>
     </div>
+</div>
 
-    @Scripts.Render("~/bundles/bootstrap")
+@Scripts.Render("~/bundles/bootstrap")
 
-    <script>
+<script>
     var notificationOnShow = function(e) {
         if (!$("." + e.sender._guid)[1]) {
             e.element.parent().css({ zIndex: 22222 });
@@ -97,8 +90,51 @@
         $("#notify").data("kendoNotification").show(' ' + text, (type == null || type == "") ? "info" : type);
     }
 
+    var maxZIndex = function() {
+        var highest = -999;
+        $("*")
+            .each(function() {
+                var current = parseInt($(this).css("z-index"), 10);
+                if (current && highest < current) highest = current;
+            });
+
+        return highest;
+    };
+
+    var working = function(wait) {
+        if (wait || wait == undefined) {
+            var max = maxZIndex() + 10;
+            $("#po-working-cog")
+                .css('z-index', max)
+                .animate({
+                        width: ["100%", "swing"],
+                        height: ["100%", "swing"],
+                        opacity: 1
+                    },
+                    250,
+                    "linear",
+                    function() {
+                    });
+            $('#po-working-cog > i').css('z-index', max);
+        } else {
+            $("#po-working-cog")
+                .animate({
+                        width: ["0%", "swing"],
+                        height: ["0%", "swing"],
+                        opacity: 0
+                    },
+                    250,
+                    "linear",
+                    function() {
+                        $(this).css('z-index', '0');
+                    });
+        }
+    };
+    working();
+
     $(document)
-        .ready(function() {
+        .ready(function () {
+            working(false);
             $('body')
                 .on('focus',
                     '[data-role="datepicker"]',
@@ -129,7 +165,7 @@
                 });
 
         });
-    </script>
-    @RenderSection("scripts", required: false)
+</script>
+@RenderSection("scripts", required: false)
 </body>
 </html>

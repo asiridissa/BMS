@@ -30,7 +30,7 @@
         <div class="col-md-5">
             <section id="loginForm">
                 @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-            {
+                {
                     @Html.AntiForgeryToken()
                     <h1 class="retroshadow">@Resource.Log_in</h1>
                     <hr />
@@ -76,6 +76,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
         var movementStrength = 25;

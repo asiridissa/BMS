@@ -209,12 +209,27 @@ td.number {
     color: red;
 }
 
+.k-state-selected .fa.red {
+    color: red;
+    font-weight: bold;
+}
+
 .fa.green {
     color: green;
 }
 
+.k-state-selected .fa.green {
+    color: lime;
+    font-weight: bold;
+}
+
 .fa.orange {
     color: orange;
+}
+
+.k-state-selected .fa.orange {
+    color: orange;
+    font-weight: bold;
 }
 
 /*radio dot alignment fix*/
