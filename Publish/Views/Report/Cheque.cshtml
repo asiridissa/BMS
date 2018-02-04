@@ -6,7 +6,7 @@
     ViewBag.Title = (Model.CheckNo + " " + Model.BankName + " " + Model.BranchName).ToString();
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
-<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.2.17.913.min.js")"></script>
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-12.0.18.125.min.js")"></script>
 
 <div id="report-filters" class="container-fluid">
     <div class="row">
@@ -63,8 +63,8 @@
                         error: function() {
                             notify('Something went Wrong', 'warning');
                         },
-                        ready: function() {
-                            //this.refreshReport();
+                        renderingEnd: function() {
+                            this.commands.print.exec();
                         }
                     });
             },

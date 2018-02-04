@@ -16,7 +16,7 @@
     <div class="row">
         <label class="col-md-4">@Resource.Date</label>
         <div class="col-md-6">
-            @Html.Kendo().DatePickerFor(x => x.BillingDate).HtmlAttributes(new { required = "required" })
+            @Html.Kendo().DatePickerFor(x => x.BillingDate).HtmlAttributes(new { required = "required" }).Max(DateTime.Today).Value(DateTime.Today.AddDays(-1))
             @Html.ValidationMessageFor(model => model.BillingDate, "", new { @class = "text-danger" })
         </div>
     </div>

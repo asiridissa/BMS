@@ -1,31 +1,34 @@
 ﻿@using BMS.Entity
+@using BMS.Reporting
 @using BMS.Resource
 @using BMS.Web.Models
+@using Microsoft.Ajax.Utilities
 
 @{
     ViewBag.Title = Resource.Daily_Bill_Summary;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
 
-<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.2.17.913.min.js")"></script>
+<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-12.0.18.125.min.js")"></script>
 
 <div id="report-filters" class="container-fluid">
     <div class="row">
         <label class="col-md-1">Date </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+            @Html.Kendo().DatePicker().Name("dpBillDate").Max(DateTime.Today).Value(DateTime.Today.AddDays(-1)).Events(e => e.Change("refreshViewer")).Deferred()
         </div>
         <label class="col-md-1">Vehicle </label>
         <div class="col-md-4">
             @(Html.Kendo().DropDownList().Name("ddVehicle")
-          .DataValueField("Id")
-          .DataTextField("No")
-          .DataSource(s => s
-              .Read(r =>
-              {
-                  r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
-              }))
-          .Events(e => e.Change("refreshViewer"))
+                  .OptionLabel("Select Here...")
+                  .DataValueField("Id")
+                  .DataTextField("No")
+                  .DataSource(s => s
+                      .Read(r =>
+                      {
+                          r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                      }))
+                  .Events(e => e.Change("refreshViewer")).Deferred()
             )
         </div>
     </div>
@@ -34,6 +37,33 @@
 <div id="reportViewer">
     <img style="margin: auto" src="~/Content/kendo/BlueOpal/loading-image.gif" />
 </div>
+
+@Html.Kendo().DeferredScripts()
+
+@{
+
+    var typeReportSource = new TypeReportSource() { TypeName = typeof(DailyBillSummary).AssemblyQualifiedName };
+    typeReportSource.Parameters.Add("CompanyName", entity.Name);
+    typeReportSource.Parameters.Add("VehicleNo", null);
+    typeReportSource.Parameters.Add("BillDate", DateTime.Today);
+    typeReportSource.Parameters.Add("VehicleId", null);
+}
+
+@(Html.TelerikReporting().ReportViewer()
+          .Id("reportViewer")
+          .ServiceUrl(Url.HttpRouteUrl("DefaultApi", new { controller = "Reports" }))
+          .ReportSource(typeReportSource)
+          .ViewMode(ViewMode.Interactive)
+          .ScaleMode(ScaleMode.Specific)
+          .Scale(1.0)
+          .PersistSession(false)
+          .PrintMode(PrintMode.AutoSelect)
+          .EnableAccessibility(false)
+          .ClientEvents(e => e.Error("function () { notify('Something went Wrong', 'warning');}"))
+          .Deferred()
+)
+
+@Html.TelerikReporting().DeferredScripts()
 
 <script>
     var refreshViewer = function () {
@@ -45,75 +75,9 @@
                 VehicleId: $('#ddVehicle').data('kendoDropDownList').value(),
                 BillDate: $('#dpBillDate').val(),
                 VehicleNo: $('#ddVehicle').data('kendoDropDownList').text(),
-                DatabaseName: '@entity.DatabaseName',
                 CompanyName: '@entity.Name'
             }
         }).refreshReport();
     };
 
-    $(document).ready(function () {
-        var vehicle = $('#ddVehicle').data('kendoDropDownList');
-        var date = $('#dpBillDate').data('kendoDatePicker');
-
-        setTimeout(function () {
-
-            $("#reportViewer")
-                .telerik_ReportViewer({
-                    serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
-                    reportSource: {
-                        report: "DailyBillSummary.trdp",
-                        parameters: {
-                            VehicleId: $('#ddVehicle').data('kendoDropDownList').value(),
-                            BillDate: $('#dpBillDate').val(),
-                            VehicleNo: $('#ddVehicle').data('kendoDropDownList').text(),
-                            DatabaseName: '@entity.DatabaseName',
-                            CompanyName: '@entity.Name'
-                        }
-                    },
-                    scaleMode: "FIT_PAGE_WIDTH",
-                    viewMode: "INTERACTIVE",
-                    printMode: "AUTO_SELECT",
-                    error: function () {
-                        notify('Something went Wrong', 'warning');
-                    },
-                    ready: function () {
-                        //this.refreshReport();
-                    }
-                });
-        }, 2500);
-    });
 </script>
-
-@*@(Html.TelerikReporting().ReportViewer()
-    // Each report viewer must have an id - it will be used by the initialization script
-    // to find the element and initialize the report viewer.
-    .Id("reportViewer")
-    // The URL of the service which will serve reports.
-    // The URL corresponds to the name of the controller class (ReportsController).
-    // For more information on how to configure the service please check http://www.telerik.com/help/reporting/telerik-reporting-rest-conception.html.
-    .ServiceUrl(Url.Content("/api/reports"))
-    // The URL for the report viewer template. The template can be edited -
-    // new functionalities can be added and unneeded ones can be removed.
-    // For more information please check http://www.telerik.com/help/reporting/html5-report-viewer-templates.html.
-    //
-    // Strongly typed ReportSource - TypeReportSource or UriReportSource.
-    .ReportSource(new UriReportSource() { Uri = "DailyBillSummary.trdp" })
-    .ParameterEditors(e=>e.DateTimeEditor("dpBillDate"))
-    // Specifies whether the viewer is in interactive or print preview mode.
-    // PrintPreview - Displays the paginated report as if it is printed on paper. Interactivity is not enabled.
-    // Interactive - Displays the report in its original width and height with no paging. Additionally interactivity is enabled.
-    .ViewMode(ViewMode.Interactive)
-    // Sets the scale mode of the viewer.
-    // Three modes exist currently:
-    // FitPage - The whole report will fit on the page (will zoom in or out), regardless of its width and height.
-    // FitPageWidth - The report will be zoomed in or out so that the width of the screen and the width of the report match.
-    // Specific - Uses the scale to zoom in and out the report.
-    .ScaleMode(ScaleMode.FitPageWidth)
-    // Zoom in and out the report using the scale
-    // 1.0 is equal to 100%, i.e. the original size of the report
-    .Scale(1.0)
-    // Sets whether the viewer�s client session to be persisted between the page�s refreshes(ex. postback).
-    // The session is stored in the browser�s sessionStorage and is available for the duration of the page session.
-    .PersistSession(false)
-    // Sets the print mode of the viewer.
-    .PrintMode(PrintMode.AutoSelect))*@

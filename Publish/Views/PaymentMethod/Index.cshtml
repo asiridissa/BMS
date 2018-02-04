@@ -6,7 +6,7 @@
       .Columns(columns =>
       {
           columns.Bound(c => c.ShortName).Title(Resource.Short_Name).Width(200);
-          columns.Bound(c => c.ShortName).Title(Resource.Full_Name);
+          columns.Bound(c => c.FullName).Title(Resource.Full_Name);
           columns.Command(command => { command.Destroy().Text(Resource.Delete); }).Width(100);
       })
       .ToolBar(toolbar =>

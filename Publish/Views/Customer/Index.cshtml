@@ -9,7 +9,7 @@
       .Columns(columns =>
       {
           columns.Bound(c => c.ShortName).Title(Resource.Short_Name).Width(140);
-          columns.Bound(c => c.ShortName).Title(Resource.Full_Name);
+          columns.Bound(c => c.FullName).Title(Resource.Full_Name);
           columns.ForeignKey(x => x.AreaId, (IEnumerable)ViewData["Areas"], "Id", "ShortName").Width(140).Title(@Resource.Area);
           columns.Bound(c => c.Phone).Title(Resource.Phone).Width(140);
           columns.Bound(c => c.Mobile).Title(Resource.Mobile).Width(140);

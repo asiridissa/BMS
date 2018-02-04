@@ -55,7 +55,7 @@
         </div>
     </div>
     <div class="row payment-row">
-        <div class="col-md-6">
+        <div class="col-md-7">
             @(Html.Kendo().Grid<BMS.Entity.BMSTenant.BillHeader>()
                   .Name("gBillHeader")
                   .Columns(columns =>
@@ -65,6 +65,7 @@
                       columns.ForeignKey(x => x.CustomerId, (IEnumerable)ViewData["Customers"], "Id", "ShortName").Title(Resource.Customer);
                       columns.Bound(c => c.Amount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" });
                       columns.Bound(c => c.PaidAmount).Width(100).Format("{0:N2}").HtmlAttributes(new { style = "tex-align:right;" }).Title(Resource.Paid);
+                      columns.Template(t => { }).ClientTemplate("#=kendo.toString(Amount - PaidAmount, 'n2')#").Title("TBP").HtmlAttributes(new { style = "tex-align:right;" }).Width(100);
                   })
                   .ToolBar(t => t.Template("<span style=\"float:left;font-size:18px;padding:4px;\">" + Resource.Billing + "</span>" +
                                            "<input type=\"checkbox\" id=\"showAllBills\" class=\"k-checkbox\">" +
@@ -94,7 +95,7 @@
                   .Events(e => e.Change("gBillHeaderOnChange").DataBound("gBillHeaderOnDataBound"))
                   )
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
             <div class="payment-row">
                 <div class="row">
                     <label class="col-md-4">@Resource.Payment_Methods</label>
@@ -107,7 +108,7 @@
                 <div class="row">
                     <label class="col-md-4" for="Payment">@Resource.Payment_Amount</label>
                     <div class="col-md-6">
-                        @Html.Kendo().NumericTextBox().Name("Payment").Min(0.01).Placeholder("0.00").Decimals(2).Spinners(false)
+                        @Html.Kendo().NumericTextBox().Name("Payment").Min(0.01).Placeholder("0.00").Decimals(2)
                     </div>
                 </div>
                 <div class="row">
@@ -233,9 +234,14 @@
         grid.select(row);
     }
 
-    var gBillHeaderOnChange = function() {
+    var gBillHeaderOnChange = function(e) {
         $('#gBillPayment').data('kendoGrid').dataSource.read();
         $('#gCheque').data('kendoGrid').dataSource.read();
+        var dataItem = e.sender.dataItem(e.sender.select());
+        if ((dataItem.Amount - dataItem.PaidAmount) > 0.01)
+            $('#Payment').data('kendoNumericTextBox').value(dataItem.Amount - dataItem.PaidAmount);
+        else 
+            $('#Payment').data('kendoNumericTextBox').value(null);
     }
 
     var gBillPaymentOnRead = function() {

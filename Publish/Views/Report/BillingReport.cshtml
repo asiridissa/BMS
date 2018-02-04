@@ -1,87 +1,94 @@
 ﻿@using BMS.Entity
+@using BMS.Reporting
 @using BMS.Resource
 @using BMS.Web.Models
+@using Humanizer
 @{
     ViewBag.Title = Resource.Billing_Report;
     var entity = User.GetSelectedEntity(Convert.ToInt32(Request.Cookies[Key.Entity]?.Value));
 }
-<script src="@Url.Content("~/ReportViewer/js/telerikReportViewer-11.2.17.913.min.js")"></script>
 
-
+<script src="~/ReportViewer/js/telerikReportViewer-12.0.18.125.min.js"></script>
 
 <div id="report-filters" class="container-fluid">
     <div class="row">
         <label class="col-md-1">From </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+            @Html.Kendo().DatePicker().Name("dpBillFromDate").Max(DateTime.Now).Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)).Events(e => e.Change("refreshViewer")).Deferred()
         </div>
         <label class="col-md-1">To </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillToDate").Value(DateTime.Today).Events(e => e.Change("refreshViewer"))
+            @Html.Kendo().DatePicker().Name("dpBillToDate").Max(DateTime.Now).Value(DateTime.Today).Events(e => e.Change("refreshViewer")).Deferred()
         </div>
         <label class="col-md-1">Vehicle </label>
-        <div class="col-md-4">
+        <div class="col-md-3">
             @(Html.Kendo().MultiSelect().Name("msVehicle")
-        .Placeholder("Select Here...")
-              .DataTextField("No")
-              .DataValueField("Id")
-              .DataSource(s =>
-              {
-                  s.Read(r =>
-                  {
-                      r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
-                  });
-              }).Events(e => e.Change("refreshViewer"))
+                                  .Placeholder("Select Here...")
+                                  .DataTextField("No")
+                                  .DataValueField("Id")
+                                  .DataSource(s =>
+                                  {
+                                      s.Read(r =>
+                                      {
+                                          r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Vehicles", action = "GetAll" }));
+                                      });
+                                  }).Events(e => e.Change("refreshViewer")).Deferred()
             )
+        </div>
+        <div class="col-md-2">
+            <i class="fa fa-info-circle" title="Coming soon.."></i>&nbsp;
+            @Html.Kendo().CheckBox().Name("cbAsPerDate").Checked(false).Label("As per Date").Deferred().Enable(false)
         </div>
     </div>
 </div>
-
 <div id="reportViewer">
-    <img style="margin: auto" src="~/Content/kendo/BlueOpal/loading-image.gif" />
+    <img style="margin: auto" src="~/Content/kendo/BlueOpal/loading-image.gif" alt=""/>
 </div>
+
+@Html.Kendo().DeferredScripts()
+
+@{
+
+    var typeReportSource = new TypeReportSource() { TypeName = typeof(BillingReport).AssemblyQualifiedName };
+    typeReportSource.Parameters.Add("CompanyName", entity.Name);
+    typeReportSource.Parameters.Add("VehicleIds", "");
+    typeReportSource.Parameters.Add("FromDate", new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
+    typeReportSource.Parameters.Add("ToDate", DateTime.Today);
+    typeReportSource.Parameters.Add("AsPerDate", null);
+}
+
+@(Html.TelerikReporting().ReportViewer()
+    .Id("reportViewer")
+    .ServiceUrl(Url.HttpRouteUrl("DefaultApi", new { controller = "Reports" }))
+    .ReportSource(typeReportSource)
+    .ViewMode(ViewMode.PrintPreview)
+    .ScaleMode(ScaleMode.Specific)
+    .Scale(1.0)
+    .PersistSession(false)
+    .PrintMode(PrintMode.AutoSelect)
+    .EnableAccessibility(false)
+    .ClientEvents(e => e.Error("function () { notify('Something went Wrong', 'warning');}"))
+    .Deferred()
+)
+
+@Html.TelerikReporting().DeferredScripts()
 
 <script>
     var refreshViewer = function () {
         var viewer = $("#reportViewer").data("telerik_ReportViewer");
-
         viewer.reportSource({
             report: viewer.reportSource().report,
             parameters: {
-                VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
+                VehicleIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
                 FromDate: $('#dpBillFromDate').val(),
                 ToDate: $('#dpBillToDate').val(),
-                DatabaseName: '@entity.DatabaseName',
+                AsPerDate: $('#cbAsPerDate').is(':checked'),
                 CompanyName: '@entity.Name'
             }
         }).refreshReport();
     };
 
     $(document).ready(function () {
-        setTimeout(function () {
-            $("#reportViewer")
-                .telerik_ReportViewer({
-                    serviceUrl: "@Url.HttpRouteUrl("DefaultApi",new {controller="Reports"})",
-                    reportSource: {
-                        report: "Billing Report.trdp",
-                        parameters: {
-                            VehiceIds: $('#msVehicle').data('kendoMultiSelect').value().toString(),
-                            FromDate: $('#dpBillFromDate').val(),
-                            ToDate: $('#dpBillToDate').val(),
-                            DatabaseName: '@entity.DatabaseName',
-                            CompanyName: '@entity.Name'
-                        }
-                    },
-                    //scaleMode: "FIT_PAGE_WIDTH",
-                    viewMode: "PRINT_PREVIEW",//'INTERACTIVE',
-                    printMode: "AUTO_SELECT",
-                    error: function () {
-                        notify('Something went Wrong', 'warning');
-                    },
-                    ready: function () {
-                        //this.refreshReport();
-                    }
-                });
-        }, 2500);
+        $('#cbAsPerDate').bind('change', refreshViewer);
     });
 </script>
