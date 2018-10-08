@@ -13,11 +13,11 @@
     <div class="row">
         <label class="col-md-1">From </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillFromDate").Value(DateTime.Today.AddYears(-2)).Events(e => e.Change("refreshViewer")).Deferred()
+            @Html.Kendo().DatePicker().Name("dpBillFromDate").Max(DateTime.Now).Value(DateTime.Today.AddYears(-2)).Events(e => e.Change("refreshViewer")).Deferred()
         </div>
         <label class="col-md-1">To </label>
         <div class="col-md-2">
-            @Html.Kendo().DatePicker().Name("dpBillToDate").Value(DateTime.Today).Max(DateTime.Now).Events(e => e.Change("refreshViewer")).Deferred()
+            @Html.Kendo().DatePicker().Name("dpBillToDate").Max(DateTime.Now).Value(DateTime.Today).Max(DateTime.Now).Events(e => e.Change("refreshViewer")).Deferred()
         </div>
         <label class="col-md-1">Area </label>
         <div class="col-md-5">

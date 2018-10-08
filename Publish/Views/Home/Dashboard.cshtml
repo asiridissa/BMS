@@ -1,4 +1,5 @@
 ﻿@using BMS.Entity
+@using BMS.Entity.BMSMaster
 @using BMS.Entity.BMSTenant
 
 @{
@@ -6,62 +7,72 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script src="~/Content/highcharts/highcharts.js"></script>
+<script src="~/Content/highcharts/highcharts-more.js"></script>
 <script src="~/Content/highcharts/modules/exporting.js"></script>
+<script src="~/Scripts/jquery.animateNumber.min.js"></script>
 
 <div class="">
     <label>From </label>
-    @Html.Kendo().DatePicker().Name("dtFrom").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).Events(e => e.Change("refreshDashboard"))
+    @Html.Kendo().DatePicker().Name("dtFrom").Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)).Events(e => e.Change("refreshDashboard")).Max(DateTime.Today)
     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <label>To </label>
-    @Html.Kendo().DatePicker().Name("dtTo").Value(DateTime.Now).Events(e => e.Change("refreshDashboard"))
+    @Html.Kendo().DatePicker().Name("dtTo").Value(DateTime.Now).Events(e => e.Change("refreshDashboard")).Max(DateTime.Today)
 </div>
 <div class="container-fluid">
     <div class="row">
-        <div id="col1" class="col-md-6">
-            <div class="dashboard-widjet">
-                <div id="Sales-amount"></div>
-            </div>
+        <div class="col-md-12">
+            <div class="dashboard-widjet" id="Accum-amounts"><center><i class="fas fa-cog faa-spin animated"></i> Working...</center></div>
+        </div>
+        <div class="col-md-12">
             <div id="Cheques" class="dashboard-widjet">
                 <h4>Pending Cheques</h4>
                 @(Html.Kendo().Grid<sp_ChequeDashboard_Result>()
-                      .Name("gCheques")
-                      .Columns(c =>
-                      {
-                          c.Bound(x => x.Number).ClientTemplate("#if(Status=='late'){#" +
-                                                                "<i class='fa fa-exclamation-triangle blink_me red left-float' title='Late'></i>" +
-                                                                "#}else if(Status=='today'){#" +
-                                                                "<i class='fa fa-bell-o faa-ring animated orange left-float' title='Today'></i>" +
-                                                                "#}#" +
-                                                                "#=Number#").HtmlAttributes(new {@class = "number"});
-                          c.Bound(x => x.ChequeDate).Format("{0:d}").HtmlAttributes(new {@class = "number"});
-                          c.Bound(x => x.Amount).Format("{0:N2}").HtmlAttributes(new {@class = "number"});
-                          c.Bound(x => x.Bank);
-                          c.Bound(x => x.Branch);
-                          c.Bound(x => x.Customer);
-                      })
-                      .DataSource(s =>
-                      {
-                          s.WebApi()
-                              .ServerOperation(false)
-                              .PageSize(10)
-                              .Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new {controller = "Dashboards", action = "GetChequeDashboard"})));
-                      })
-                      .Pageable(p => p.Refresh(true))
-                      )
+                                                      .Name("gCheques")
+                                                      .Columns(c =>
+                                                      {
+                                                          c.Bound(x => x.Number).ClientTemplate("#if(Status=='late'){#" +
+                                                                                                "<i class='fa fa-exclamation-triangle blink_me red left-float' title='Late'></i>" +
+                                                                                                "#}else if(Status=='today'){#" +
+                                                                                                "<i class='fa fa-bell-o faa-ring animated orange left-float' title='Today'></i>" +
+                                                                                                "#}#" +
+                                                                                                "&nbsp;#=Number#").HtmlAttributes(new { @class = "number" });
+                                                          c.Bound(x => x.ChequeDate).Format("{0:d}").Title("Date").HtmlAttributes(new { @class = "number" });
+                                                          c.Bound(x => x.Amount).Format("{0:N2}").HtmlAttributes(new { @class = "number" });
+                                                          c.Bound(x => x.Bank);
+                                                          c.Bound(x => x.Branch);
+                                                          c.Bound(x => x.Customer);
+                                                      })
+                              .Filterable()
+                                                      .DataSource(s =>
+                                                      {
+                                                          s.WebApi()
+                                                              .ServerOperation(false)
+                                                              .PageSize(10)
+                                                              .Read(r => r.Url(Url.HttpRouteUrl("ActionApi", new { controller = "Dashboards", action = "GetChequeDashboard" })));
+                                                      })
+                                                      .Pageable(p => p.Refresh(true).PageSizes(new[] { 10, 20, 50, 100 }))
+                )
             </div>
-            <div id="Wasted-qty" class="dashboard-widjet"></div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="dashboard-widjet">
+                <div id="Sales-amount"><center><i class="fas fa-cog faa-spin animated"></i> Working...</center></div>
+            </div>
+            <div id="Wasted-qty" class="dashboard-widjet"><center><i class="fas fa-cog faa-spin animated"></i> Working...</center></div>
         </div>
         <div id="col2" class="col-md-6">
-            <div id="Sales-qty" class="dashboard-widjet"></div>
-            <div id="SalesDetails-amount" class="dashboard-widjet"></div>
+            <div id="Sales-qty" class="dashboard-widjet"><center><i class="fas fa-cog faa-spin animated"></i> Working...</center></div>
+            <div id="SalesDetails-amount" class="dashboard-widjet"><center><i class="fas fa-cog faa-spin animated"></i> Working...</center></div>
         </div>
     </div>
 </div>
 
 <script>
     var date1, date2, day, between, series = [];
-    
+
     var refreshDashboard = function () {
+        working();
         $.ajax({
             url: '@Url.HttpRouteUrl("ActionApi", new {controller="Dashboards", action="GetSalesDashboard"})?from='
                 + $('#dtFrom').val()
@@ -73,6 +84,7 @@
             success: function (data) {
                 generateSeies(data);
                 renderCharts(data);
+                working(false);
             }
         });
     };
@@ -88,6 +100,7 @@
             between.push(date1.toLocaleDateString());
             date1 = new Date(date1.setDate(++day));
         }
+        between.push(date2.toLocaleDateString());
         between.shift();
 
         //Create Series
@@ -101,10 +114,16 @@
         series.push({ name: "Expire", data: [], color: 'rgb(255, 188, 117)' });
         series.push({ name: "Collection", data: [], color: 'rgb(144, 237, 125)' });
         series.push({ name: "Deduction", data: [], color: 'rgb(124, 181, 236)' });
+        series.push({ name: "Sales", data: []});
+        series.push({ name: "Free Issue", data: []});
+        series.push({ name: "Expire", data: []});
+        series.push({ name: "Damage", data: []});
+        series.push({ name: "Good Return", data: []});
 
-        var sumSales = 0, sumPaid = 0, sumSalesQty = 0, sumFree = 0, sumCollection = 0, sumDeduction=0;
+        var sumSales = 0, sumPaid = 0, sumSalesQty = 0, sumFree = 0, sumCollection = 0, sumDeduction=0, sumExpire = 0, sumDamage = 0, sumGR =0;
         $.each(categories,
             function (i, e) {
+                between[i] = kendo.toString(new Date(e), "MMM dd");
                 var valSales = 0;
                 var valPaid = 0;
                 var valCollection = 0;
@@ -113,6 +132,7 @@
                 var valFree = 0;
                 var valExpire = 0;
                 var valDamage = 0;
+                var valGR = 0;
                 $.each(data,
                     function (i1, e1) {
                         var match = new Date(e1.BillingDate).getDate() === new Date(e).getDate() &&
@@ -127,6 +147,7 @@
                             valFree = e1.Free;
                             valExpire = e1.Expire;
                             valDamage = e1.Damage;
+                            valGR = e1.valGR;
                         }
                     });
                 series[0].data.push(valSales);
@@ -140,7 +161,15 @@
                 sumSales += valSales;
                 sumPaid += valPaid;
                 sumSalesQty += valSaleQty;
+                series[8].data.push(sumSalesQty);
                 sumFree += valFree;
+                series[9].data.push(sumFree);
+                sumExpire += valExpire;
+                series[10].data.push(sumExpire);
+                sumDamage += valDamage;
+                series[11].data.push(sumDamage);
+                sumGR += valGR;
+                series[12].data.push(sumGR);
                 sumCollection += valCollection;
                 sumDeduction += valDiduction;
             });
@@ -178,10 +207,22 @@
             dataLabels: { enabled: false },
             tooltip: { pointFormat: '{point.y:.2f} / {point.percentage:.1f} %', headerFormat: '<b>{point.key}</b><br/>' }
         });
-        console.log(categories,series);
+
+
+        console.log(categories, between, series);
     }
 
     var renderCharts = function (data) {
+        Highcharts.chart('Accum-amounts', {
+            chart: { type: 'line', zoomType: 'xy', panning: true, panKey: 'shift' },
+            title: { text: 'Amounts Accumulative' },
+            xAxis: { categories: between },
+            yAxis: { title: { text: 'Amount (Rs)' } },
+            tooltip: { shared: true, pointFormat: '{series.name}: <b>{point.y:,.2f}</b><br/>' },
+            data: data,
+            series: [series[8], series[9], series[10], series[11], series[12]]
+        });
+
         Highcharts.chart('Sales-amount', {
             chart: { type: 'area', zoomType: 'xy', panning: true, panKey: 'shift' },
             title: { text: 'Sales' },
@@ -190,7 +231,7 @@
             yAxis: { title: { text: 'Amount (Rs)' } },
             tooltip: { shared: true, pointFormat: '{series.name}: <b>{point.y:.2f}</b><br/>' },
             data: data,
-            series: [series[0], series[1], series[8]]
+            series: [series[0], series[1], series[13]]
         });
 
         Highcharts.chart('Sales-qty', {
@@ -201,7 +242,7 @@
             yAxis: { title: { text: 'Quanty (Pieces)' } },
             tooltip: { shared: true },
             data: data,
-            series: [series[2], series[3],series[9]]
+            series: [series[2], series[3],series[14]]
         });
 
         Highcharts.chart('SalesDetails-amount', {
@@ -212,7 +253,7 @@
             yAxis: { title: { text: 'Amount (Rs)' } },
             tooltip: { shared: true, pointFormat: '{series.name}: <b>{point.y:.2f}</b><br/>' },
             data: data,
-            series: [series[6], series[7], series[10]]
+            series: [series[6], series[7], series[15]]
         });
 
         Highcharts.chart('Wasted-qty', {
@@ -226,6 +267,18 @@
             series: [series[5],series[4]]
         });
     };
+
+    var countTo = function (id, value, miliSeconds) {
+        var step = value / miliSeconds;
+        var left = millisecond;
+        var int = setInterval(function () {
+            $(id).html(step + step);
+            if (left <= 0) {
+                $(id).html(value);
+                clearInterval(int);
+            }
+        }, 1);
+    }
 
     $(document).ready(function () {
         Highcharts.setOptions({
